@@ -39,6 +39,7 @@ export const login = async (req, res) => {
       message: "Usuário logado com sucesso",
       name: user.name,
       role: user.role,
+      token,
     });
   } catch (error) {
     res.status(500).json({ status: false, message: "Erro no login" });
