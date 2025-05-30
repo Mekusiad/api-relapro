@@ -4,7 +4,7 @@ import { PrismaClient } from "../generated/prisma/index.js";
 
 const prisma = new PrismaClient();
 
-export const register = async () => {
+export const register = async (req, res) => {
   const { name, username, password, role } = req.body;
 
   try {
