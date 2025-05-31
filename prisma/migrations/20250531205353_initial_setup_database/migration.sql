@@ -1,14 +1,16 @@
 -- CreateTable
-CREATE TABLE "User" (
+CREATE TABLE "Employee" (
     "id" SERIAL NOT NULL,
     "name" TEXT NOT NULL,
     "username" TEXT NOT NULL,
+    "employeeRole" TEXT NOT NULL,
+    "hireDate" TIMESTAMP(3) NOT NULL,
     "password" TEXT NOT NULL,
     "role" TEXT NOT NULL,
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMP(3) NOT NULL,
 
-    CONSTRAINT "User_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "Employee_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -35,7 +37,7 @@ CREATE TABLE "Activity" (
     "material" TEXT NOT NULL,
     "dateHour" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "orderId" INTEGER NOT NULL,
-    "userId" INTEGER NOT NULL,
+    "employeeId" INTEGER NOT NULL,
 
     CONSTRAINT "Activity_pkey" PRIMARY KEY ("id")
 );
@@ -51,19 +53,19 @@ CREATE TABLE "Photo" (
 );
 
 -- CreateIndex
-CREATE UNIQUE INDEX "User_username_key" ON "User"("username");
+CREATE UNIQUE INDEX "Employee_username_key" ON "Employee"("username");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Order_numberOs_key" ON "Order"("numberOs");
 
 -- AddForeignKey
-ALTER TABLE "Order" ADD CONSTRAINT "Order_responsibleTechnicianId_fkey" FOREIGN KEY ("responsibleTechnicianId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "Order" ADD CONSTRAINT "Order_responsibleTechnicianId_fkey" FOREIGN KEY ("responsibleTechnicianId") REFERENCES "Employee"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Activity" ADD CONSTRAINT "Activity_orderId_fkey" FOREIGN KEY ("orderId") REFERENCES "Order"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Activity" ADD CONSTRAINT "Activity_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "Activity" ADD CONSTRAINT "Activity_employeeId_fkey" FOREIGN KEY ("employeeId") REFERENCES "Employee"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Photo" ADD CONSTRAINT "Photo_orderId_fkey" FOREIGN KEY ("orderId") REFERENCES "Order"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
