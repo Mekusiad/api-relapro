@@ -12,9 +12,11 @@ export const login = async (req, res) => {
   const { username, password } = req.body;
 
   try {
-    const user = await prisma.user.findUnique({ where: { username } });
+    const usernameExist = await prisma.employee.findUnique({
+      where: { username },
+    });
 
-    if (!user)
+    if (!usernameExist)
       return res
         .status(401)
         .json({ status: false, message: "Usuário não encontrado" });
