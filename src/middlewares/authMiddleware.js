@@ -1,4 +1,4 @@
-import jwt, { verify } from "jsonwebtoken";
+import jwt from "jsonwebtoken";
 
 export const verifyToken = (req, res, next) => {
   const token = req.headers["authorization"];
@@ -15,7 +15,7 @@ export const verifyToken = (req, res, next) => {
           .status(401)
           .json({ status: false, message: "Token inválido" });
 
-      req.user = decoded;
+      req.employee = decoded;
       next();
     }
   );

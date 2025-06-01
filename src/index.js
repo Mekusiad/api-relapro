@@ -1,10 +1,11 @@
 import dotenv from "dotenv";
 import express from "express";
 import cors from "cors";
-import { userRouter } from "./routes/userRoutes.js";
+import { employeeRouter } from "./routes/employeeRoutes.js";
 import { authRouter } from "./routes/authRoutes.js";
 
 import { PrismaClient } from "./generated/prisma/index.js";
+import { verifyToken } from "./middlewares/authMiddleware.js";
 
 dotenv.config();
 
@@ -17,9 +18,9 @@ app.use(express.json());
 app.use("uploads", express.static("src/uploads"));
 
 app.use("/api/auth", authRouter);
-app.use("/api/user", userRouter);
+app.use("/api/employee", employeeRouter);
+app.use("/api/order", verifyToken);
 app.get("/", (req, res) => res.json("API rodando"));
-// app.use("/api/order", orderRoutes);
 
 const PORT = process.env.PORT || 3000;
 

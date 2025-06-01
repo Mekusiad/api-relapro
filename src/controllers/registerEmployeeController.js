@@ -1,5 +1,3 @@
-import bcrypt from "bcrypt";
-
 import { PrismaClient } from "../generated/prisma/index.js";
 
 const prisma = new PrismaClient();
@@ -18,24 +16,23 @@ export const register = async (req, res) => {
     });
 
   try {
-    const hash = await bcrypt.hash(password, 10);
-    const user = await prisma.employee.create({
+    const employee = await prisma.employee.create({
       data: {
         name,
         username,
         employeeRole,
         hireDate,
-        password: hash,
+        password,
         role: role || "technician",
       },
     });
 
     res.status(201).json({
       status: true,
-      id: user.id,
-      name: user.name,
-      username: user.username,
-      role: user.role,
+      id: employee.id,
+      name: employee.name,
+      username: employee.username,
+      role: employee.role,
     });
   } catch (error) {
     res

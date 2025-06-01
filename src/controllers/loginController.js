@@ -21,7 +21,7 @@ export const login = async (req, res) => {
         .status(401)
         .json({ status: false, message: "Usuário não encontrado" });
 
-    const isValid = await bcrypt.compare(password, user.password);
+    const isValid = await bcrypt.compare(password, employee.password);
     if (!isValid)
       return res
         .status(401)
@@ -29,8 +29,8 @@ export const login = async (req, res) => {
 
     const token = jwt.sign(
       {
-        userId: user.id,
-        role: user.role,
+        employeeId: employee.id,
+        role: employee.role,
       },
       process.env.JWT_SECRET,
       { expiresIn: "2m" }
@@ -39,8 +39,8 @@ export const login = async (req, res) => {
     res.status(200).json({
       status: true,
       message: "Usuário logado com sucesso",
-      name: user.name,
-      role: user.role,
+      name: employee.name,
+      role: employee.role,
       token,
     });
   } catch (error) {
