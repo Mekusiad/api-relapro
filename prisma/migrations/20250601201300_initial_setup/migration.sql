@@ -2,6 +2,7 @@
 CREATE TABLE "Employee" (
     "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
     "name" TEXT NOT NULL,
+    "registration" INTEGER NOT NULL,
     "username" TEXT NOT NULL,
     "employeeRole" TEXT NOT NULL,
     "hireDate" DATETIME NOT NULL,
@@ -26,8 +27,8 @@ CREATE TABLE "Order" (
     "finishDate" DATETIME,
     "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" DATETIME NOT NULL,
-    "responsibleTechnicianId" INTEGER NOT NULL,
-    CONSTRAINT "Order_responsibleTechnicianId_fkey" FOREIGN KEY ("responsibleTechnicianId") REFERENCES "Employee" ("id") ON DELETE RESTRICT ON UPDATE CASCADE
+    "supervisorRegistration" INTEGER NOT NULL,
+    CONSTRAINT "Order_supervisorRegistration_fkey" FOREIGN KEY ("supervisorRegistration") REFERENCES "Employee" ("registration") ON DELETE RESTRICT ON UPDATE CASCADE
 );
 
 -- CreateTable
@@ -72,7 +73,9 @@ CREATE TABLE "HighTransformer" (
     "tensionBt" REAL NOT NULL,
     "volumeIsulationOil" REAL NOT NULL,
     "testTemperature" REAL NOT NULL,
-    "relativeHumidity" REAL NOT NULL
+    "relativeHumidity" REAL NOT NULL,
+    "orderId" INTEGER NOT NULL,
+    CONSTRAINT "HighTransformer_orderId_fkey" FOREIGN KEY ("orderId") REFERENCES "Order" ("id") ON DELETE RESTRICT ON UPDATE CASCADE
 );
 
 -- CreateTable
@@ -133,10 +136,11 @@ CREATE TABLE "StrengthTransformer" (
     "serialNumber" TEXT NOT NULL,
     "insulatingMedium" TEXT NOT NULL,
     "yearManufacture" INTEGER NOT NULL,
-    "totalMass" TEXT NOT NULL,
+    "totalMass" REAL NOT NULL,
     "power" TEXT NOT NULL,
-    "voltage" TEXT NOT NULL,
+    "connectionTypeAt" TEXT NOT NULL,
     "highTension" REAL NOT NULL,
+    "connectionTypeBt" TEXT NOT NULL,
     "lowTension" REAL NOT NULL,
     "volumeIsulationOil" REAL NOT NULL,
     "testTemperature" REAL NOT NULL,
@@ -215,7 +219,9 @@ CREATE TABLE "GroundingMesh" (
     "service1" BOOLEAN NOT NULL,
     "service2" BOOLEAN NOT NULL,
     "observations" TEXT NOT NULL,
-    "yearManufacture" INTEGER NOT NULL
+    "yearManufacture" INTEGER NOT NULL,
+    "orderId" INTEGER NOT NULL,
+    CONSTRAINT "GroundingMesh_orderId_fkey" FOREIGN KEY ("orderId") REFERENCES "Order" ("id") ON DELETE RESTRICT ON UPDATE CASCADE
 );
 
 -- CreateTable
@@ -236,7 +242,9 @@ CREATE TABLE "GroundingResistor" (
     "totalMass" INTEGER NOT NULL,
     "ohmicResistanceMeasurement" REAL NOT NULL,
     "insulationResistance" INTEGER NOT NULL,
-    "observation" TEXT NOT NULL
+    "observation" TEXT NOT NULL,
+    "orderId" INTEGER NOT NULL,
+    CONSTRAINT "GroundingResistor_orderId_fkey" FOREIGN KEY ("orderId") REFERENCES "Order" ("id") ON DELETE RESTRICT ON UPDATE CASCADE
 );
 
 -- CreateTable
@@ -259,7 +267,9 @@ CREATE TABLE "DisconnectorSwitch" (
     "insulationResistanceA" REAL NOT NULL,
     "insulationResistanceB" REAL NOT NULL,
     "insulationResistanceC" REAL NOT NULL,
-    "observation" TEXT NOT NULL
+    "observation" TEXT NOT NULL,
+    "orderId" INTEGER NOT NULL,
+    CONSTRAINT "DisconnectorSwitch_orderId_fkey" FOREIGN KEY ("orderId") REFERENCES "Order" ("id") ON DELETE RESTRICT ON UPDATE CASCADE
 );
 
 -- CreateTable
@@ -269,19 +279,34 @@ CREATE TABLE "Equipment" (
     "description" TEXT NOT NULL,
     "model" TEXT NOT NULL,
     "serialNumber" TEXT NOT NULL,
+    "highTransformerId" INTEGER NOT NULL,
+    "potentialTransformerId" INTEGER NOT NULL,
+    "strengthTransformerId" INTEGER NOT NULL,
+    "currentTransformerId" INTEGER NOT NULL,
+    "circuitBreakerId" INTEGER NOT NULL,
     "groundingMeshId" INTEGER NOT NULL,
     "groundingResistorId" INTEGER NOT NULL,
     "disconnectorSwitchId" INTEGER NOT NULL,
-    "currentTransformerId" INTEGER NOT NULL,
-    "circuitBreakerId" INTEGER NOT NULL,
-    "potentialTransformerId" INTEGER NOT NULL,
-    CONSTRAINT "Equipment_groundingMeshId_fkey" FOREIGN KEY ("groundingMeshId") REFERENCES "GroundingMesh" ("id") ON DELETE RESTRICT ON UPDATE CASCADE,
-    CONSTRAINT "Equipment_groundingResistorId_fkey" FOREIGN KEY ("groundingResistorId") REFERENCES "GroundingResistor" ("id") ON DELETE RESTRICT ON UPDATE CASCADE,
-    CONSTRAINT "Equipment_disconnectorSwitchId_fkey" FOREIGN KEY ("disconnectorSwitchId") REFERENCES "DisconnectorSwitch" ("id") ON DELETE RESTRICT ON UPDATE CASCADE,
+    CONSTRAINT "Equipment_groundingMeshId_fkey" FOREIGN KEY ("groundingMeshId") REFERENCES "HighTransformer" ("id") ON DELETE RESTRICT ON UPDATE CASCADE,
+    CONSTRAINT "Equipment_potentialTransformerId_fkey" FOREIGN KEY ("potentialTransformerId") REFERENCES "PotentialTransformer" ("id") ON DELETE RESTRICT ON UPDATE CASCADE,
+    CONSTRAINT "Equipment_disconnectorSwitchId_fkey" FOREIGN KEY ("disconnectorSwitchId") REFERENCES "StrengthTransformer" ("id") ON DELETE RESTRICT ON UPDATE CASCADE,
     CONSTRAINT "Equipment_currentTransformerId_fkey" FOREIGN KEY ("currentTransformerId") REFERENCES "CurrentTransformer" ("id") ON DELETE RESTRICT ON UPDATE CASCADE,
     CONSTRAINT "Equipment_circuitBreakerId_fkey" FOREIGN KEY ("circuitBreakerId") REFERENCES "CircuitBreaker" ("id") ON DELETE RESTRICT ON UPDATE CASCADE,
-    CONSTRAINT "Equipment_potentialTransformerId_fkey" FOREIGN KEY ("potentialTransformerId") REFERENCES "PotentialTransformer" ("id") ON DELETE RESTRICT ON UPDATE CASCADE
+    CONSTRAINT "Equipment_groundingMeshId_fkey" FOREIGN KEY ("groundingMeshId") REFERENCES "GroundingMesh" ("id") ON DELETE RESTRICT ON UPDATE CASCADE,
+    CONSTRAINT "Equipment_groundingResistorId_fkey" FOREIGN KEY ("groundingResistorId") REFERENCES "GroundingResistor" ("id") ON DELETE RESTRICT ON UPDATE CASCADE,
+    CONSTRAINT "Equipment_disconnectorSwitchId_fkey" FOREIGN KEY ("disconnectorSwitchId") REFERENCES "DisconnectorSwitch" ("id") ON DELETE RESTRICT ON UPDATE CASCADE
 );
+
+-- CreateTable
+CREATE TABLE "_TechnicianOrders" (
+    "A" INTEGER NOT NULL,
+    "B" INTEGER NOT NULL,
+    CONSTRAINT "_TechnicianOrders_A_fkey" FOREIGN KEY ("A") REFERENCES "Employee" ("id") ON DELETE CASCADE ON UPDATE CASCADE,
+    CONSTRAINT "_TechnicianOrders_B_fkey" FOREIGN KEY ("B") REFERENCES "Order" ("id") ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Employee_registration_key" ON "Employee"("registration");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Employee_username_key" ON "Employee"("username");
@@ -312,3 +337,9 @@ CREATE UNIQUE INDEX "DisconnectorSwitch_serialNumber_key" ON "DisconnectorSwitch
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Equipment_serialNumber_key" ON "Equipment"("serialNumber");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "_TechnicianOrders_AB_unique" ON "_TechnicianOrders"("A", "B");
+
+-- CreateIndex
+CREATE INDEX "_TechnicianOrders_B_index" ON "_TechnicianOrders"("B");

@@ -20,17 +20,19 @@ datasource db {
 }
 
 model Employee {
-  id           Int        @id @default(autoincrement())
-  name         String
-  username     String     @unique
-  employeeRole String
-  hireDate     DateTime
-  password     String
-  accessLevel  String // técnico, supervisor, admin
-  orders       Order[]    @relation("Responsible")
-  activity     Activity[]
-  created_at   DateTime   @default(now())
-  updated_at   DateTime   @updatedAt
+  id               Int        @id @default(autoincrement())
+  name             String
+  registration     Int        @unique
+  username         String     @unique
+  employeeRole     String
+  hireDate         DateTime
+  password         String
+  accessLevel      String // técnico, supervisor, admin
+  supervisedOrders Order[]    @relation("SupervisorOrders")
+  assignedOrders   Order[]    @relation("TechnicianOrders")
+  activity         Activity[]
+  created_at       DateTime   @default(now())
+  updated_at       DateTime   @updatedAt
 }
 
 model Order {
@@ -48,8 +50,12 @@ model Order {
   createdAt           DateTime  @default(now())
   updatedAt           DateTime  @updatedAt
 
-  responsibleTechnician   Employee @relation("Responsible", fields: [responsibleTechnicianId], references: [id])
-  responsibleTechnicianId Int
+  // Supervisor: apenas um
+  supervisor             Employee @relation("SupervisorOrders", fields: [supervisorRegistration], references: [registration])
+  supervisorRegistration Int
+
+  // Técnicos: vários
+  technicians Employee[] @relation("TechnicianOrders")
 
   circuitBreaker CircuitBreaker[]
   activity       Activity[]
@@ -181,8 +187,9 @@ model StrengthTransformer {
   yearManufacture    Int
   totalMass          Float
   power              String
-  voltage            String
+  connectionTypeAt   String
   highTension        Float
+  connectionTypeBt   String
   lowTension         Float
   volumeIsulationOil Float
   testTemperature    Float
