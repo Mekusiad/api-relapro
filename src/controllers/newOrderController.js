@@ -11,17 +11,33 @@ export const newOrder = async (req, res) => {
     localService,
     initialDescription,
     previousInitialDate,
-    responsibleTechnicianId,
+    supervisorRegistration,
+    techniciansRegistration,
     acessLevel,
   } = req.body;
 
-  if (acessLevel === "técnico")
-    return res.status(403).json({
-      status: false,
-      message: "Usuário não autorizado a criar chamado.",
+  try {
+    const osExist = await prisma.order.findFirst({
+      where: {
+        client,
+        localService,
+        previousInitialDate,
+        initialDescription,
+      },
     });
 
-  try {
+    if (osExist)
+      return res.status(409).json({
+        status: false,
+        message: `Já existe uma ordem de serviço com os mesmos dados: ${osExist.numberOs}`,
+      });
+
+    if (acessLevel === "técnico")
+      return res.status(403).json({
+        status: false,
+        message: "Usuário não autorizado a criar chamado.",
+      });
+
     const now = new Date();
 
     const ano = now.getFullYear(); // ano vigente
@@ -45,7 +61,6 @@ export const newOrder = async (req, res) => {
     });
 
     const numeroSequencial = String(countMes + 1).padStart(3, "0"); // gera o próximo n° disponível do mês
-
     const numberOs = `${prefixo}${numeroSequencial}`; // cocatena com ano+mês+n°disponível do mês
     const novaOS = await prisma.order.create({
       data: {
@@ -56,12 +71,32 @@ export const newOrder = async (req, res) => {
         email,
         localService,
         initialDescription,
-        previousInitialDate,
-        responsibleTechnicianId,
+        previousInitialDate: new Date(previousInitialDate),
+        supervisor: {
+          connect: { registration: supervisorRegistration },
+        },
+        technicians: {
+          connect: techniciansRegistration.map((registration) => ({
+            registration,
+          })),
+        },
         status: "aberta",
       },
+      include: {
+        supervisor: {
+          select: {
+            name: true,
+            registration: true,
+          },
+        },
+        technicians: {
+          select: {
+            name: true,
+            registration: true,
+          },
+        },
+      },
     });
-
     res.status(201).json(novaOS);
   } catch (err) {
     console.log(err);

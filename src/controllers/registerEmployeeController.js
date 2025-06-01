@@ -3,8 +3,15 @@ import { PrismaClient } from "../generated/prisma/index.js";
 const prisma = new PrismaClient();
 
 export const register = async (req, res) => {
-  const { name, username, employeeRole, hireDate, password, accessLevel } =
-    req.body;
+  const {
+    name,
+    username,
+    registration,
+    employeeRole,
+    hireDate,
+    password,
+    accessLevel,
+  } = req.body;
 
   const usernameExist = await prisma.employee.findUnique({
     where: { username },
@@ -16,11 +23,22 @@ export const register = async (req, res) => {
       message: "Nome de usuário existente, tente outro.",
     });
 
+  const registrationExist = await prisma.employee.findUnique({
+    where: { registration },
+  });
+
+  if (registrationExist)
+    return res.status(401).json({
+      status: false,
+      message: "Matrícula existente, tente outro.",
+    });
+
   try {
     const employee = await prisma.employee.create({
       data: {
         name,
         username,
+        registration,
         employeeRole,
         hireDate,
         password,
