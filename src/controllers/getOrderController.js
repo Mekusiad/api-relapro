@@ -10,6 +10,14 @@ export const getOrderController = async (req, res) => {
     include: {
       supervisor: { select: { name: true, registration: true } },
       technicians: { select: { name: true, registration: true } },
+      highTransformer: true,
+      strengthTransformer: true,
+      potencialTransformer: true,
+      currentTransformer: true,
+      circuitBreaker: true,
+      disconnectorSwitch: true,
+      groundingMesh: true,
+      groundingResistor: true,
     },
   });
 
