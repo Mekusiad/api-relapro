@@ -1,5 +1,4 @@
 import dotenv from "dotenv";
-import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 
 import { PrismaClient } from "../generated/prisma/index.js";
@@ -12,35 +11,34 @@ export const login = async (req, res) => {
   const { username, password } = req.body;
 
   try {
-    const usernameExist = await prisma.employee.findUnique({
+    const employeeExist = await prisma.employee.findUnique({
       where: { username },
     });
 
-    if (!usernameExist)
+    if (!employeeExist)
       return res
         .status(401)
-        .json({ status: false, message: "Usuário não encontrado" });
+        .json({ status: false, message: "Funcionário não encontrado" });
 
-    const isValid = await bcrypt.compare(password, employee.password);
-    if (!isValid)
+    if (password !== employeeExist.password)
       return res
         .status(401)
         .json({ status: false, message: "Senha incorreta" });
 
     const token = jwt.sign(
       {
-        employeeId: employee.id,
-        role: employee.role,
+        employeeId: employeeExist.id,
+        role: employeeExist.role,
       },
       process.env.JWT_SECRET,
-      { expiresIn: "2m" }
+      { expiresIn: "1d" }
     );
 
     res.status(200).json({
       status: true,
       message: "Usuário logado com sucesso",
-      name: employee.name,
-      role: employee.role,
+      name: employeeExist.name,
+      role: employeeExist.role,
       token,
     });
   } catch (error) {
