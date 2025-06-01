@@ -12,11 +12,10 @@ export const newOrder = async (req, res) => {
     initialDescription,
     previousInitialDate,
     responsibleTechnicianId,
+    acessLevel,
   } = req.body;
 
-  const typeEmployeeLogged = req.employee.role;
-
-  if (typeEmployeeLogged === "technician")
+  if (acessLevel === "técnico")
     return res.status(403).json({
       status: false,
       message: "Usuário não autorizado a criar chamado.",
