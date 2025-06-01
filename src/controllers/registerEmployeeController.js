@@ -3,7 +3,8 @@ import { PrismaClient } from "../generated/prisma/index.js";
 const prisma = new PrismaClient();
 
 export const register = async (req, res) => {
-  const { name, username, employeeRole, hireDate, password, role } = req.body;
+  const { name, username, employeeRole, hireDate, password, accessLevel } =
+    req.body;
 
   const usernameExist = await prisma.employee.findUnique({
     where: { username },
@@ -23,7 +24,7 @@ export const register = async (req, res) => {
         employeeRole,
         hireDate,
         password,
-        role: role || "technician",
+        accessLevel: accessLevel || "técnico",
       },
     });
 
@@ -32,7 +33,7 @@ export const register = async (req, res) => {
       id: employee.id,
       name: employee.name,
       username: employee.username,
-      role: employee.role,
+      accessLevel: employee.accessLevel,
     });
   } catch (error) {
     res
