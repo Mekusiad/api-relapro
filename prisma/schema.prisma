@@ -55,9 +55,13 @@ model Order {
   activity       Activity[]
   photo          Photo[]
 
+  highTransformer      HighTransformer[]
   strengthTransformer  StrengthTransformer[]
   potencialTransformer PotentialTransformer[]
   currentTransformer   CurrentTransformer[]
+  groundingMesh        GroundingMesh[]
+  groundingResistor    GroundingResistor[]
+  disconnectorSwitch   DisconnectorSwitch[]
 }
 
 model Activity {
@@ -101,6 +105,11 @@ model HighTransformer {
   volumeIsulationOil Float
   testTemperature    Float
   relativeHumidity   Float
+
+  equipment Equipment[]
+
+  order   Order @relation(fields: [orderId], references: [id])
+  orderId Int
 }
 
 model PotentialTransformer {
@@ -178,6 +187,8 @@ model StrengthTransformer {
   volumeIsulationOil Float
   testTemperature    Float
   relativeHumidity   Float
+
+  equipment Equipment[]
 
   order   Order @relation(fields: [orderId], references: [id])
   orderId Int
@@ -261,6 +272,9 @@ model GroundingMesh {
   observations    String
   yearManufacture Int
 
+  order   Order @relation(fields: [orderId], references: [id])
+  orderId Int
+
   equipmentUsed Equipment[]
 }
 
@@ -282,6 +296,9 @@ model GroundingResistor {
   ohmicResistanceMeasurement Float
   insulationResistance       Int
   observation                String
+
+  order   Order @relation(fields: [orderId], references: [id])
+  orderId Int
 
   equipmentUsed Equipment[]
 }
@@ -308,6 +325,9 @@ model DisconnectorSwitch {
   observation           String
 
   equipmentUsed Equipment[]
+
+  order   Order @relation(fields: [orderId], references: [id])
+  orderId Int
 }
 
 model Equipment {
@@ -317,6 +337,21 @@ model Equipment {
   model        String
   serialNumber String @unique
 
+  highTransformer   HighTransformer @relation(fields: [groundingMeshId], references: [id])
+  highTransformerId Int
+
+  potentialTransformer   PotentialTransformer @relation(fields: [potentialTransformerId], references: [id])
+  potentialTransformerId Int
+
+  strengthTransformer   StrengthTransformer @relation(fields: [disconnectorSwitchId], references: [id])
+  strengthTransformerId Int
+
+  currentTransformer   CurrentTransformer @relation(fields: [currentTransformerId], references: [id])
+  currentTransformerId Int
+
+  circuitBreaker   CircuitBreaker @relation(fields: [circuitBreakerId], references: [id])
+  circuitBreakerId Int
+
   groundingMesh   GroundingMesh @relation(fields: [groundingMeshId], references: [id])
   groundingMeshId Int
 
@@ -325,13 +360,4 @@ model Equipment {
 
   disconnectorSwitch   DisconnectorSwitch @relation(fields: [disconnectorSwitchId], references: [id])
   disconnectorSwitchId Int
-
-  currentTransformer   CurrentTransformer @relation(fields: [currentTransformerId], references: [id])
-  currentTransformerId Int
-
-  circuitBreaker   CircuitBreaker @relation(fields: [circuitBreakerId], references: [id])
-  circuitBreakerId Int
-
-  potentialTransformer   PotentialTransformer @relation(fields: [potentialTransformerId], references: [id])
-  potentialTransformerId Int
 }

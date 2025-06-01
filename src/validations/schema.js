@@ -93,6 +93,8 @@ export const highTransformerSchema = z.object({
     .refine((val) => !isNaN(val), {
       message: "Umidade relativa deve estar entre 0 e 100",
     }),
+
+  orderId: z.number().int().positive(),
 });
 
 export const potentialTransformerSchema = z.object({
@@ -267,6 +269,8 @@ export const groundingMeshSchema = z.object({
   service2: z.enum(["Sim", "Não", "Não aplicável"]),
   observations: z.string().optional(),
   yearManufacture: z.number().int().gte(1900),
+
+  orderId: z.number().int().positive(),
 });
 
 export const groundingResistorSchema = z.object({
@@ -288,6 +292,8 @@ export const groundingResistorSchema = z.object({
   ohmicResistanceMeasurement: z.number(),
   insulationResistance: z.number().int().nonnegative(),
   observation: z.string().optional(),
+
+  orderId: z.number().int().positive(),
 });
 
 export const disconnectorSwitchSchema = z.object({
@@ -328,13 +334,15 @@ export const disconnectorSwitchSchema = z.object({
   insulationResistanceC: z.number(),
 
   observation: z.string().optional(),
+
+  orderId: z.number().int().positive(),
 });
 
 export const equipmentSchema = z.object({
-  name: z.string().min(1),
-  description: z.string().min(1),
-  model: z.string().min(1),
-  serialNumber: z.string().min(1),
+  name: z.string().min(1, "Nome do equipamento é obrigatório."),
+  description: z.string().min(1, "Descrição do equipamento é obrigatório."),
+  model: z.string().min(1, "Modelo é obrigatório"),
+  serialNumber: z.string().min(1, "O número de série é obrigatório."),
 
   groundingMeshId: z.number().int().positive(),
   groundingResistorId: z.number().int().positive(),
