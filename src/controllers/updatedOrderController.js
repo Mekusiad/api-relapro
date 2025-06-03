@@ -66,7 +66,7 @@ export const updatedOrderController = async (req, res) => {
         if (alreadyStregh)
           return res.status(400).json({
             status: false,
-            message: "Transformado já vinculado à OS.",
+            message: "Transformador já vinculado à OS.",
           });
 
         await prisma.strengthTransformer.create({
@@ -79,6 +79,13 @@ export const updatedOrderController = async (req, res) => {
         });
         break;
 
+      case "trafoCorrente":
+        console.log("Trafo de corrente.");
+        break;
+
+      case "trafoPotência":
+        console.log("Trafo de potência.");
+        break;
       default:
         return res.status(400).json({
           status: false,
