@@ -19,352 +19,335 @@ datasource db {
   url      = "file:./dev.db" // cria o banco local aqui
 }
 
-model Employee {
-  id               Int        @id @default(autoincrement())
-  name             String
-  registration     Int        @unique
-  username         String     @unique
-  employeeRole     String
-  hireDate         DateTime
-  password         String
-  accessLevel      String // técnico, supervisor, admin
-  supervisedOrders Order[]    @relation("SupervisorOrders")
-  assignedOrders   Order[]    @relation("TechnicianOrders")
-  activity         Activity[]
-  created_at       DateTime   @default(now())
-  updated_at       DateTime   @updatedAt
+model Funcionario {
+  id          Int      @id @default(autoincrement())
+  nome        String
+  matricula   Int      @unique
+  usuario     String   @unique
+  cargo       String
+  admissao    DateTime
+  senha       String
+  nivelAcesso String // técnico, supervisor, admin
+  supervisor  Ordem[]  @relation("SupervisorOrdem")
+  tecnico     Ordem[]  @relation("TecnicoOrdem")
+  // atividade         Atividade[]
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
 }
 
-model Order {
-  id                  Int       @id @default(autoincrement())
-  numberOs            String    @unique
-  client              String
-  contact             String
-  phone               String
-  email               String
-  localService        String
-  initialDescription  String
-  status              String // aberta, em_andamento, finalizada
-  previousInitialDate DateTime
-  finishDate          DateTime?
-  createdAt           DateTime  @default(now())
-  updatedAt           DateTime  @updatedAt
+model Ordem {
+  id               Int       @id @default(autoincrement())
+  numeroOs         String    @unique
+  cliente          String
+  nomeResponsavel  String
+  contato          String
+  email            String
+  localServico     String
+  descricaoInicial String
+  status           String // aberta, em_andamento, finalizada
+  previsaoInicio   DateTime
+  previsaoTermino  DateTime?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
 
   // Supervisor: apenas um
-  supervisor             Employee @relation("SupervisorOrders", fields: [supervisorRegistration], references: [registration])
-  supervisorRegistration Int
+  supervisor          Funcionario @relation("SupervisorOrdem", fields: [supervisorMatricula], references: [matricula])
+  supervisorMatricula Int
 
   // Técnicos: vários
-  technicians Employee[] @relation("TechnicianOrders")
+  tecnico Funcionario[] @relation("TecnicoOrdem")
 
-  circuitBreaker CircuitBreaker[]
-  activity       Activity[]
-  photo          Photo[]
+  disjuntor Disjuntor[]
+  // atividade      Atividade[]
 
-  highTransformer      HighTransformer[]
-  strengthTransformer  StrengthTransformer[]
-  potencialTransformer PotentialTransformer[]
-  currentTransformer   CurrentTransformer[]
-  groundingMesh        GroundingMesh[]
-  groundingResistor    GroundingResistor[]
-  disconnectorSwitch   DisconnectorSwitch[]
+  transformadorAlta     TransformadorAlta[]
+  transformadorForca    TransformadorForca[]
+  transformadorPotencia TransformadorPotencia[]
+  transformadorCorrente TransformadorCorrente[]
+  malhaAterramento      MalhaAterramento[]
+  groundingResistor     ResistorAterramento[]
+  disconnectorSwitch    ChaveSeccionadora[]
 }
 
-model Activity {
-  id          Int      @id @default(autoincrement())
-  description String
-  material    String
-  dateHour    DateTime @default(now())
-  order       Order    @relation(fields: [orderId], references: [id])
-  orderId     Int
-  employee    Employee @relation(fields: [employeeId], references: [id])
-  employeeId  Int
-}
-
-model Photo {
-  id      Int    @id @default(autoincrement())
-  url     String
-  type    String // antes, depois, geral
-  order   Order  @relation(fields: [orderId], references: [id])
-  orderId Int
-
-  potentialTransformer   PotentialTransformer @relation(fields: [potentialTransformerId], references: [id])
-  potentialTransformerId Int
-}
-
-model HighTransformer {
+model TransformadorAlta {
   id                 Int    @id @default(autoincrement())
-  nameEquipment      String
-  client             String
-  location           String
-  type               String
-  manufacturer       String
-  serialNumber       String @unique
-  insulatingMedium   String
-  yearManufacture    Int
-  totalMass          Float
-  power              String
-  typeAt             String
-  tensionAt          Float
-  typeBt             String
-  tensionBt          Float
-  volumeIsulationOil Float
-  testTemperature    Float
-  relativeHumidity   Float
+  nomeEquipamento    String
+  cliente            String
+  local              String
+  tipo               String
+  fabricante         String
+  numeroSerie        String @unique
+  meioIsolante       String
+  anoFabricacao      Int
+  massaTotal         Float
+  potencia           String
+  tipoTensaoAt       String
+  tensaoAt           Float
+  tipoTensaoBt       String
+  tensaoBt           Float
+  volumeOleoIsolante Float
+  temperaturaEnsaio  Float
+  umidadeRelativaAr  Float
 
-  equipment Equipment[]
+  equipamento Equipamento[]
 
-  order   Order @relation(fields: [orderId], references: [id])
-  orderId Int
+  ordem   Ordem  @relation(fields: [orderOs], references: [numeroOs])
+  orderOs String
 }
 
-model PotentialTransformer {
-  id                 Int     @id @default(autoincrement())
-  nameEquipment      String
-  client             String
-  location           String
-  type               String
-  manufacturer       String
-  serialNumber       String  @unique
-  insulatingMedium   String
-  yearManufacture    Int
-  totalMass          Float
-  power              String
-  typeAt             String
-  tensionAt          Float
-  typeBt             String
-  tensionBt          Float
-  volumeIsulationOil Float
-  testTemperature    Float
-  relativeHumidity   Float
-  photo              Photo[]
-
-  tapComuAt String
-  tapComuBt String
-
-  relationCalculateAtBt Float
-  relationMeasure1      Float
-  relationMeasure2      Float
-  relationMeasure3      Float
-
-  ohmicResistanceWindingAt1 Float
-  ohmicResistanceWindingAt2 Float
-  ohmicResistanceWindingAt3 Float
-
-  ohmicResistanceWindingBt1 Float
-  ohmicResistanceWindingBt2 Float
-  ohmicResistanceWindingBt3 Float
-
-  insulationResistanceAtBt   Float
-  insulationResistanceAtMass Float
-  insulationResistanceBtMass Float
-
-  observation String
-
-  transformerProtection1           Boolean
-  transformerProtection2           Boolean
-  transformerProtection3           Boolean
-  transformerProtection4           Boolean
-  transformerProtection5           Boolean
-  transformerProtection6           Boolean
-  transformerProtectionObservation String
-
-  order   Order @relation(fields: [orderId], references: [id])
-  orderId Int
-
-  equipmentUsed Equipment[]
-}
-
-model StrengthTransformer {
+model TransformadorPotencia {
   id                 Int    @id @default(autoincrement())
-  nameEquipment      String
-  client             String
-  location           String
-  type               String
-  manufacturer       String
-  serialNumber       String @unique
-  insulatingMedium   String
-  yearManufacture    Int
-  totalMass          Float
-  power              String
-  connectionTypeAt   String
-  highTension        Float
-  connectionTypeBt   String
-  lowTension         Float
-  volumeIsulationOil Float
-  testTemperature    Float
-  relativeHumidity   Float
+  nomeEquipamento    String
+  cliente            String
+  local              String
+  tipo               String
+  fabricante         String
+  numeroSerie        String @unique
+  meioIsolante       String
+  anoFabricacao      Int
+  massaTotal         Float
+  potencia           String
+  tipoTensaoAt       String
+  tensaoAt           Float
+  tipoTensaoBt       String
+  tensaoBt           Float
+  volumeOleoIsolante Float
+  temperaturaEnsaio  Float
+  umidadeRelativaAr  Float
 
-  equipment Equipment[]
+  tapComutadorAt String
+  tapComutadorBt String
 
-  order   Order @relation(fields: [orderId], references: [id])
-  orderId Int
+  relacaoCalculadaAtBt Float
+  relacaoMedida1       Float
+  relacaoMedida2       Float
+  relacaoMedida3       Float
+
+  resistenciaOhmicaEnrolamentoAt1 Float
+  resistenciaOhmicaEnrolamentoAt2 Float
+  resistenciaOhmicaEnrolamentoAt3 Float
+
+  resistenciaOhmicaEnrolamentoBt1 Float
+  resistenciaOhmicaEnrolamentoBt2 Float
+  resistenciaOhmicaEnrolamentoBt3 Float
+
+  resistenciaIsolamentoAtBt    Float
+  resistenciaIsolamentoAtMassa Float
+  resistenciaIsolamentoBtMassa Float
+
+  observacao String
+
+  protecaoTransformador1          Boolean
+  protecaoTransformador2          Boolean
+  protecaoTransformador3          Boolean
+  protecaoTransformador4          Boolean
+  protecaoTransformador5          Boolean
+  protecaoTransformador6          Boolean
+  protecaoTransformadorObservacao String
+
+  ordem   Ordem  @relation(fields: [ordemOs], references: [numeroOs])
+  ordemOs String
+
+  equipamentoUsado Equipamento[]
 }
 
-model CurrentTransformer {
-  id               Int    @id @default(autoincrement())
-  nameEquipment    String
-  client           String
-  location         String
-  type             String
-  manufacturer     String
-  serialNumber     String @unique
-  insulatingMedium String
-  maxVoltage       Float
-  primaryCurrent   Float
-  secondCurrent    Float
-  testTemperature  Float
-  relativeHumidity Float
-  accuracy         String
-  yearManufacture  Int
+model TransformadorForca {
+  id                 Int    @id @default(autoincrement())
+  nomeEquipamento    String
+  cliente            String
+  local              String
+  tipo               String
+  fabricante         String
+  numeroSerie        String @unique
+  meioIsolante       String
+  anoFabricacao      Int
+  massaTotal         Float
+  potencia           String
+  tipoTensaoAt       String
+  tensaoAt           Float
+  tipoTensaoBt       String
+  tensaoBt           Float
+  volumeOleoIsolante Float
+  temperaturaEnsaio  Float
+  umidadeRelativaAr  Float
 
-  relationMeasure         Float
-  relationOhmic           Float
-  insulationResistancePxS Int
-  insulationResistancePxM Int
-  insulationResistanceSxM Int
-  observation             String
+  equipamento Equipamento[]
 
-  order   Order @relation(fields: [orderId], references: [id])
-  orderId Int
-
-  equipmentUsed Equipment[]
+  ordem   Ordem  @relation(fields: [ordemOs], references: [numeroOs])
+  ordemOs String
 }
 
-model CircuitBreaker {
-  id                       Int    @id @default(autoincrement())
-  nameEquipment            String
-  client                   String
-  location                 String
-  type                     String
-  manufacturer             String
-  serialNumber             String @unique
-  insulatingMedium         String
-  nominalTension           Float
-  currentTension           Float
-  testTemperature          Float
-  relativeHumidity         Float
-  typePressure             String
-  pressure                 Float
-  contactResistanceClosedA Float
-  contactResistanceClosedB Float
-  contactResistanceClosedC Float
-  contactResistanceOpenA   Float
-  contactResistanceOpenB   Float
-  contactResistanceOpenC   Float
-  insulationResistanceAxM  Float
-  insulationResistanceBxM  Float
-  insulationResistanceCxM  Float
+model TransformadorCorrente {
+  id                 Int    @id @default(autoincrement())
+  nomeEquipamento    String
+  cliente            String
+  local              String
+  tipo               String
+  fabricante         String
+  numeroSerie        String @unique
+  meioIsolante       String
+  anoFabricacao      Int
+  massaTotal         Float
+  potencia           String
+  tipoTensaoAt       String
+  tensaoAt           Float
+  tipoTensaoBt       String
+  tensaoBt           Float
+  volumeOleoIsolante Float
+  temperaturaEnsaio  Float
+  umidadeRelativaAr  Float
+  exatidao           String
 
-  services1 Boolean
-  services2 Boolean
-  services3 Boolean
-  services4 Boolean
+  relacaoMedida                Float
+  relacaoOhmica                Float
+  resistenciaIsolamentoPxS     Int
+  resistenciaIsolamentoPxMassa Int
+  resistenciaIsolamentoSxMassa Int
+  observacao                   String
 
-  observation String
+  ordem   Ordem  @relation(fields: [ordemOs], references: [numeroOs])
+  ordemOs String
 
-  order   Order @relation(fields: [orderId], references: [id])
-  orderId Int
-
-  equipmentUsed Equipment[]
+  equipamentoUsado Equipamento[]
 }
 
-model GroundingMesh {
-  id              Int     @id @default(autoincrement())
-  client          String
-  location        String
-  resistance      String
-  service1        Boolean
-  service2        Boolean
-  observations    String
-  yearManufacture Int
+model Disjuntor {
+  id                Int    @id @default(autoincrement())
+  nomeEquipamento   String
+  cliente           String
+  localizacao       String
+  tipo              String
+  fabricante        String
+  numeroSerie       String @unique
+  meioIsolante      String
+  tensaoNominal     Float
+  correnteNominal   Float
+  temperaturaEnsaio Float
+  umidadeRelativaAr Float
+  tipoPressao       String
+  pressao           Float
 
-  order   Order @relation(fields: [orderId], references: [id])
-  orderId Int
+  resistenciaContatoDisjuntorFechadoA Float
+  resistenciaContatoDisjuntorFechadoB Float
+  resistenciaContatoDisjuntorFechadoC Float
+  resistenciaContatoDisjuntorAbertoA  Float
+  resistenciaContatoDisjuntorAbertoB  Float
+  resistenciaContatoDisjuntorAbertoC  Float
+  resistenciaIsolamentoA              Float
+  resistenciaIsolamentoB              Float
+  resistenciaIsolamentoC              Float
 
-  equipmentUsed Equipment[]
+  servico1 Boolean
+  servico2 Boolean
+  servico3 Boolean
+  servico4 Boolean
+
+  observacao String
+
+  ordem   Ordem  @relation(fields: [ordemOs], references: [numeroOs])
+  ordemOs String
+
+  equipamentoUsado Equipamento[]
 }
 
-model GroundingResistor {
-  id                         Int    @id @default(autoincrement())
-  nameEquipment              String
-  client                     String
-  location                   String
-  tag                        String
-  model                      String
-  manufacturer               String
-  serialNumber               String @unique
-  tension                    Int
-  nominalCurrent             Int
-  testTemperature            Float
-  relativeHumidity           Float
-  frequency                  Float
-  totalMass                  Int
-  ohmicResistanceMeasurement Float
-  insulationResistance       Int
-  observation                String
+model MalhaAterramento {
+  id          Int     @id @default(autoincrement())
+  cliente     String
+  localizacao String
+  resistencia String
+  servico1    Boolean
+  servico2    Boolean
+  observacao  String
 
-  order   Order @relation(fields: [orderId], references: [id])
-  orderId Int
+  ordem   Ordem  @relation(fields: [ordemOs], references: [numeroOs])
+  ordemOs String
 
-  equipmentUsed Equipment[]
+  equipamentoUsado Equipamento[]
 }
 
-model DisconnectorSwitch {
-  id                    Int    @id @default(autoincrement())
-  nameEquipment         String
-  client                String
-  location              String
-  identification        String
-  type                  String
-  manufacturer          String
-  serialNumber          String @unique
-  nominalTension        Float
-  nominalCurrent        Float
-  testTemperature       Float
-  relativeHumidity      Float
-  contactResistanceA    Float
-  contactResistanceB    Float
-  contactResistanceC    Float
-  insulationResistanceA Float
-  insulationResistanceB Float
-  insulationResistanceC Float
-  observation           String
+model ResistorAterramento {
+  id                Int    @id @default(autoincrement())
+  nomeEquipamento   String
+  cliente           String
+  localizacao       String
+  tag               String
+  modelo            String
+  anoFabricacao     Int
+  fabricante        String
+  numeroSerie       String @unique
+  tensao            Int
+  correnteNominal   Float
+  temperaturaEnsaio Float
+  umidadeRelativaAr Float
+  frequencia        Float
+  massaTotal        Float
 
-  equipmentUsed Equipment[]
+  resistenciaOhmicaMedida Float
+  resistenciaIsolamento   Float
+  observacao              String
 
-  order   Order @relation(fields: [orderId], references: [id])
-  orderId Int
+  ordem   Ordem  @relation(fields: [ordemOs], references: [numeroOs])
+  ordemOs String
+
+  equipamentoUsado Equipamento[]
 }
 
-model Equipment {
-  id           Int    @id @default(autoincrement())
-  name         String
-  description  String
-  model        String
-  serialNumber String @unique
+model ChaveSeccionadora {
+  id                Int    @id @default(autoincrement())
+  nomeEquipamento   String
+  cliente           String
+  localizacao       String
+  identificacao     String
+  tipo              String
+  fabricante        String
+  numeroSerie       String @unique
+  tensaoNominal     Float
+  correnteNominal   Float
+  temperaturaEnsaio Float
+  umidadeRelativaAr Float
 
-  highTransformer   HighTransformer @relation(fields: [groundingMeshId], references: [id])
-  highTransformerId Int
+  resistenciaContatoA    Float
+  resistenciaContatoB    Float
+  resistenciaContatoC    Float
+  resistenciaIsolamentoA Float
+  resistenciaIsolamentoB Float
+  resistenciaIsolamentoC Float
+  observacao             String
 
-  potentialTransformer   PotentialTransformer @relation(fields: [potentialTransformerId], references: [id])
-  potentialTransformerId Int
+  equipamentoUsado Equipamento[]
 
-  strengthTransformer   StrengthTransformer @relation(fields: [disconnectorSwitchId], references: [id])
-  strengthTransformerId Int
+  ordem   Ordem  @relation(fields: [ordemOs], references: [numeroOs])
+  ordemOs String
+}
 
-  currentTransformer   CurrentTransformer @relation(fields: [currentTransformerId], references: [id])
-  currentTransformerId Int
+model Equipamento {
+  id          Int    @id @default(autoincrement())
+  nome        String
+  descricao   String
+  modelo      String
+  numeroSerie String @unique
 
-  circuitBreaker   CircuitBreaker @relation(fields: [circuitBreakerId], references: [id])
-  circuitBreakerId Int
+  transformadorAlta      TransformadorAlta @relation(fields: [transformadorAltaSerie], references: [numeroSerie])
+  transformadorAltaSerie String
 
-  groundingMesh   GroundingMesh @relation(fields: [groundingMeshId], references: [id])
-  groundingMeshId Int
+  transformadorPotencia      TransformadorPotencia @relation(fields: [transformadorPotenciaSerie], references: [numeroSerie])
+  transformadorPotenciaSerie String
 
-  groundingResistor   GroundingResistor @relation(fields: [groundingResistorId], references: [id])
-  groundingResistorId Int
+  transformadorForca      TransformadorForca @relation(fields: [transformadorForcaSerie], references: [numeroSerie])
+  transformadorForcaSerie String
 
-  disconnectorSwitch   DisconnectorSwitch @relation(fields: [disconnectorSwitchId], references: [id])
-  disconnectorSwitchId Int
+  transformadorCorrente      TransformadorCorrente @relation(fields: [transformadorCorrenteSerie], references: [numeroSerie])
+  transformadorCorrenteSerie String
+
+  disjuntor      Disjuntor @relation(fields: [disjuntorSerie], references: [numeroSerie])
+  disjuntorSerie String
+
+  malhaAterramento      MalhaAterramento @relation(fields: [malhaAterramentoSerie], references: [id])
+  malhaAterramentoSerie Int
+
+  resistorAterramento      ResistorAterramento @relation(fields: [resistorAterramentoSerie], references: [numeroSerie])
+  resistorAterramentoSerie String
+
+  chaveSeccionadora      ChaveSeccionadora @relation(fields: [chaveSeccionadoraSerie], references: [numeroSerie])
+  chaveSeccionadoraSerie String
 }
