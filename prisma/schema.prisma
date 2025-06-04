@@ -57,13 +57,9 @@ model Ordem {
   // Técnicos: vários
   tecnico Funcionario[] @relation("TecnicoOrdem")
 
-  componente                Componente[]
-  ensaioTrafoPotencia       EnsaioTrafoPotencia[]
-  ensaioTrafoCorrente       EnsaioTrafoCorrente[]
-  ensaioDisjuntor           EnsaioDisjuntor[]
-  ensaioResistorAterramento EnsaioResistorAterramento[]
-  malhaAterramento          MalhaAterramento[]
-  ensaioChaveSeccionadora   EnsaioChaveSeccionadora[]
+  componente              Componente[]
+  malhaAterramento        MalhaAterramento[]
+  ensaioChaveSeccionadora EnsaioChaveSeccionadora[]
 }
 
 model Componente {
@@ -135,9 +131,6 @@ model EnsaioTrafoPotencia {
   protecaoTransformador6          String
   protecaoTransformadorObservacao String
 
-  ordem   Ordem  @relation(fields: [ordemOs], references: [numeroOs])
-  ordemOs String
-
   dispositivo      Componente @relation(fields: [dispositivoSerie], references: [numeroSerie])
   dispositivoSerie String
 
@@ -153,9 +146,6 @@ model EnsaioTrafoCorrente {
   resistenciaIsolamentoPxMassa Int
   resistenciaIsolamentoSxMassa Int
   observacao                   String
-
-  ordem   Ordem  @relation(fields: [ordemOs], references: [numeroOs])
-  ordemOs String
 
   dispositivo      Componente @relation(fields: [dispositivoSerie], references: [numeroSerie])
   dispositivoSerie String
@@ -182,9 +172,6 @@ model EnsaioDisjuntor {
   servico4 Boolean
 
   observacao String
-
-  ordem   Ordem  @relation(fields: [ordemOs], references: [numeroOs])
-  ordemOs String
 
   dispositivo      Componente @relation(fields: [dispositivoSerie], references: [numeroSerie])
   dispositivoSerie String
@@ -213,9 +200,6 @@ model EnsaioResistorAterramento {
   resistenciaOhmicaMedida Float
   resistenciaIsolamento   Float
   observacao              String
-
-  ordem   Ordem  @relation(fields: [ordemOs], references: [numeroOs])
-  ordemOs String
 
   dispositivo      Componente @relation(fields: [dispositivoSerie], references: [numeroSerie])
   dispositivoSerie String

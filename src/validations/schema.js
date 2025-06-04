@@ -1,22 +1,22 @@
 import { z } from "zod";
 
 export const loginSchema = z.object({
-  username: z.string().min(1, "Nome de usuário é obrigatório."),
-  password: z.string().min(5, "Senha é obrigatória."),
+  usuario: z.string().min(1, "Nome de usuário é obrigatório."),
+  senha: z.string().min(5, "Senha é obrigatória."),
 });
 
 export const employeeSchema = z.object({
-  name: z.string().min(1, "Nome é obrigatório."),
-  username: z.string().min(1, "Nome de usuário é obrigatório."),
-  employeeRole: z.string().min(1, "Necessário preencher sua função."),
-  hireDate: z
+  nome: z.string().min(1, "Nome é obrigatório."),
+  usuario: z.string().min(1, "Nome de usuário é obrigatório."),
+  cargo: z.string().min(1, "Necessário preencher seu cargo."),
+  admissao: z
     .string()
     .refine((val) => !isNaN(Date.parse(val)), {
       message: "Data inválida",
     })
     .transform((val) => new Date(val)), // converte string em Date
-  password: z.string().min(1, "Senha é obrigatória."),
-  accessLevel: z.enum(["admin", "técnico", "supervisor"], {
+  senha: z.string().min(1, "Senha é obrigatória."),
+  nivelAcesso: z.enum(["admin", "técnico", "supervisor"], {
     errorMap: () => ({ message: "Função inválida" }),
   }),
 });

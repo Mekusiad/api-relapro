@@ -9,9 +9,9 @@ export const orderRouter = express.Router();
 
 orderRouter.post("/new-order", verifyToken, newOrder);
 orderRouter.post(
-  "/updated-order/:numberOs",
+  "/updated-order/:numeroOs",
   verifyToken,
   updatedOrderController
 );
 
-orderRouter.get("/get-order/:numberOs", verifyToken, getOrderController);
+orderRouter.get("/get-order/:numeroOs", verifyToken, getOrderController);

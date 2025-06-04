@@ -3,21 +3,15 @@ import { PrismaClient } from "../generated/prisma/index.js";
 const prisma = new PrismaClient();
 
 export const getOrderController = async (req, res) => {
-  const { numberOs } = req.params;
+  const { numeroOs } = req.params;
+  console.log(numeroOs);
 
-  const osExist = await prisma.order.findUnique({
-    where: { numberOs },
+  const osExist = await prisma.ordem.findUnique({
+    where: { numeroOs },
     include: {
-      supervisor: { select: { name: true, registration: true } },
-      technicians: { select: { name: true, registration: true } },
-      highTransformer: true,
-      strengthTransformer: true,
-      potencialTransformer: true,
-      currentTransformer: true,
-      circuitBreaker: true,
-      disconnectorSwitch: true,
-      groundingMesh: true,
-      groundingResistor: true,
+      supervisor: { select: { nome: true, matricula: true } },
+      tecnico: { select: { nome: true, matricula: true } },
+      componente: true,
     },
   });
 

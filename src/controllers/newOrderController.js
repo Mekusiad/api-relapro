@@ -4,35 +4,35 @@ const prisma = new PrismaClient();
 
 export const newOrder = async (req, res) => {
   const {
-    client,
-    contact,
-    phone,
+    cliente,
+    nomeResponsavel,
+    contato,
     email,
-    localService,
-    initialDescription,
-    previousInitialDate,
-    supervisorRegistration,
-    techniciansRegistration,
-    acessLevel,
+    localServico,
+    descricaoInicial,
+    previsaoInicio,
+    supervisorMatricula,
+    tecnicoMatricula,
+    nivelAcesso,
   } = req.body;
 
   try {
-    const osExist = await prisma.order.findFirst({
+    const osExist = await prisma.ordem.findFirst({
       where: {
-        client,
-        localService,
-        previousInitialDate,
-        initialDescription,
+        cliente,
+        localServico,
+        previsaoInicio,
+        descricaoInicial,
       },
     });
 
     if (osExist)
       return res.status(409).json({
         status: false,
-        message: `Já existe uma ordem de serviço com os mesmos dados: ${osExist.numberOs}`,
+        message: `Já existe uma ordem de serviço com os mesmos dados: ${osExist.numeroOs}`,
       });
 
-    if (acessLevel === "técnico")
+    if (nivelAcesso === "técnico")
       return res.status(403).json({
         status: false,
         message: "Usuário não autorizado a criar chamado.",
@@ -46,7 +46,7 @@ export const newOrder = async (req, res) => {
     const prefixo = `${ano}${mes}`; // cocatena ano+mês
 
     // Conta quantas OS já existem para o mês atual
-    const countMes = await prisma.order.count({
+    const countMes = await prisma.ordem.count({
       where: {
         createdAt: {
           gte: new Date(`${ano}-${mes}-01T00:00:00.000Z`),
@@ -62,22 +62,22 @@ export const newOrder = async (req, res) => {
 
     const numeroSequencial = String(countMes + 1).padStart(3, "0"); // gera o próximo n° disponível do mês
     const numberOs = `${prefixo}${numeroSequencial}`; // cocatena com ano+mês+n°disponível do mês
-    const novaOS = await prisma.order.create({
+    const novaOS = await prisma.ordem.create({
       data: {
-        numberOs,
-        client,
-        contact,
-        phone,
+        numeroOs: numberOs,
+        cliente,
+        nomeResponsavel,
+        contato,
         email,
-        localService,
-        initialDescription,
-        previousInitialDate: new Date(previousInitialDate),
+        localServico,
+        descricaoInicial,
+        previsaoInicio: new Date(previsaoInicio),
         supervisor: {
-          connect: { registration: supervisorRegistration },
+          connect: { matricula: supervisorMatricula },
         },
-        technicians: {
-          connect: techniciansRegistration.map((registration) => ({
-            registration,
+        tecnico: {
+          connect: tecnicoMatricula.map((matricula) => ({
+            matricula,
           })),
         },
         status: "aberta",
@@ -85,14 +85,14 @@ export const newOrder = async (req, res) => {
       include: {
         supervisor: {
           select: {
-            name: true,
-            registration: true,
+            nome: true,
+            matricula: true,
           },
         },
-        technicians: {
+        tecnico: {
           select: {
-            name: true,
-            registration: true,
+            nome: true,
+            matricula: true,
           },
         },
       },

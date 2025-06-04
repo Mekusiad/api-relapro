@@ -3,55 +3,48 @@ import { PrismaClient } from "../generated/prisma/index.js";
 const prisma = new PrismaClient();
 
 export const register = async (req, res) => {
-  const {
-    name,
-    username,
-    registration,
-    employeeRole,
-    hireDate,
-    password,
-    accessLevel,
-  } = req.body;
+  const { nome, usuario, matricula, cargo, admissao, senha, nivelAcesso } =
+    req.body;
 
-  const usernameExist = await prisma.employee.findUnique({
-    where: { username },
+  const usuarioExist = await prisma.funcionario.findUnique({
+    where: { usuario },
   });
 
-  if (usernameExist)
+  if (usuarioExist)
     return res.status(401).json({
       status: false,
       message: "Nome de usuário existente, tente outro.",
     });
 
-  const registrationExist = await prisma.employee.findUnique({
-    where: { registration },
+  const matriculaExist = await prisma.funcionario.findUnique({
+    where: { matricula },
   });
 
-  if (registrationExist)
+  if (matriculaExist)
     return res.status(401).json({
       status: false,
       message: "Matrícula existente, tente outro.",
     });
 
   try {
-    const employee = await prisma.employee.create({
+    const funcionario = await prisma.funcionario.create({
       data: {
-        name,
-        username,
-        registration,
-        employeeRole,
-        hireDate,
-        password,
-        accessLevel: accessLevel || "técnico",
+        nome,
+        usuario,
+        matricula,
+        cargo,
+        admissao,
+        senha,
+        nivelAcesso: nivelAcesso || "técnico",
       },
     });
 
     res.status(201).json({
       status: true,
-      id: employee.id,
-      name: employee.name,
-      username: employee.username,
-      accessLevel: employee.accessLevel,
+      id: funcionario.id,
+      nome: funcionario.nome,
+      usuario: funcionario.usuario,
+      nivelAcesso: funcionario.nivelAcesso,
     });
   } catch (error) {
     res

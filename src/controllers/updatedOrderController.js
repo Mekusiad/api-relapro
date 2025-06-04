@@ -3,12 +3,12 @@ import { PrismaClient } from "../generated/prisma/index.js";
 const prisma = new PrismaClient();
 
 export const updatedOrderController = async (req, res) => {
-  const { numberOs } = req.params;
+  const { numeroOs } = req.params;
   const { type, data } = req.body;
 
   try {
-    const order = await prisma.order.findUnique({
-      where: { numberOs },
+    const order = await prisma.ordem.findUnique({
+      where: { numeroOs },
     });
 
     if (!order)
@@ -18,13 +18,13 @@ export const updatedOrderController = async (req, res) => {
 
     switch (type) {
       case "técnico":
-        const osWithTechnicians = await prisma.order.findUnique({
-          where: { numberOs },
+        const osWithTechnicians = await prisma.ordem.findUnique({
+          where: { numeroOs },
           include: { technicians: true },
         });
 
-        const alreadyAdded = osWithTechnicians.technicians.some(
-          (tech) => tech.registration === data.techniciansRegistration
+        const alreadyAdded = osWithTechnicians.tecnico.some(
+          (tech) => tech.matricula === data.tecnicoMatricula
         );
 
         if (alreadyAdded) {
@@ -34,55 +34,33 @@ export const updatedOrderController = async (req, res) => {
           });
         }
 
-        await prisma.order.update({
-          where: { numberOs },
+        await prisma.ordem.update({
+          where: { numeroOs },
           data: {
-            technicians: {
-              connect: { registration: data.techniciansRegistration },
+            tecnico: {
+              connect: { matricula: data.tecnicoMatricula },
             },
           },
           include: {
-            technicians: {
+            tecnico: {
               select: {
-                name: true,
-                registration: true,
+                nome: true,
+                matricula: true,
               },
             },
           },
         });
         break;
-      case "trafoForca":
-        const osWithStreghTransformer = await prisma.order.findUnique({
-          where: { numberOs },
-          include: {
-            strengthTransformer: true,
-          },
-        });
-
-        const alreadyStregh = osWithStreghTransformer.strengthTransformer.some(
-          (t) => t.serialNumber === data.serialNumber
-        );
-
-        if (alreadyStregh)
-          return res.status(400).json({
-            status: false,
-            message: "Transformador já vinculado à OS.",
-          });
-
-        await prisma.strengthTransformer.create({
-          data: {
-            ...data,
-            order: {
-              connect: { numberOs },
-            },
-          },
-        });
+      case "disjuntor":
+        console.log("Trafo de força.");
+        return res
+          .status(201)
+          .json({ status: true, message: "Atualizado com sucesso." });
         break;
 
       case "trafoCorrente":
         console.log("Trafo de corrente.");
         break;
-
       case "trafoPotência":
         console.log("Trafo de potência.");
         break;

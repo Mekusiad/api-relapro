@@ -17,25 +17,25 @@ export const login = async (req, res) => {
         .status(400)
         .json({ status: false, message: "Erro de validação." });
 
-    const { username, password } = req.body;
-    const employeeExist = await prisma.employee.findUnique({
-      where: { username },
+    const { usuario, senha } = req.body;
+    const funcionarioExiste = await prisma.funcionario.findUnique({
+      where: { usuario },
     });
 
-    if (!employeeExist)
+    if (!funcionarioExiste)
       return res
         .status(401)
         .json({ status: false, message: "Funcionário não encontrado" });
 
-    if (password !== employeeExist.password)
+    if (senha !== funcionarioExiste.senha)
       return res
         .status(401)
         .json({ status: false, message: "Senha incorreta" });
 
     const token = jwt.sign(
       {
-        employeeRegistration: employeeExist.registration,
-        role: employeeExist.role,
+        matricula: funcionarioExiste.matricula,
+        cargo: funcionarioExiste.cargo,
       },
       process.env.JWT_SECRET,
       { expiresIn: "1d" }
@@ -44,8 +44,8 @@ export const login = async (req, res) => {
     res.status(200).json({
       status: true,
       message: "Usuário logado com sucesso",
-      name: employeeExist.name,
-      role: employeeExist.role,
+      nome: funcionarioExiste.nome,
+      cargo: funcionarioExiste.cargo,
       token,
     });
   } catch (error) {
