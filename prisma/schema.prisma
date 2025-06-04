@@ -30,9 +30,9 @@ model Funcionario {
   nivelAcesso String // técnico, supervisor, admin
   supervisor  Ordem[]  @relation("SupervisorOrdem")
   tecnico     Ordem[]  @relation("TecnicoOrdem")
-  // atividade         Atividade[]
-  created_at  DateTime @default(now())
-  updated_at  DateTime @updatedAt
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
 }
 
 model Ordem {
@@ -57,63 +57,53 @@ model Ordem {
   // Técnicos: vários
   tecnico Funcionario[] @relation("TecnicoOrdem")
 
-  disjuntor Disjuntor[]
-  // atividade      Atividade[]
-
-  transformadorAlta     TransformadorAlta[]
-  transformadorForca    TransformadorForca[]
-  transformadorPotencia TransformadorPotencia[]
-  transformadorCorrente TransformadorCorrente[]
-  malhaAterramento      MalhaAterramento[]
-  groundingResistor     ResistorAterramento[]
-  disconnectorSwitch    ChaveSeccionadora[]
+  componente                Componente[]
+  ensaioTrafoPotencia       EnsaioTrafoPotencia[]
+  ensaioTrafoCorrente       EnsaioTrafoCorrente[]
+  ensaioDisjuntor           EnsaioDisjuntor[]
+  ensaioResistorAterramento EnsaioResistorAterramento[]
+  malhaAterramento          MalhaAterramento[]
+  ensaioChaveSeccionadora   EnsaioChaveSeccionadora[]
 }
 
-model TransformadorAlta {
-  id                 Int    @id @default(autoincrement())
+model Componente {
+  id                 Int     @id @default(autoincrement())
   nomeEquipamento    String
   cliente            String
-  local              String
-  tipo               String
-  fabricante         String
-  numeroSerie        String @unique
-  meioIsolante       String
-  anoFabricacao      Int
-  massaTotal         Float
-  potencia           String
-  tipoTensaoAt       String
-  tensaoAt           Float
-  tipoTensaoBt       String
-  tensaoBt           Float
-  volumeOleoIsolante Float
-  temperaturaEnsaio  Float
-  umidadeRelativaAr  Float
-
-  equipamento Equipamento[]
+  tag                String?
+  localizacao        String?
+  modelo             String?
+  fabricante         String?
+  numeroSerie        String? @unique
+  meioIsolante       String?
+  anoFabricacao      Int?
+  massaTotal         Float?
+  potencia           String?
+  tipoTensaoAt       String?
+  tensaoAt           Float?
+  tipoTensaoBt       String?
+  tensaoBt           Float?
+  volumeOleoIsolante Float?
+  temperaturaEnsaio  Float?
+  umidadeRelativaAr  Float?
+  exatidao           Float?
+  circuito           Float?
+  tipoPressao        String?
+  pressao            Float?
 
   ordem   Ordem  @relation(fields: [orderOs], references: [numeroOs])
   orderOs String
+
+  // ensaioTrafoAlta EnsaioTrafoAlta[]
+  // ensaioTrafoForca EnsaioTrafoForca[]
+  ensaioTrafoPotencia       EnsaioTrafoPotencia[]
+  ensaioTrafoCorrente       EnsaioTrafoCorrente[]
+  ensaioDisjuntor           EnsaioDisjuntor[]
+  ensaioResistorAterramento EnsaioResistorAterramento[]
 }
 
-model TransformadorPotencia {
-  id                 Int    @id @default(autoincrement())
-  nomeEquipamento    String
-  cliente            String
-  local              String
-  tipo               String
-  fabricante         String
-  numeroSerie        String @unique
-  meioIsolante       String
-  anoFabricacao      Int
-  massaTotal         Float
-  potencia           String
-  tipoTensaoAt       String
-  tensaoAt           Float
-  tipoTensaoBt       String
-  tensaoBt           Float
-  volumeOleoIsolante Float
-  temperaturaEnsaio  Float
-  umidadeRelativaAr  Float
+model EnsaioTrafoPotencia {
+  id Int @id @default(autoincrement())
 
   tapComutadorAt String
   tapComutadorBt String
@@ -131,72 +121,31 @@ model TransformadorPotencia {
   resistenciaOhmicaEnrolamentoBt2 Float
   resistenciaOhmicaEnrolamentoBt3 Float
 
-  resistenciaIsolamentoAtBt    Float
-  resistenciaIsolamentoAtMassa Float
-  resistenciaIsolamentoBtMassa Float
+  resistenciaIsolamentoAtxBt    Float
+  resistenciaIsolamentoAtxMassa Float
+  resistenciaIsolamentoBtxMassa Float
 
   observacao String
 
-  protecaoTransformador1          Boolean
-  protecaoTransformador2          Boolean
-  protecaoTransformador3          Boolean
-  protecaoTransformador4          Boolean
-  protecaoTransformador5          Boolean
-  protecaoTransformador6          Boolean
+  protecaoTransformador1          String
+  protecaoTransformador2          String
+  protecaoTransformador3          String
+  protecaoTransformador4          String
+  protecaoTransformador5          String
+  protecaoTransformador6          String
   protecaoTransformadorObservacao String
 
   ordem   Ordem  @relation(fields: [ordemOs], references: [numeroOs])
   ordemOs String
 
+  dispositivo      Componente @relation(fields: [dispositivoSerie], references: [numeroSerie])
+  dispositivoSerie String
+
   equipamentoUsado Equipamento[]
 }
 
-model TransformadorForca {
-  id                 Int    @id @default(autoincrement())
-  nomeEquipamento    String
-  cliente            String
-  local              String
-  tipo               String
-  fabricante         String
-  numeroSerie        String @unique
-  meioIsolante       String
-  anoFabricacao      Int
-  massaTotal         Float
-  potencia           String
-  tipoTensaoAt       String
-  tensaoAt           Float
-  tipoTensaoBt       String
-  tensaoBt           Float
-  volumeOleoIsolante Float
-  temperaturaEnsaio  Float
-  umidadeRelativaAr  Float
-
-  equipamento Equipamento[]
-
-  ordem   Ordem  @relation(fields: [ordemOs], references: [numeroOs])
-  ordemOs String
-}
-
-model TransformadorCorrente {
-  id                 Int    @id @default(autoincrement())
-  nomeEquipamento    String
-  cliente            String
-  local              String
-  tipo               String
-  fabricante         String
-  numeroSerie        String @unique
-  meioIsolante       String
-  anoFabricacao      Int
-  massaTotal         Float
-  potencia           String
-  tipoTensaoAt       String
-  tensaoAt           Float
-  tipoTensaoBt       String
-  tensaoBt           Float
-  volumeOleoIsolante Float
-  temperaturaEnsaio  Float
-  umidadeRelativaAr  Float
-  exatidao           String
+model EnsaioTrafoCorrente {
+  id Int @id @default(autoincrement())
 
   relacaoMedida                Float
   relacaoOhmica                Float
@@ -208,24 +157,14 @@ model TransformadorCorrente {
   ordem   Ordem  @relation(fields: [ordemOs], references: [numeroOs])
   ordemOs String
 
+  dispositivo      Componente @relation(fields: [dispositivoSerie], references: [numeroSerie])
+  dispositivoSerie String
+
   equipamentoUsado Equipamento[]
 }
 
-model Disjuntor {
-  id                Int    @id @default(autoincrement())
-  nomeEquipamento   String
-  cliente           String
-  localizacao       String
-  tipo              String
-  fabricante        String
-  numeroSerie       String @unique
-  meioIsolante      String
-  tensaoNominal     Float
-  correnteNominal   Float
-  temperaturaEnsaio Float
-  umidadeRelativaAr Float
-  tipoPressao       String
-  pressao           Float
+model EnsaioDisjuntor {
+  id Int @id @default(autoincrement())
 
   resistenciaContatoDisjuntorFechadoA Float
   resistenciaContatoDisjuntorFechadoB Float
@@ -233,9 +172,9 @@ model Disjuntor {
   resistenciaContatoDisjuntorAbertoA  Float
   resistenciaContatoDisjuntorAbertoB  Float
   resistenciaContatoDisjuntorAbertoC  Float
-  resistenciaIsolamentoA              Float
-  resistenciaIsolamentoB              Float
-  resistenciaIsolamentoC              Float
+  resistenciaIsolamentoAxMassa        Float
+  resistenciaIsolamentoBxMassa        Float
+  resistenciaIsolamentoCxMassa        Float
 
   servico1 Boolean
   servico2 Boolean
@@ -247,17 +186,20 @@ model Disjuntor {
   ordem   Ordem  @relation(fields: [ordemOs], references: [numeroOs])
   ordemOs String
 
+  dispositivo      Componente @relation(fields: [dispositivoSerie], references: [numeroSerie])
+  dispositivoSerie String
+
   equipamentoUsado Equipamento[]
 }
 
 model MalhaAterramento {
-  id          Int     @id @default(autoincrement())
-  cliente     String
-  localizacao String
-  resistencia String
-  servico1    Boolean
-  servico2    Boolean
-  observacao  String
+  id Int @id @default(autoincrement())
+
+  resistenciaMalhaAterramento String?
+  servico1                    String?
+  servico2                    String?
+  servico3                    String?
+  observacao                  String?
 
   ordem   Ordem  @relation(fields: [ordemOs], references: [numeroOs])
   ordemOs String
@@ -265,22 +207,8 @@ model MalhaAterramento {
   equipamentoUsado Equipamento[]
 }
 
-model ResistorAterramento {
-  id                Int    @id @default(autoincrement())
-  nomeEquipamento   String
-  cliente           String
-  localizacao       String
-  tag               String
-  modelo            String
-  anoFabricacao     Int
-  fabricante        String
-  numeroSerie       String @unique
-  tensao            Int
-  correnteNominal   Float
-  temperaturaEnsaio Float
-  umidadeRelativaAr Float
-  frequencia        Float
-  massaTotal        Float
+model EnsaioResistorAterramento {
+  id Int @id @default(autoincrement())
 
   resistenciaOhmicaMedida Float
   resistenciaIsolamento   Float
@@ -289,22 +217,14 @@ model ResistorAterramento {
   ordem   Ordem  @relation(fields: [ordemOs], references: [numeroOs])
   ordemOs String
 
+  dispositivo      Componente @relation(fields: [dispositivoSerie], references: [numeroSerie])
+  dispositivoSerie String
+
   equipamentoUsado Equipamento[]
 }
 
-model ChaveSeccionadora {
-  id                Int    @id @default(autoincrement())
-  nomeEquipamento   String
-  cliente           String
-  localizacao       String
-  identificacao     String
-  tipo              String
-  fabricante        String
-  numeroSerie       String @unique
-  tensaoNominal     Float
-  correnteNominal   Float
-  temperaturaEnsaio Float
-  umidadeRelativaAr Float
+model EnsaioChaveSeccionadora {
+  id Int @id @default(autoincrement())
 
   resistenciaContatoA    Float
   resistenciaContatoB    Float
@@ -327,27 +247,27 @@ model Equipamento {
   modelo      String
   numeroSerie String @unique
 
-  transformadorAlta      TransformadorAlta @relation(fields: [transformadorAltaSerie], references: [numeroSerie])
-  transformadorAltaSerie String
+  // ensaioTrafoAlta      EnsaioTrafoAlta @relation(fields: [ensaioTrafoAlta], references: [id])
+  // ensaioTrafoAltaId Int
 
-  transformadorPotencia      TransformadorPotencia @relation(fields: [transformadorPotenciaSerie], references: [numeroSerie])
-  transformadorPotenciaSerie String
+  ensaioTrafoPotencia   EnsaioTrafoPotencia @relation(fields: [ensaioTrafoPotenciaId], references: [id])
+  ensaioTrafoPotenciaId Int
 
-  transformadorForca      TransformadorForca @relation(fields: [transformadorForcaSerie], references: [numeroSerie])
-  transformadorForcaSerie String
+  // ensaioTrafoForca      EnsaioTrafoForca @relation(fields: [ensaioTrafoForcaId], references: [id])
+  // ensaioTrafoForcaId Int
 
-  transformadorCorrente      TransformadorCorrente @relation(fields: [transformadorCorrenteSerie], references: [numeroSerie])
-  transformadorCorrenteSerie String
+  ensaioTrafoCorrente   EnsaioTrafoCorrente @relation(fields: [ensaioTrafoCorrenteId], references: [id])
+  ensaioTrafoCorrenteId Int
 
-  disjuntor      Disjuntor @relation(fields: [disjuntorSerie], references: [numeroSerie])
-  disjuntorSerie String
+  ensaioDisjuntor   EnsaioDisjuntor @relation(fields: [ensaioDisjuntorId], references: [id])
+  ensaioDisjuntorId Int
 
   malhaAterramento      MalhaAterramento @relation(fields: [malhaAterramentoSerie], references: [id])
   malhaAterramentoSerie Int
 
-  resistorAterramento      ResistorAterramento @relation(fields: [resistorAterramentoSerie], references: [numeroSerie])
-  resistorAterramentoSerie String
+  ensaioResistor              EnsaioResistorAterramento @relation(fields: [EnsaioResistorAterramentoId], references: [id])
+  EnsaioResistorAterramentoId Int
 
-  chaveSeccionadora      ChaveSeccionadora @relation(fields: [chaveSeccionadoraSerie], references: [numeroSerie])
-  chaveSeccionadoraSerie String
+  ensaioChaveSeccionadora   EnsaioChaveSeccionadora @relation(fields: [ensaioChaveSeccionadoraId], references: [id])
+  ensaioChaveSeccionadoraId Int
 }
