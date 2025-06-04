@@ -13,5 +13,10 @@ orderRouter.post(
   verifyToken,
   updatedOrderController
 );
+orderRouter.put(
+  "/updated-order/:numeroOs/add-dispositivo",
+  verifyToken,
+  updatedOrderController
+);
 
 orderRouter.get("/get-order/:numeroOs", verifyToken, getOrderController);

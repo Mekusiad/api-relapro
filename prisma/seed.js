@@ -37,7 +37,7 @@ async function main() {
       cargo: "Assistente de Serviços Técnicos",
       admissao: "2020-04-01T00:00:00Z",
       senha: "manuel123",
-      nivelAcesso: "técnico",
+      nivelAcesso: "tecnico",
     },
   });
 
@@ -49,7 +49,7 @@ async function main() {
       cargo: "Assistente de Serviços Técnicos",
       admissao: "2023-04-01T00:00:00Z",
       senha: "francisco123",
-      nivelAcesso: "técnico",
+      nivelAcesso: "tecnico",
     },
   });
 
@@ -61,7 +61,7 @@ async function main() {
       cargo: "Auxiliar de Serviços Técnicos",
       admissao: "2024-04-01T00:00:00Z",
       senha: "lucas123",
-      nivelAcesso: "técnico",
+      nivelAcesso: "tecnico",
     },
   });
 
@@ -74,7 +74,19 @@ async function main() {
       cargo: "Analista de Serviços Técnicos III",
       admissao: "1995-04-01T00:00:00Z",
       senha: "cesar123",
-      nivelAcesso: "Supervisor",
+      nivelAcesso: "supervisor",
+    },
+  });
+
+  const supervisor2 = await prisma.funcionario.create({
+    data: {
+      nome: "Aluisio Maciel",
+      usuario: "aluisio.maciel",
+      matricula: 10,
+      cargo: "Assistente de Serviços Técnicos III",
+      admissao: "1995-06-02T00:00:00Z",
+      senha: "aluisio123",
+      nivelAcesso: "supervisor",
     },
   });
 
