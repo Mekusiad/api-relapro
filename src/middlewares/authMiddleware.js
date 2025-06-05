@@ -12,7 +12,8 @@ export const verifyToken = (req, res, next) => {
     if (err)
       return res.status(401).json({ status: false, message: "Token inválido" });
 
-    req.employee = decoded;
+    req.funcionarioMatricula = decoded.matricula;
+    req.funcionarioNivelAcesso = decoded.nivelAcesso;
     next();
   });
 };

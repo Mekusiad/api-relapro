@@ -35,7 +35,7 @@ export const login = async (req, res) => {
     const token = jwt.sign(
       {
         matricula: funcionarioExiste.matricula,
-        cargo: funcionarioExiste.cargo,
+        nivelAcesso: funcionarioExiste.nivelAcesso,
       },
       process.env.JWT_SECRET,
       { expiresIn: "8h" }
@@ -44,8 +44,6 @@ export const login = async (req, res) => {
     res.status(200).json({
       status: true,
       message: "Usuário logado com sucesso",
-      nome: funcionarioExiste.nome,
-      cargo: funcionarioExiste.cargo,
       token,
     });
   } catch (error) {
