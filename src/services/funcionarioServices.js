@@ -7,15 +7,22 @@ export const registrarFuncionario = async (data) => {
     where: { usuario: data.usuario },
   });
 
-  if (usuarioExist) throw new Error("Nome de usuário existente, tente outro.");
+  if (usuarioExist)
+    return res.status(400).json({
+      status: false,
+      message: "Nome de usuário existente, tente outro.",
+    });
 
   const matriculaExist = await prisma.funcionario.findUnique({
     where: { matricula },
   });
 
-  if (matriculaExist) throw new Error("Matrícula existente, tente outro.");
+  if (matriculaExist)
+    return res
+      .status(400)
+      .json({ status: false, message: "Matrícula existente, tente outro." });
 
-  return await prisma.funcionario.create({
+  const novoFuncionario = await prisma.funcionario.create({
     data: {
       nome,
       usuario,
@@ -26,22 +33,75 @@ export const registrarFuncionario = async (data) => {
       nivelAcesso: nivelAcesso || "TECNICO",
     },
   });
+  return res.status(201).json({
+    status: true,
+    message: "Funcionário adicionado com sucesso.",
+    data: novoFuncionario,
+  });
 };
 
-export const listarTodos = async (req, res) => {
+export const atualizarDadosFuncionario = async (matricula, data) => {
+  const dadosAtualizados = await prisma.funcionario.update({
+    where: { matricula },
+    data,
+  });
+
+  if (!dadosAtualizados)
+    return res
+      .status(400)
+      .json({ status: false, message: "Funcionário não localizado." });
+
+  return res.status(200).json({
+    status: false,
+    message: "Dados atualizados com sucesso.",
+    data: dadosAtualizados,
+  });
+};
+
+export const excluirFuncionario = async (matricula) => {
+  const deletado = await prisma.funcionario.delete({ where: { matricula } });
+
+  if (!deletado)
+    return res
+      .status(400)
+      .json({ status: false, message: "Funcionário não localizado." });
+
+  return res.status(200).json({
+    status: false,
+    message: "Funcionário excluído com sucesso.",
+    data: deletado,
+  });
+};
+
+export const listarFuncionarios = async (req, res) => {
   const funcionarios = await prisma.funcionario.findMany();
-  if (!funcionarios)
-    throw new Error("No momento não possui funcionário cadastrado.");
 
-  return funcionarios;
+  if (!funcionarios)
+    return res.status(400).json({
+      status: false,
+      message: "No momento não possui funcionário cadastrado.",
+    });
+
+  return res.status(200).json({
+    status: true,
+    message: "Localizado com sucesso.",
+    data: funcionarios,
+  });
 };
 
-export const listarFuncionario = async (matricula, data) => {
-  const funcionarioExist = await prisma.funcionario.findFirst({
+export const listarFuncionario = async (matricula) => {
+  const funcionario = await prisma.funcionario.findFirst({
     where: { matricula: Number(matricula) },
   });
 
-  if (!funcionarioExist) throw new Error("Funcionário não encontrado.");
+  if (!funcionario)
+    return res
+      .status(400)
+      .json({ status: false, message: "Funcionário não encontrado." });
 
-  return funcionarioExist;
+  return res.status(200).json({
+    status: true,
+    message: "Funcionário localizado.",
+    data: funcionario,
+  });
 };

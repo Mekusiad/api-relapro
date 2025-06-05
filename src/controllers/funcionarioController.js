@@ -9,22 +9,33 @@ export const regitrarFuncionarioController = async (req, res) => {
   const data = req.body;
   try {
     await registrarFuncionario(data);
-    return res
-      .status(201)
-      .json({ status: true, message: "Funcionário cadastrado com sucesso." });
+  } catch (error) {
+    return handleError(res, error, error.message);
+  }
+};
+
+export const atualizarDadosFuncionarioController = async (req, res) => {
+  const { data } = req.body;
+  const matricula = Number(req.params);
+  try {
+    await atualizarDadosFuncionario(matricula, data);
+  } catch (error) {
+    return handleError(res, error, error.message);
+  }
+};
+
+export const excluirFuncionarioController = async (req, res) => {
+  const matricula = Number(req.params);
+  try {
+    await excluirFuncionario(matricula);
   } catch (error) {
     return handleError(res, error, error.message);
   }
 };
 
 export const listarFuncionariosController = async (req, res) => {
-  const data = req.body;
-
   try {
-    const funcionarios = await listarTodos(data);
-    return res
-      .status(200)
-      .json({ status: true, message: "Localizado com sucesso.", funcionarios });
+    await listarFuncionarios(req, res);
   } catch (error) {
     return handleError(res, error, error.message);
   }
@@ -34,11 +45,7 @@ export const listarFuncionarioController = async (req, res) => {
   const { matricula } = req.params;
   const data = req.body;
   try {
-    const funcionario = await listarFuncionario(matricula, data);
-
-    return res
-      .status(200)
-      .json({ status: true, message: "Funcionário localizado.", funcionario });
+    await listarFuncionario(matricula);
   } catch (error) {
     return handleError(res, error, error.message);
   }
