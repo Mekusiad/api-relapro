@@ -1,4 +1,5 @@
 import {
+  listarFuncionario,
   listarTodos,
   registrarFuncionario,
 } from "../services/funcionarioServices.js";
@@ -24,6 +25,20 @@ export const listarFuncionariosController = async (req, res) => {
     return res
       .status(200)
       .json({ status: true, message: "Localizado com sucesso.", funcionarios });
+  } catch (error) {
+    return handleError(res, error, error.message);
+  }
+};
+
+export const listarFuncionarioController = async (req, res) => {
+  const { matricula } = req.params;
+  const data = req.body;
+  try {
+    const funcionario = await listarFuncionario(matricula, data);
+
+    return res
+      .status(200)
+      .json({ status: true, message: "Funcionário localizado.", funcionario });
   } catch (error) {
     return handleError(res, error, error.message);
   }

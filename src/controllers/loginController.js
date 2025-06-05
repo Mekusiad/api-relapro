@@ -25,12 +25,12 @@ export const login = async (req, res) => {
     if (!funcionarioExiste)
       return res
         .status(401)
-        .json({ status: false, message: "Funcionário não encontrado" });
+        .json({ status: false, message: "Usuário ou senha incorreto." });
 
     if (senha !== funcionarioExiste.senha)
       return res
         .status(401)
-        .json({ status: false, message: "Senha incorreta" });
+        .json({ status: false, message: "Usuário ou senha incorreto." });
 
     const token = jwt.sign(
       {

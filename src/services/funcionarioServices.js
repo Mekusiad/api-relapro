@@ -35,3 +35,13 @@ export const listarTodos = async (req, res) => {
 
   return funcionarios;
 };
+
+export const listarFuncionario = async (matricula, data) => {
+  const funcionarioExist = await prisma.funcionario.findFirst({
+    where: { matricula: Number(matricula) },
+  });
+
+  if (!funcionarioExist) throw new Error("Funcionário não encontrado.");
+
+  return funcionarioExist;
+};

@@ -6,6 +6,7 @@ import {
   removerTecnico,
   trocarSupervisor,
 } from "../services/ordemServices.js";
+import { handleError } from "../utils/errorHandler.js";
 
 export const novaOrdem = async (req, res) => {
   const {
@@ -185,6 +186,7 @@ export const atualizarComponenteController = async (req, res) => {
 
 export const listarOrdemController = async (req, res) => {
   const { numeroOs } = req.params;
+  console.log(numeroOs);
 
   try {
     const osExist = await listarServicos(numeroOs);

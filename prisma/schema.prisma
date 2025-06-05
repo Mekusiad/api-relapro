@@ -83,7 +83,7 @@ model Componente {
   tipo               TipoComponente
   modelo             String?
   fabricante         String?
-  numeroSerie        String? @unique
+  numeroSerie        String? 
   meioIsolante       String?
   anoFabricacao      Int?
   massaTotal         Float?
@@ -99,6 +99,11 @@ model Componente {
   circuito           Float?
   tipoPressao        String?
   pressao            Float?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+
+
+ @@unique([numeroSerie])
 
   ordem   Ordem  @relation(fields: [ordemOs], references: [numeroOs])
   ordemOs String
@@ -162,6 +167,9 @@ model EnsaioTrafoPotencia {
   dispositivoSerie String
 
   equipamentoUsado Equipamento[]
+
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
 }
 
 model EnsaioTrafoCorrente {
@@ -178,6 +186,10 @@ model EnsaioTrafoCorrente {
   dispositivoSerie String
 
   equipamentoUsado Equipamento[]
+
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+
 }
 
 model EnsaioDisjuntor {
@@ -204,6 +216,9 @@ model EnsaioDisjuntor {
   dispositivoSerie String
 
   equipamentoUsado Equipamento[]
+
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
 }
 
 model MalhaAterramento {
@@ -219,6 +234,9 @@ model MalhaAterramento {
   ordemOs String
 
   equipamentoUsado Equipamento[]
+
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
 }
 
 model EnsaioResistorAterramento {
@@ -232,6 +250,9 @@ model EnsaioResistorAterramento {
   dispositivoSerie String
 
   equipamentoUsado Equipamento[]
+
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
 }
 
 model EnsaioChaveSeccionadora {
@@ -249,6 +270,9 @@ model EnsaioChaveSeccionadora {
 
   ordem   Ordem  @relation(fields: [ordemOs], references: [numeroOs])
   ordemOs String
+
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
 }
 
 model Equipamento {
@@ -281,4 +305,7 @@ model Equipamento {
 
   ensaioChaveSeccionadora   EnsaioChaveSeccionadora @relation(fields: [ensaioChaveSeccionadoraId], references: [id])
   ensaioChaveSeccionadoraId Int
+
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
 }

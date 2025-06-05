@@ -3,12 +3,15 @@ import { PrismaClient } from "../src/generated/prisma/index.js";
 const prisma = new PrismaClient();
 
 async function main() {
+  await prisma.componente.deleteMany();
+  await prisma.ordem.deleteMany();
+  await prisma.funcionario.deleteMany();
   // Cria Admin
   const admin1 = await prisma.funcionario.create({
     data: {
       nome: "Mauro Daisuke Medeiros Tahara",
       usuario: "mauro.tahara",
-      matricula: 0,
+      matricula: 1,
       cargo: "Auxiliar Administrativo",
       admissao: "2025-04-01T00:00:00Z",
       senha: "mauro123",
@@ -20,7 +23,7 @@ async function main() {
     data: {
       nome: "Diego Souza e Sousa",
       usuario: "diego.sousa",
-      matricula: 1,
+      matricula: 2,
       cargo: "Auxiliar Administrativo",
       admissao: "2023-06-28T00:00:00Z",
       senha: "diego123",
@@ -33,7 +36,7 @@ async function main() {
     data: {
       nome: "Manuel Garcia Neto",
       usuario: "manuel.neto",
-      matricula: 2,
+      matricula: 3,
       cargo: "Assistente de Serviços Técnicos",
       admissao: "2020-04-01T00:00:00Z",
       senha: "manuel123",
@@ -70,7 +73,7 @@ async function main() {
     data: {
       nome: "César Augusto",
       usuario: "cesar.augusto",
-      matricula: 3,
+      matricula: 6,
       cargo: "Analista de Serviços Técnicos III",
       admissao: "1995-04-01T00:00:00Z",
       senha: "cesar123",
@@ -82,7 +85,7 @@ async function main() {
     data: {
       nome: "Aluisio Maciel",
       usuario: "aluisio.maciel",
-      matricula: 10,
+      matricula: 7,
       cargo: "Assistente de Serviços Técnicos III",
       admissao: "1995-06-02T00:00:00Z",
       senha: "aluisio123",
@@ -91,7 +94,7 @@ async function main() {
   });
 
   // Cria Ordem de Serviço com supervisor e técnicos conectados
-  await prisma.ordem.create({
+  const os = await prisma.ordem.create({
     data: {
       numeroOs: "202506001",
       cliente: "LG",
@@ -101,25 +104,27 @@ async function main() {
       localServico: "Av. Djalma Batista, n°151, Chapada",
       descricaoInicial: "Manutenção Preventiva em SE 69kV",
       previsaoInicio: new Date("2025-07-03T00:00:00Z"),
-      supervisormatricula: supervisor1.matricula,
+      supervisor: {
+        connect: { matricula: supervisor1.matricula },
+      },
       tecnico: {
         connect: [
           { matricula: technician1.matricula },
           { matricula: technician2.matricula },
         ],
       },
-      status: "aberta",
+      status: "ABERTA",
+    },
+  });
+  // Cria um equipamento
+  await prisma.componente.create({
+    data: {
+      nomeEquipamento: "TRANFORMADOR DE POTÊNCIA",
+      tipo: "TRAFO_POTENCIA",
+      ordemOs: "202506001",
     },
   });
 }
-
-// Cria um equipamento
-await prisma.ordem.create({
-  data: {
-    nomeEquipamento: "TRANFORMADOR DE POTÊNCIA",
-    tipo: "TRAFO_POTENCIA",
-  },
-});
 
 main()
   .then(() => {

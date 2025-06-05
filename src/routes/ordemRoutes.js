@@ -13,16 +13,8 @@ import { nivelAcessoMiddleware } from "../middlewares/nivelAcessoMiddleware.js";
 export const orderRouter = express.Router();
 
 orderRouter.post("/new-order", verifyToken, novaOrdem);
-orderRouter.post("/:numeroOs", verifyToken, listarOrdemController);
+orderRouter.post("/:numeroOs", verifyToken, atualizarOrdemController);
 
-orderRouter.get(
-  "/ordens/",
-  verifyToken,
-  nivelAcessoMiddleware(["ADMIN,SUPERVISOR"]),
-  listarServicos
-);
-orderRouter.get(
-  "/listar-ordem/:numeroOs",
-  verifyToken,
-  atualizarOrdemController
-);
+orderRouter.get("/", verifyToken, listarServicos);
+
+orderRouter.get("/:numeroOs", verifyToken, listarOrdemController);

@@ -19,7 +19,7 @@ app.use("uploads", express.static("src/uploads"));
 
 app.use("/api/auth", authRouter);
 app.use("/api/funcionario", funcionarioRouter);
-app.use("/api/order", orderRouter);
+app.use("/api/ordem", orderRouter);
 app.get("/", (req, res) => res.json("API rodando"));
 
 const PORT = process.env.PORT || 3000;

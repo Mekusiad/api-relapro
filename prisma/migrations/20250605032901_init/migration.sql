@@ -35,9 +35,10 @@ CREATE TABLE "Ordem" (
 CREATE TABLE "Componente" (
     "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
     "nomeEquipamento" TEXT NOT NULL,
-    "cliente" TEXT NOT NULL,
+    "cliente" TEXT,
     "tag" TEXT,
     "localizacao" TEXT,
+    "tipo" TEXT NOT NULL,
     "modelo" TEXT,
     "fabricante" TEXT,
     "numeroSerie" TEXT,
@@ -56,8 +57,10 @@ CREATE TABLE "Componente" (
     "circuito" REAL,
     "tipoPressao" TEXT,
     "pressao" REAL,
-    "orderOs" TEXT NOT NULL,
-    CONSTRAINT "Componente_orderOs_fkey" FOREIGN KEY ("orderOs") REFERENCES "Ordem" ("numeroOs") ON DELETE RESTRICT ON UPDATE CASCADE
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" DATETIME NOT NULL,
+    "ordemOs" TEXT NOT NULL,
+    CONSTRAINT "Componente_ordemOs_fkey" FOREIGN KEY ("ordemOs") REFERENCES "Ordem" ("numeroOs") ON DELETE RESTRICT ON UPDATE CASCADE
 );
 
 -- CreateTable
@@ -86,9 +89,9 @@ CREATE TABLE "EnsaioTrafoPotencia" (
     "protecaoTransformador5" TEXT NOT NULL,
     "protecaoTransformador6" TEXT NOT NULL,
     "protecaoTransformadorObservacao" TEXT NOT NULL,
-    "ordemOs" TEXT NOT NULL,
     "dispositivoSerie" TEXT NOT NULL,
-    CONSTRAINT "EnsaioTrafoPotencia_ordemOs_fkey" FOREIGN KEY ("ordemOs") REFERENCES "Ordem" ("numeroOs") ON DELETE RESTRICT ON UPDATE CASCADE,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" DATETIME NOT NULL,
     CONSTRAINT "EnsaioTrafoPotencia_dispositivoSerie_fkey" FOREIGN KEY ("dispositivoSerie") REFERENCES "Componente" ("numeroSerie") ON DELETE RESTRICT ON UPDATE CASCADE
 );
 
@@ -101,9 +104,9 @@ CREATE TABLE "EnsaioTrafoCorrente" (
     "resistenciaIsolamentoPxMassa" INTEGER NOT NULL,
     "resistenciaIsolamentoSxMassa" INTEGER NOT NULL,
     "observacao" TEXT NOT NULL,
-    "ordemOs" TEXT NOT NULL,
     "dispositivoSerie" TEXT NOT NULL,
-    CONSTRAINT "EnsaioTrafoCorrente_ordemOs_fkey" FOREIGN KEY ("ordemOs") REFERENCES "Ordem" ("numeroOs") ON DELETE RESTRICT ON UPDATE CASCADE,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" DATETIME NOT NULL,
     CONSTRAINT "EnsaioTrafoCorrente_dispositivoSerie_fkey" FOREIGN KEY ("dispositivoSerie") REFERENCES "Componente" ("numeroSerie") ON DELETE RESTRICT ON UPDATE CASCADE
 );
 
@@ -124,9 +127,9 @@ CREATE TABLE "EnsaioDisjuntor" (
     "servico3" BOOLEAN NOT NULL,
     "servico4" BOOLEAN NOT NULL,
     "observacao" TEXT NOT NULL,
-    "ordemOs" TEXT NOT NULL,
     "dispositivoSerie" TEXT NOT NULL,
-    CONSTRAINT "EnsaioDisjuntor_ordemOs_fkey" FOREIGN KEY ("ordemOs") REFERENCES "Ordem" ("numeroOs") ON DELETE RESTRICT ON UPDATE CASCADE,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" DATETIME NOT NULL,
     CONSTRAINT "EnsaioDisjuntor_dispositivoSerie_fkey" FOREIGN KEY ("dispositivoSerie") REFERENCES "Componente" ("numeroSerie") ON DELETE RESTRICT ON UPDATE CASCADE
 );
 
@@ -139,6 +142,8 @@ CREATE TABLE "MalhaAterramento" (
     "servico3" TEXT,
     "observacao" TEXT,
     "ordemOs" TEXT NOT NULL,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" DATETIME NOT NULL,
     CONSTRAINT "MalhaAterramento_ordemOs_fkey" FOREIGN KEY ("ordemOs") REFERENCES "Ordem" ("numeroOs") ON DELETE RESTRICT ON UPDATE CASCADE
 );
 
@@ -148,9 +153,9 @@ CREATE TABLE "EnsaioResistorAterramento" (
     "resistenciaOhmicaMedida" REAL NOT NULL,
     "resistenciaIsolamento" REAL NOT NULL,
     "observacao" TEXT NOT NULL,
-    "ordemOs" TEXT NOT NULL,
     "dispositivoSerie" TEXT NOT NULL,
-    CONSTRAINT "EnsaioResistorAterramento_ordemOs_fkey" FOREIGN KEY ("ordemOs") REFERENCES "Ordem" ("numeroOs") ON DELETE RESTRICT ON UPDATE CASCADE,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" DATETIME NOT NULL,
     CONSTRAINT "EnsaioResistorAterramento_dispositivoSerie_fkey" FOREIGN KEY ("dispositivoSerie") REFERENCES "Componente" ("numeroSerie") ON DELETE RESTRICT ON UPDATE CASCADE
 );
 
@@ -165,6 +170,8 @@ CREATE TABLE "EnsaioChaveSeccionadora" (
     "resistenciaIsolamentoC" REAL NOT NULL,
     "observacao" TEXT NOT NULL,
     "ordemOs" TEXT NOT NULL,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" DATETIME NOT NULL,
     CONSTRAINT "EnsaioChaveSeccionadora_ordemOs_fkey" FOREIGN KEY ("ordemOs") REFERENCES "Ordem" ("numeroOs") ON DELETE RESTRICT ON UPDATE CASCADE
 );
 
@@ -181,6 +188,8 @@ CREATE TABLE "Equipamento" (
     "malhaAterramentoSerie" INTEGER NOT NULL,
     "EnsaioResistorAterramentoId" INTEGER NOT NULL,
     "ensaioChaveSeccionadoraId" INTEGER NOT NULL,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" DATETIME NOT NULL,
     CONSTRAINT "Equipamento_ensaioTrafoPotenciaId_fkey" FOREIGN KEY ("ensaioTrafoPotenciaId") REFERENCES "EnsaioTrafoPotencia" ("id") ON DELETE RESTRICT ON UPDATE CASCADE,
     CONSTRAINT "Equipamento_ensaioTrafoCorrenteId_fkey" FOREIGN KEY ("ensaioTrafoCorrenteId") REFERENCES "EnsaioTrafoCorrente" ("id") ON DELETE RESTRICT ON UPDATE CASCADE,
     CONSTRAINT "Equipamento_ensaioDisjuntorId_fkey" FOREIGN KEY ("ensaioDisjuntorId") REFERENCES "EnsaioDisjuntor" ("id") ON DELETE RESTRICT ON UPDATE CASCADE,
