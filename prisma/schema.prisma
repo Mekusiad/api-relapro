@@ -27,12 +27,18 @@ model Funcionario {
   cargo       String
   admissao    DateTime
   senha       String
-  nivelAcesso String // técnico, supervisor, admin
+  nivelAcesso NivelAcesso
   supervisor  Ordem[]  @relation("SupervisorOrdem")
   tecnico     Ordem[]  @relation("TecnicoOrdem")
 
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
+}
+
+enum NivelAcesso {
+ADMIN
+SUPERVISOR
+TECNICO
 }
 
 model Ordem {
@@ -44,7 +50,7 @@ model Ordem {
   email            String
   localServico     String
   descricaoInicial String
-  status           String // aberta, em_andamento, finalizada
+  status           StatusOrdem
   previsaoInicio   DateTime
   previsaoTermino  DateTime?
   createdAt        DateTime  @default(now())
@@ -62,12 +68,19 @@ model Ordem {
   ensaioChaveSeccionadora EnsaioChaveSeccionadora[]
 }
 
+enum StatusOrdem {
+  ABERTA
+  EM_ANDAMENTO
+  FINALIZADA
+}
+
 model Componente {
   id                 Int     @id @default(autoincrement())
   nomeEquipamento    String
-  cliente            String
+  cliente            String?
   tag                String?
   localizacao        String?
+  tipo               TipoComponente
   modelo             String?
   fabricante         String?
   numeroSerie        String? @unique
@@ -87,8 +100,8 @@ model Componente {
   tipoPressao        String?
   pressao            Float?
 
-  ordem   Ordem  @relation(fields: [orderOs], references: [numeroOs])
-  orderOs String
+  ordem   Ordem  @relation(fields: [ordemOs], references: [numeroOs])
+  ordemOs String
 
   // ensaioTrafoAlta EnsaioTrafoAlta[]
   // ensaioTrafoForca EnsaioTrafoForca[]
@@ -96,6 +109,20 @@ model Componente {
   ensaioTrafoCorrente       EnsaioTrafoCorrente[]
   ensaioDisjuntor           EnsaioDisjuntor[]
   ensaioResistorAterramento EnsaioResistorAterramento[]
+}
+
+enum TipoComponente {
+TRAFO_ALTA
+TRAFO_MEDIA
+TRAFO_CORRENTE
+TRAFO_POTENCIA
+TRAFO_FORCA
+DISJUNTOR_ALTA
+DISJUNTOR_MEDIA
+DISJUNTOR_BAIXA
+RESISTOR
+CHAVE_SECCIONADORA
+MALHA
 }
 
 model EnsaioTrafoPotencia {

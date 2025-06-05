@@ -12,7 +12,7 @@ async function main() {
       cargo: "Auxiliar Administrativo",
       admissao: "2025-04-01T00:00:00Z",
       senha: "mauro123",
-      nivelAcesso: "admin",
+      nivelAcesso: "ADMIN",
     },
   });
 
@@ -24,7 +24,7 @@ async function main() {
       cargo: "Auxiliar Administrativo",
       admissao: "2023-06-28T00:00:00Z",
       senha: "diego123",
-      nivelAcesso: "admin",
+      nivelAcesso: "ADMIN",
     },
   });
 
@@ -37,7 +37,7 @@ async function main() {
       cargo: "Assistente de Serviços Técnicos",
       admissao: "2020-04-01T00:00:00Z",
       senha: "manuel123",
-      nivelAcesso: "tecnico",
+      nivelAcesso: "TECNICO",
     },
   });
 
@@ -49,7 +49,7 @@ async function main() {
       cargo: "Assistente de Serviços Técnicos",
       admissao: "2023-04-01T00:00:00Z",
       senha: "francisco123",
-      nivelAcesso: "tecnico",
+      nivelAcesso: "TECNICO",
     },
   });
 
@@ -61,7 +61,7 @@ async function main() {
       cargo: "Auxiliar de Serviços Técnicos",
       admissao: "2024-04-01T00:00:00Z",
       senha: "lucas123",
-      nivelAcesso: "tecnico",
+      nivelAcesso: "TECNICO",
     },
   });
 
@@ -74,7 +74,7 @@ async function main() {
       cargo: "Analista de Serviços Técnicos III",
       admissao: "1995-04-01T00:00:00Z",
       senha: "cesar123",
-      nivelAcesso: "supervisor",
+      nivelAcesso: "SUPERVISOR",
     },
   });
 
@@ -86,7 +86,7 @@ async function main() {
       cargo: "Assistente de Serviços Técnicos III",
       admissao: "1995-06-02T00:00:00Z",
       senha: "aluisio123",
-      nivelAcesso: "supervisor",
+      nivelAcesso: "SUPERVISOR",
     },
   });
 
@@ -112,6 +112,14 @@ async function main() {
     },
   });
 }
+
+// Cria um equipamento
+await prisma.ordem.create({
+  data: {
+    nomeEquipamento: "TRANFORMADOR DE POTÊNCIA",
+    tipo: "TRAFO_POTENCIA",
+  },
+});
 
 main()
   .then(() => {
