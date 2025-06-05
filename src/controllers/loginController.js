@@ -38,7 +38,7 @@ export const login = async (req, res) => {
         cargo: funcionarioExiste.cargo,
       },
       process.env.JWT_SECRET,
-      { expiresIn: "1d" }
+      { expiresIn: "8h" }
     );
 
     res.status(200).json({

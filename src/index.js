@@ -1,11 +1,11 @@
 import dotenv from "dotenv";
 import express from "express";
 import cors from "cors";
-import { employeeRouter } from "./routes/employeeRoutes.js";
+import { funcionarioRouter } from "./routes/funcionarioRoutes.js";
 import { authRouter } from "./routes/authRoutes.js";
 
 import { PrismaClient } from "./generated/prisma/index.js";
-import { orderRouter } from "./routes/orderRoutes.js";
+import { orderRouter } from "./routes/ordemRoutes.js";
 
 dotenv.config();
 
@@ -18,7 +18,7 @@ app.use(express.json());
 app.use("uploads", express.static("src/uploads"));
 
 app.use("/api/auth", authRouter);
-app.use("/api/employee", employeeRouter);
+app.use("/api/funcionario", funcionarioRouter);
 app.use("/api/order", orderRouter);
 app.get("/", (req, res) => res.json("API rodando"));
 
