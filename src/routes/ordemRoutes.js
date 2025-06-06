@@ -4,17 +4,34 @@ import { verifyToken } from "../middlewares/authMiddleware.js";
 
 import {
   listarOrdemController,
-  novaOrdem,
   atualizarOrdemController,
+  novaOrdemController,
+  adicionarComponenteController,
+  atualizarComponenteController,
 } from "../controllers/ordemController.js";
-import { listarServicos } from "../services/ordemServices.js";
-import { nivelAcessoMiddleware } from "../middlewares/nivelAcessoMiddleware.js";
+import { somenteAdminSupervisor } from "../middlewares/nivelAcessoMiddleware.js";
 
-export const orderRouter = express.Router();
+export const ordemRoutes = express.Router();
 
-orderRouter.post("/new-order", verifyToken, novaOrdem);
-orderRouter.post("/:numeroOs", verifyToken, atualizarOrdemController);
+ordemRoutes.post(
+  "/ordens",
+  verifyToken,
+  somenteAdminSupervisor,
+  novaOrdemController
+);
+ordemRoutes.put("/ordens/:numeroOs", verifyToken, atualizarOrdemController);
 
-orderRouter.get("/", verifyToken, listarServicos);
+// Componentes
+ordemRoutes.post(
+  "/ordens/:numeroOs/componentes",
+  verifyToken,
+  adicionarComponenteController
+);
+ordemRoutes.put(
+  "/ordens/:numeroOs/componentes/:numeroSerie",
+  verifyToken,
+  atualizarComponenteController
+);
 
-orderRouter.get("/:numeroOs", verifyToken, listarOrdemController);
+// Listagem
+ordemRoutes.get("/ordens", verifyToken, listarOrdemController);

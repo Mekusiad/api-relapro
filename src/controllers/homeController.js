@@ -1,4 +1,4 @@
-import { home } from "../services/hoveServices.js";
+import { home } from "../services/homeServices.js";
 
 import { handleError } from "../utils/errorHandler.js";
 

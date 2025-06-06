@@ -1,6 +1,6 @@
 import {
   listarFuncionario,
-  listarTodos,
+  listarFuncionarios,
   registrarFuncionario,
 } from "../services/funcionarioServices.js";
 import { handleError } from "../utils/errorHandler.js";
@@ -42,8 +42,6 @@ export const listarFuncionariosController = async (req, res) => {
 };
 
 export const listarFuncionarioController = async (req, res) => {
-  const { matricula } = req.params;
-  const data = req.body;
   try {
     await listarFuncionario(matricula);
   } catch (error) {

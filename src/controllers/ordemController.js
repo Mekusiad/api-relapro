@@ -3,6 +3,7 @@ import {
   adicionarTecnico,
   atualizarComponente,
   listarServicos,
+  novaOrdem,
   removerTecnico,
   trocarSupervisor,
 } from "../services/ordemServices.js";
