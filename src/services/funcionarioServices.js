@@ -40,27 +40,26 @@ export const registrarFuncionario = async (data) => {
   });
 };
 
-export const atualizarDadosFuncionario = async (matricula, data) => {
+export const atualizarDadosFuncionario = async (matricula, data, res) => {
   const dadosAtualizados = await prisma.funcionario.update({
-    where: { matricula },
+    where: { matricula: Number(matricula) },
     data,
   });
-
   if (!dadosAtualizados)
     return res
       .status(400)
       .json({ status: false, message: "Funcionário não localizado." });
 
   return res.status(200).json({
-    status: false,
+    status: true,
     message: "Dados atualizados com sucesso.",
-    data: dadosAtualizados,
   });
 };
 
-export const excluirFuncionario = async (matricula) => {
-  const deletado = await prisma.funcionario.delete({ where: { matricula } });
-
+export const excluirFuncionario = async (matricula, res) => {
+  const deletado = await prisma.funcionario.delete({
+    where: { matricula: Number(matricula) },
+  });
   if (!deletado)
     return res
       .status(400)
@@ -69,7 +68,10 @@ export const excluirFuncionario = async (matricula) => {
   return res.status(200).json({
     status: false,
     message: "Funcionário excluído com sucesso.",
-    data: deletado,
+    data: {
+      nome: deletado.nome,
+      cargo: deletado.cargo,
+    },
   });
 };
 

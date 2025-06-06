@@ -94,7 +94,23 @@ export const trocarSupervisor = async (numeroOs, supervisorMatricula, res) => {
   });
 };
 
-export const adicionarComponente = async (numeroOs, data) => {
+export const atualizaStatus = async (numeroOs, data, res) => {
+  const statusOrdemAtualizada = await prisma.ordem.update({
+    where: { numeroOs },
+    data: {
+      status: data.status,
+    },
+  });
+
+  return res
+    .status(200)
+    .json(
+      { status: true, message: "Status atualizado com sucesso." },
+      statusOrdemAtualizada
+    );
+};
+
+export const adicionarComponente = async (numeroOs, data, res) => {
   const { numeroSerie } = data;
   const componenteExiste = await prisma.componente.findFirst({
     where: { numeroSerie, ordemOs: numeroOs },
@@ -118,7 +134,7 @@ export const adicionarComponente = async (numeroOs, data) => {
   });
 };
 
-export const novaOrdem = async (data) => {
+export const novaOrdem = async (data, res) => {
   const {
     cliente,
     nomeResponsavel,
@@ -238,12 +254,20 @@ export const atualizarComponente = async (numeroOs, numeroSerie, data) => {
   });
 };
 
-export const listarServicos = async (status) => {
+export const listarServicos = async (status, res) => {
   const existing = await prisma.ordem.findMany({
     where: status ? { status } : {},
     orderBy: { createdAt: "desc" },
+    include: {
+      componente: true,
+    },
   });
-
+  if (existing.length === 0)
+    return res.status(400).json({
+      status: false,
+      message: `No momento não possui OS em ${status}`,
+      data: existing.length,
+    });
   if (!existing)
     return res
       .status(400)

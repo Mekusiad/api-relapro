@@ -1,4 +1,6 @@
 import {
+  atualizarDadosFuncionario,
+  excluirFuncionario,
   listarFuncionario,
   listarFuncionarios,
   registrarFuncionario,
@@ -15,19 +17,19 @@ export const regitrarFuncionarioController = async (req, res) => {
 };
 
 export const atualizarDadosFuncionarioController = async (req, res) => {
-  const { data } = req.body;
-  const matricula = Number(req.params);
+  const data = req.body;
+  const { matricula } = req.params;
   try {
-    await atualizarDadosFuncionario(matricula, data);
+    await atualizarDadosFuncionario(matricula, data, res);
   } catch (error) {
     return handleError(res, error, error.message);
   }
 };
 
 export const excluirFuncionarioController = async (req, res) => {
-  const matricula = Number(req.params);
+  const { matricula } = req.params;
   try {
-    await excluirFuncionario(matricula);
+    await excluirFuncionario(matricula, res);
   } catch (error) {
     return handleError(res, error, error.message);
   }
@@ -43,7 +45,7 @@ export const listarFuncionariosController = async (req, res) => {
 
 export const listarFuncionarioController = async (req, res) => {
   try {
-    await listarFuncionario(matricula);
+    await listarFuncionario(req, res);
   } catch (error) {
     return handleError(res, error, error.message);
   }

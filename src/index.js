@@ -13,11 +13,9 @@ dotenv.config();
 
 const app = express();
 
-const prisma = new PrismaClient();
-
 app.use(cors());
 app.use(express.json());
-app.use("uploads", express.static("src/uploads"));
+app.use("/uploads", express.static("src/uploads"));
 
 app.use("/api", loginRoutes);
 app.use("/api", homeRoutes);

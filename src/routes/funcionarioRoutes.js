@@ -40,7 +40,7 @@ funcionarioRoutes.delete(
   somenteAdmin,
   excluirFuncionarioController
 );
-funcionarioRoutes.put(
+funcionarioRoutes.post(
   "/funcionarios/:matricula",
   verifyToken,
   somenteAdmin,

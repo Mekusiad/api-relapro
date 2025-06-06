@@ -4,4 +4,4 @@ import { homeController } from "../controllers/homeController.js";
 
 export const homeRoutes = express.Router();
 
-homeRoutes.get("/", verifyToken, homeController);
+homeRoutes.get("/home", verifyToken, homeController);

@@ -11,7 +11,6 @@ const prisma = new PrismaClient();
 export const login = async (req, res) => {
   try {
     const validateLogin = loginSchema.safeParse(req.body);
-
     if (!validateLogin.success)
       return res
         .status(400)

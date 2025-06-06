@@ -6,14 +6,15 @@ import {
   novaOrdem,
   removerTecnico,
   trocarSupervisor,
+  atualizaStatus,
 } from "../services/ordemServices.js";
 import { handleError } from "../utils/errorHandler.js";
 
 export const novaOrdemController = async (req, res) => {
   const data = req.body;
-
+  console.log(data);
   try {
-    await novaOrdem(data);
+    await novaOrdem(data, res);
   } catch (error) {
     return handleError(res, error, "Error ao criar ordem de serviço.");
   }
@@ -46,6 +47,13 @@ export const atualizarOrdemController = async (req, res) => {
           return handleError(res, error, "Erro ao trocar supervisor da OS.");
         }
 
+      case "atualiza-status":
+        try {
+          await atualizaStatus(numeroOs, data, res);
+        } catch (error) {
+          return handleError(res, error, "Erro ao trocar supervisor da OS.");
+        }
+
       default:
         return res.status(400).json({
           status: false,
@@ -61,7 +69,7 @@ export const adicionarComponenteController = async (req, res) => {
   try {
     const { data } = req.body;
     const { numeroOs } = req.params;
-    await adicionarComponente(numeroOs, data);
+    await adicionarComponente(numeroOs, data, res);
   } catch (error) {
     return handleError(res, error, "Erro ao adicionar componente");
   }
@@ -81,7 +89,7 @@ export const listarOrdemController = async (req, res) => {
   const { status } = req.query;
 
   try {
-    await listarServicos(status);
+    await listarServicos(status, res);
   } catch (error) {
     return handleError(res, error, error.message);
   }

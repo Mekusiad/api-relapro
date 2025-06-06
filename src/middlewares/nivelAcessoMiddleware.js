@@ -1,6 +1,6 @@
 export const nivelAcessoMiddleware = (...funcoes) => {
   return (req, res, next) => {
-    if (!funcoes.includes(req.funcionario.nivelAcesso)) {
+    if (!funcoes.includes(req.funcionarioNivelAcesso)) {
       return res.status(403).json({ message: "Acesso negado" });
     }
     next();
@@ -9,8 +9,8 @@ export const nivelAcessoMiddleware = (...funcoes) => {
 
 export const somenteAdminSupervisor = (req, res, next) => {
   if (
-    req.funcionario.nivelAcesso !== "ADMIN" ||
-    req.funcionario.nivelAcesso !== "SUPERVISOR"
+    req.funcionarioNivelAcesso !== "ADMIN" &&
+    req.funcionarioNivelAcesso !== "SUPERVISOR"
   ) {
     return res.status(403).json({
       status: false,
@@ -20,8 +20,8 @@ export const somenteAdminSupervisor = (req, res, next) => {
   next();
 };
 
-export const somenteAdmin = () => {
-  if (req.funcionario.nivelAcesso !== "ADMIN") {
+export const somenteAdmin = (req, res, next) => {
+  if (req.funcionarioNivelAcesso !== "ADMIN") {
     return res.status(403).json({
       status: false,
       message: "Acesso restrito a administradores",
