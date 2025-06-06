@@ -89,7 +89,8 @@ export const listarFuncionarios = async (req, res) => {
   });
 };
 
-export const listarFuncionario = async (matricula) => {
+export const listarFuncionario = async (req, res) => {
+  const { matricula } = req.params;
   const funcionario = await prisma.funcionario.findFirst({
     where: { matricula: Number(matricula) },
   });

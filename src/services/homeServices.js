@@ -3,10 +3,10 @@ import { PrismaClient } from "../generated/prisma/index.js";
 const prisma = new PrismaClient();
 
 export const home = async (req, res) => {
-  const decoded = req.decoded;
+  const decodedMatricula = req.funcionarioMatricula;
 
   const funcionario = await prisma.funcionario.findFirst({
-    where: { matricula: Number(decoded.matricula) },
+    where: { matricula: Number(decodedMatricula) },
   });
 
   return res.status(200).json({
