@@ -149,8 +149,28 @@ export const excluirFuncionario = async (req, res) => {
       message: "Acesso negado, não é permitido excluir a si mesmo.",
     });
 
+  // 📝 Obter dados antes da exclusão
+  const funcionarioExcluido = await prisma.funcionario.findUnique({
+    where: { matricula: Number(outraMatricula) },
+  });
+
+  if (!funcionarioExcluido)
+    return res
+      .status(404)
+      .json({ status: false, message: "Funcionário não encontrado." });
+
   await prisma.funcionario.delete({
     where: { matricula: Number(outraMatricula) },
+  });
+
+  // 🪵 Registrar log
+  await prisma.logAtividade.create({
+    data: {
+      acao: "EXCLUIR",
+      entidade: "funcionario",
+      dadosAfetados: funcionarioExcluido,
+      feitoPor: funcionarioMatricula,
+    },
   });
 
   return res
@@ -215,6 +235,7 @@ export const listarOrdensDoFuncionario = async (req, res) => {
         select: { nome: true, matricula: true },
       },
       supervisor: { select: { nome: true, matricula: true } },
+      componente: { include: { ensaioTrafoCorrente: true } },
     },
   });
 
@@ -315,6 +336,49 @@ export const criarOs = async (req, res) => {
   return res
     .status(201)
     .json({ status: true, message: "OS criada com sucesso." });
+};
+
+export const excluirOs = async (req, res) => {
+  const { matricula, numeroOs } = req.params;
+  const { funcionarioMatricula, funcionarioNivelAcesso } = req;
+
+  if (!conferirMatriculas(matricula, funcionarioMatricula))
+    return res.status(403).json({ status: false, message: "Acesso negado." });
+
+  if (funcionarioNivelAcesso.toString().toUpperCase() !== "ADMIN")
+    return res
+      .status(403)
+      .json({ status: true, message: "Você não tem permissão para criar OS." });
+
+  // 📝 Obter dados antes da exclusão
+  const ordemExcluida = await prisma.ordem.findUnique({
+    where: { numeroOs },
+  });
+
+  if (!ordemExcluida)
+    return res
+      .status(404)
+      .json({ status: false, message: "OS não encontrada." });
+
+  await prisma.ordem.delete({
+    where: {
+      numeroOs,
+    },
+  });
+
+  // 🪵 Registrar log
+  await prisma.logAtividade.create({
+    data: {
+      acao: "EXCLUIR",
+      entidade: "ordem",
+      dadosAfetados: ordemExcluida,
+      feitoPor: Number(matricula),
+    },
+  });
+
+  return res
+    .status(200)
+    .json({ status: true, message: "OS excluída com sucesso." });
 };
 
 export const adicionarTecnicoNaOs = async (numeroOs, tecnicoMatricula, res) => {
@@ -533,7 +597,7 @@ export const buscarFuncionarioPorMatricula = async (req, res) => {
   });
 };
 
-export const adicionarComponente = async (req, res) => {
+export const adicionarComponenteNaOs = async (req, res) => {
   const data = req.body;
   const { matricula, numeroOs } = req.params;
   const { funcionarioMatricula, funcionarioNivelAcesso } = req;
@@ -581,7 +645,7 @@ export const adicionarComponente = async (req, res) => {
   });
 };
 
-export const atualizarComponente = async (req, res) => {
+export const atualizarComponenteNaOs = async (req, res) => {
   const { matricula, numeroOs, componenteId } = req.params;
   const { funcionarioMatricula, funcionarioNivelAcesso } = req;
   const data = req.body;
@@ -627,11 +691,56 @@ export const atualizarComponente = async (req, res) => {
     .json({ status: true, message: "Componente atualizado com sucesso." });
 };
 
+export const excluirComponenteNaOs = async (req, res) => {
+  const { matricula, numeroOs, componenteId } = req.params;
+  const { funcionarioMatricula, funcionarioNivelAcesso } = req;
+
+  // Se não der certo, redirecionar para o login e deslogar
+  if (!conferirMatriculas(matricula, funcionarioMatricula))
+    return res.status(403).json({ status: false, message: "Acesso negado." });
+
+  if (funcionarioNivelAcesso !== "ADMIN")
+    return res.status(401).json({
+      status: false,
+      message: "Acesso negado, técnico não vinculado à OS ou não autorizado.",
+    });
+
+  const componenteExist = await prisma.componente.findFirst({
+    where: { id: Number(componenteId) },
+    include: { ordem: true },
+  });
+
+  if (componenteExist.ordem.numeroOs !== numeroOs)
+    return res.status(400).json({
+      status: false,
+      message: "Componente não está vinculado na OS ou foi excluído.",
+    });
+
+  await prisma.componente.delete({ where: { id: Number(componenteId) } });
+
+  // 🪵 Registrar log
+  await prisma.logAtividade.create({
+    data: {
+      acao: "EXCLUIR",
+      entidade: "componente",
+      dadosAfetados: componenteExist,
+      feitoPor: Number(matricula),
+    },
+  });
+  return res
+    .status(200)
+    .json({ status: true, message: "Componente foi excluído com sucesso." });
+};
+
 export const adicionarEnsaioComponente = async (req, res) => {
   const { funcionarioMatricula, funcionarioNivelAcesso } = req;
   const componenteId = Number(req.params.componenteId);
-  const numeroOs = req.params.numeroOs;
+  const { matricula, numeroOs } = req.params;
   const data = req.body;
+
+  // Se não der certo, redirecionar para o login e deslogar
+  if (!conferirMatriculas(matricula, funcionarioMatricula))
+    return res.status(403).json({ status: false, message: "Acesso negado." });
 
   const componenteEnsaiado = await prisma.componente.findUnique({
     where: { id: componenteId },
@@ -713,4 +822,71 @@ export const adicionarEnsaioComponente = async (req, res) => {
       data: ensaio,
     });
   }
+};
+
+export const excluirEnsaioComponente = async (req, res) => {
+  const { funcionarioMatricula, funcionarioNivelAcesso } = req;
+  const { matricula, numeroOs, componenteId, ensaioId } = req.params;
+  const data = req.body;
+
+  // Se não der certo, redirecionar para o login e deslogar
+  if (!conferirMatriculas(matricula, funcionarioMatricula))
+    return res.status(403).json({ status: false, message: "Acesso negado." });
+
+  if (funcionarioNivelAcesso.toString().toUpperCase() !== "ADMIN")
+    return res.status(401).json({
+      status: false,
+      message: "Acesso negado, técnico não vinculado à OS ou não autorizado.",
+    });
+
+  const ensaioFeito = await prisma.ensaioTrafoCorrente.findUnique({
+    where: { id: Number(ensaioId) },
+  });
+
+  if (!ensaioFeito || ensaioFeito.componenteID !== Number(componenteId))
+    return res.status(400).json({
+      status: false,
+      message: "Ensaio não está vinculado no componente ou foi excluído.",
+    });
+
+  const componenteEnsaiado = await prisma.componente.findUnique({
+    where: { id: Number(componenteId) },
+    include: { ordem: true },
+  });
+
+  if (componenteEnsaiado.ordem.numeroOs !== numeroOs)
+    return res.status(400).json({
+      status: false,
+      message: "Componente não está vinculado na OS ou foi excluído.",
+    });
+
+  await prisma.ensaioTrafoCorrente.delete({ where: { id: Number(ensaioId) } });
+
+  // 🪵 Registrar log
+  await prisma.logAtividade.create({
+    data: {
+      acao: "EXCLUIR",
+      entidade: "ensaioTrafoCorrente",
+      dadosAfetados: ensaioFeito,
+      feitoPor: Number(matricula),
+    },
+  });
+
+  return res.status(200).json({
+    status: true,
+    message: "Ensaio foi excluído do componente com sucesso.",
+  });
+};
+
+export const listarLogs = async (req, res) => {
+  const { funcionarioNivelAcesso } = req;
+
+  if (funcionarioNivelAcesso !== "ADMIN")
+    return res.status(403).json({ status: false, message: "Acesso restrito." });
+
+  const logs = await prisma.logAtividade.findMany({
+    orderBy: { criadoEm: "desc" },
+  });
+
+  return res.status(200).json({ status: true, data: logs });
 };

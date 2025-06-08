@@ -311,3 +311,12 @@ model Equipamento {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
+
+model LogAtividade {
+  id             Int      @id @default(autoincrement())
+  acao           String   // EXCLUIR, CRIAR, ATUALIZAR
+  entidade       String   // funcionario, ordem, componente etc.
+  dadosAfetados  Json     // snapshot do que foi afetado
+  feitoPor       Int      // matrícula de quem realizou a ação
+  criadoEm       DateTime @default(now())
+}

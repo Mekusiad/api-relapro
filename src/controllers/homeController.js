@@ -2,9 +2,9 @@ import {
   homeInfo,
   criarOs,
   listarFuncionarios,
-  adicionarComponente,
+  adicionarComponenteNaOs,
   adicionarTecnicoNaOs,
-  atualizarComponente,
+  atualizarComponenteNaOs,
   atualizaStatusOs,
   buscarFuncionarioPorMatricula,
   detalharOrdemFuncionario,
@@ -16,6 +16,10 @@ import {
   registrarFuncionario,
   atualizarDadosFuncionario,
   adicionarEnsaioComponente,
+  excluirOs,
+  listarLogs,
+  excluirEnsaioComponente,
+  excluirComponenteNaOs,
 } from "../services/homeServices.js";
 
 import { conferirMatriculas } from "../utils/conferirMatriculas.js";
@@ -77,6 +81,14 @@ export const homeListarOrdensDoFuncionarioController = async (req, res) => {
 export const homeCriarOsController = async (req, res) => {
   try {
     await criarOs(req, res);
+  } catch (error) {
+    return handleError(res, error, error.message);
+  }
+};
+
+export const homeExcluirOsController = async (req, res) => {
+  try {
+    await excluirOs(req, res);
   } catch (error) {
     return handleError(res, error, error.message);
   }
@@ -144,7 +156,7 @@ export const homeBuscarFuncionarioPorMatriculaController = async (req, res) => {
 
 export const homeAdicionarComponenteController = async (req, res) => {
   try {
-    await adicionarComponente(req, res);
+    await adicionarComponenteNaOs(req, res);
   } catch (error) {
     return handleError(
       res,
@@ -156,7 +168,7 @@ export const homeAdicionarComponenteController = async (req, res) => {
 
 export const homeAtualizarComponenteController = async (req, res) => {
   try {
-    await atualizarComponente(req, res);
+    await atualizarComponenteNaOs(req, res);
   } catch (error) {
     return handleError(
       res,
@@ -166,9 +178,45 @@ export const homeAtualizarComponenteController = async (req, res) => {
   }
 };
 
+export const homeExcluirComponenteController = async (req, res) => {
+  try {
+    await excluirComponenteNaOs(req, res);
+  } catch (error) {
+    return handleError(
+      res,
+      error,
+      "Erro interno no servidor ao excluir componente."
+    );
+  }
+};
+
 export const homeAdicionarEnsaioComponenteController = async (req, res) => {
   try {
     await adicionarEnsaioComponente(req, res);
+  } catch (error) {
+    return handleError(
+      res,
+      error,
+      "Erro interno no servidor ao adicionar ensaio ao componente."
+    );
+  }
+};
+
+export const homeExcluirEnsaioComponenteController = async (req, res) => {
+  try {
+    await excluirEnsaioComponente(req, res);
+  } catch (error) {
+    return handleError(
+      res,
+      error,
+      "Erro interno no servidor ao excluir ensaio do componente."
+    );
+  }
+};
+
+export const homeListarLogsController = async (req, res) => {
+  try {
+    await listarLogs(req, res);
   } catch (error) {
     return handleError(
       res,

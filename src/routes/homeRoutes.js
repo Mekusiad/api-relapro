@@ -15,6 +15,10 @@ import {
   homeExcluirFuncionarioController,
   homeCriarOsController,
   homeAdicionarEnsaioComponenteController,
+  homeExcluirOsController,
+  homeListarLogsController,
+  homeExcluirEnsaioComponenteController,
+  homeExcluirComponenteController,
 } from "../controllers/homeController.js";
 
 export const homeRoutes = express.Router();
@@ -58,6 +62,9 @@ homeRoutes.get(
 // POST /home/:matricual/ordens -> Criar OS
 homeRoutes.post("/home/:matricula/ordens", homeCriarOsController);
 
+// DELETE /home/:admin/ordens/:numeroOs -> Excluir OS
+homeRoutes.delete("/home/:matricula/ordens/:numeroOs", homeExcluirOsController);
+
 // PUT /home/:matricula/ordens/:numeroOs -> Atualiza ordem(add/remove técnico, troca supervisor, atualiza status)
 homeRoutes.put(
   "/home/:matricula/ordens/:numeroOs",
@@ -88,6 +95,12 @@ homeRoutes.put(
   homeAtualizarComponenteController
 );
 
+//DELETE /home/:matricula/ordens/:numeroOs/componentes/:componenteId -> Exclui componente da OS
+homeRoutes.delete(
+  "/home/:matricula/ordens/:numeroOs/componentes/:componenteId",
+  homeExcluirComponenteController
+);
+
 // GET /home/:matricula/ordens/:numeroOs/componentes → Consulta componentes da OS
 homeRoutes.get(
   "/home/:matricula/ordens/:numeroOs/componentes",
@@ -99,3 +112,12 @@ homeRoutes.post(
   "/home/:matricula/ordens/:numeroOs/componentes/:componenteId/ensaio",
   homeAdicionarEnsaioComponenteController
 );
+
+// DELETE /home/:matricula/ordens/:numeroOs/componentes/:componenteId/ensaio/:ensaioId -> Excluir ensaio do componente
+homeRoutes.delete(
+  "/home/:matricula/ordens/:numeroOs/componentes/:componenteId/ensaio/:ensaioId",
+  homeExcluirEnsaioComponenteController
+);
+
+// GET /home/:matricula/logs
+homeRoutes.get("/home/:matricula/logs", homeListarLogsController);
