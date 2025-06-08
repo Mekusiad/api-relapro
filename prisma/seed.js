@@ -7,6 +7,19 @@ async function main() {
   await prisma.ordem.deleteMany();
   await prisma.funcionario.deleteMany();
   // Cria Admin
+
+  const admin = await prisma.funcionario.create({
+    data: {
+      nome: "admin",
+      usuario: "admin",
+      matricula: 111,
+      cargo: "admin",
+      admissao: "2025-04-01T00:00:00Z",
+      senha: "admin123",
+      nivelAcesso: "ADMIN",
+    },
+  });
+
   const admin1 = await prisma.funcionario.create({
     data: {
       nome: "Mauro Daisuke Medeiros Tahara",
@@ -32,7 +45,19 @@ async function main() {
   });
 
   // Cria Técnicos
-  const technician1 = await prisma.funcionario.create({
+  const tecnico = await prisma.funcionario.create({
+    data: {
+      nome: "tecnico",
+      usuario: "tecnico",
+      matricula: 333,
+      cargo: "tecnico",
+      admissao: "2020-04-01T00:00:00Z",
+      senha: "tecnico123",
+      nivelAcesso: "TECNICO",
+    },
+  });
+
+  const tecnico1 = await prisma.funcionario.create({
     data: {
       nome: "Manuel Garcia Neto",
       usuario: "manuel.neto",
@@ -44,7 +69,7 @@ async function main() {
     },
   });
 
-  const technician2 = await prisma.funcionario.create({
+  const tecnico2 = await prisma.funcionario.create({
     data: {
       nome: "Francisco de Assis",
       usuario: "francisco.assis",
@@ -56,7 +81,7 @@ async function main() {
     },
   });
 
-  const technician3 = await prisma.funcionario.create({
+  const tecnico3 = await prisma.funcionario.create({
     data: {
       nome: "Lucas Paes",
       usuario: "lucas.paes",
@@ -69,6 +94,19 @@ async function main() {
   });
 
   // Cria Supervisor
+
+  const supervisor = await prisma.funcionario.create({
+    data: {
+      nome: "supervisor",
+      usuario: "supervisor",
+      matricula: 222,
+      cargo: "supervisor",
+      admissao: "1995-04-01T00:00:00Z",
+      senha: "supervisor123",
+      nivelAcesso: "SUPERVISOR",
+    },
+  });
+
   const supervisor1 = await prisma.funcionario.create({
     data: {
       nome: "César Augusto",
@@ -109,11 +147,57 @@ async function main() {
       },
       tecnico: {
         connect: [
-          { matricula: technician1.matricula },
-          { matricula: technician2.matricula },
+          { matricula: tecnico1.matricula },
+          { matricula: tecnico2.matricula },
         ],
       },
       status: "ABERTA",
+    },
+  });
+
+  const os1 = await prisma.ordem.create({
+    data: {
+      numeroOs: "202506002",
+      cliente: "LG1",
+      nomeResponsavel: "Rafael",
+      contato: "92993552808",
+      email: "rafael.batista@hotmail.com",
+      localServico: "Av. Djalma Batista, n°151, Chapada",
+      descricaoInicial: "Manutenção Preventiva em SE 69kV",
+      previsaoInicio: new Date("2025-07-03T00:00:00Z"),
+      supervisor: {
+        connect: { matricula: supervisor2.matricula },
+      },
+      tecnico: {
+        connect: [
+          { matricula: tecnico2.matricula },
+          { matricula: tecnico3.matricula },
+        ],
+      },
+      status: "EM_ANDAMENTO",
+    },
+  });
+
+  const os2 = await prisma.ordem.create({
+    data: {
+      numeroOs: "202506003",
+      cliente: "LG2",
+      nomeResponsavel: "Rafael",
+      contato: "92993552808",
+      email: "rafael.batista@hotmail.com",
+      localServico: "Av. Djalma Batista, n°151, Chapada",
+      descricaoInicial: "Manutenção Preventiva em SE 69kV",
+      previsaoInicio: new Date("2025-07-03T00:00:00Z"),
+      supervisor: {
+        connect: { matricula: supervisor1.matricula },
+      },
+      tecnico: {
+        connect: [
+          { matricula: tecnico1.matricula },
+          { matricula: tecnico3.matricula },
+        ],
+      },
+      status: "FINALIZADA",
     },
   });
   // Cria um equipamento
