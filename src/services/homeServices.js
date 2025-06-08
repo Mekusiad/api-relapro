@@ -626,3 +626,91 @@ export const atualizarComponente = async (req, res) => {
     .status(200)
     .json({ status: true, message: "Componente atualizado com sucesso." });
 };
+
+export const adicionarEnsaioComponente = async (req, res) => {
+  const { funcionarioMatricula, funcionarioNivelAcesso } = req;
+  const componenteId = Number(req.params.componenteId);
+  const numeroOs = req.params.numeroOs;
+  const data = req.body;
+
+  const componenteEnsaiado = await prisma.componente.findUnique({
+    where: { id: componenteId },
+    include: {
+      ordem: true,
+    },
+  });
+
+  const ordemComponenteEnsaiado = await prisma.ordem.findUnique({
+    where: { numeroOs },
+    include: {
+      supervisor: true,
+      tecnico: true,
+    },
+  });
+
+  if (!componenteEnsaiado || !ordemComponenteEnsaiado)
+    return res.status(400).json({
+      status: false,
+      message: "Componente ou OS informada inválida.",
+    });
+
+  if (componenteEnsaiado.ordem.numeroOs !== numeroOs)
+    return res.status.json({
+      status: false,
+      message: "Componente não pertence à ordem de serviço informada.",
+    });
+
+  if (componenteEnsaiado.tipo.toLocaleUpperCase() === "TRAFO_CORRENTE") {
+    const jaExiste = await prisma.ensaioTrafoCorrente.findUnique({
+      where: { componenteID: componenteId },
+    });
+
+    if (jaExiste)
+      return res.status(400).json({
+        status: false,
+        message: "Já existe um ensaio registrado para este trafo.",
+      });
+
+    if (funcionarioNivelAcesso === "TECNICO") {
+      const tecnicoVinculado = ordem.tecnico.some(
+        (t) => t.matricula === funcionarioMatricula
+      );
+
+      if (!tecnicoVinculado) {
+        return res.status(403).json({
+          status: false,
+          message: "Técnico não está vinculado à OS.",
+        });
+      }
+    }
+
+    if (funcionarioNivelAcesso === "SUPERVISOR") {
+      const supervisorOuTecnico =
+        ordem.supervisor?.matricula === funcionarioMatricula ||
+        ordem.tecnico.some((t) => t.matricula === funcionarioMatricula);
+
+      if (!supervisorOuTecnico) {
+        return res.status(403).json({
+          status: false,
+          message: "Supervisor não está vinculado à OS.",
+        });
+      }
+    }
+
+    const ensaio = await prisma.ensaioTrafoCorrente.create({
+      data: {
+        ...data,
+        responsavelEnsaioMatricula: funcionarioMatricula,
+        componente: {
+          connect: { id: componenteId },
+        },
+      },
+    });
+
+    return res.status(201).json({
+      status: true,
+      message: "Ensaio registrado com sucesso.",
+      data: ensaio,
+    });
+  }
+};

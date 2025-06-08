@@ -15,6 +15,7 @@ import {
   excluirFuncionario,
   registrarFuncionario,
   atualizarDadosFuncionario,
+  adicionarEnsaioComponente,
 } from "../services/homeServices.js";
 
 import { conferirMatriculas } from "../utils/conferirMatriculas.js";
@@ -161,6 +162,18 @@ export const homeAtualizarComponenteController = async (req, res) => {
       res,
       error,
       "Erro interno no servidor ao atualizar componente."
+    );
+  }
+};
+
+export const homeAdicionarEnsaioComponenteController = async (req, res) => {
+  try {
+    await adicionarEnsaioComponente(req, res);
+  } catch (error) {
+    return handleError(
+      res,
+      error,
+      "Erro interno no servidor ao adicionar ensaio ao componente."
     );
   }
 };

@@ -14,6 +14,7 @@ import {
   homeAtualizadosDadosFuncionarioController,
   homeExcluirFuncionarioController,
   homeCriarOsController,
+  homeAdicionarEnsaioComponenteController,
 } from "../controllers/homeController.js";
 
 export const homeRoutes = express.Router();
@@ -91,4 +92,10 @@ homeRoutes.put(
 homeRoutes.get(
   "/home/:matricula/ordens/:numeroOs/componentes",
   homeListarComponentesDaOrdemController
+);
+
+// POST /home/:matricula/ordens/:numeroOs/componentes/:componenteId/ensaio -> Adiciona ensaio ao componente
+homeRoutes.post(
+  "/home/:matricula/ordens/:numeroOs/componentes/:componenteId/ensaio",
+  homeAdicionarEnsaioComponenteController
 );
