@@ -1,23 +1,628 @@
 import { PrismaClient } from "../generated/prisma/index.js";
+import { conferirMatriculas } from "../utils/conferirMatriculas.js";
 
 const prisma = new PrismaClient();
 
-export const home = async (req, res) => {
+export const homeInfo = async (req, res) => {
   const decodedMatricula = req.funcionarioMatricula;
 
   const funcionario = await prisma.funcionario.findFirst({
     where: { matricula: Number(decodedMatricula) },
   });
 
+  if (!funcionario)
+    return res
+      .status(404)
+      .json({ status: false, message: "Funcionário não encontrado." });
+
+  // Se for ADMIN, carrega estatísticas de ordens
+  let estatisticasOS = null;
+
+  if (funcionario.nivelAcesso === "ADMIN") {
+    const [abertas, andamento, finalizadas] = await Promise.all([
+      prisma.ordem.count({ where: { status: "ABERTA" } }),
+      prisma.ordem.count({ where: { status: "EM_ANDAMENTO" } }),
+      prisma.ordem.count({ where: { status: "FINALIZADA" } }),
+    ]);
+
+    estatisticasOS = {
+      abertas,
+      andamento,
+      finalizadas,
+    };
+  }
+
   return res.status(200).json({
     status: true,
-    message: "Usuário localizado.",
+    message: "Usuário logado com sucesso.",
     data: {
       id: funcionario.id,
       nome: funcionario.nome,
+      matricula: funcionario.matricula,
       nivelAcesso: funcionario.nivelAcesso,
       supervisor: funcionario.supervisor,
       tecnico: funcionario.tecnico,
+      estatisticasOS,
     },
   });
+};
+
+export const registrarFuncionario = async (req, res) => {
+  const matricula = Number(req.params.matricula);
+  const data = req.body;
+  const { funcionarioMatricula, funcionarioNivelAcesso } = req;
+
+  // Se não der certo, redirecionar para o login e deslogar
+  if (!conferirMatriculas(matricula, funcionarioMatricula))
+    return res.status(403).json({ status: false, message: "Acesso negado." });
+
+  if (funcionarioNivelAcesso.toString().toUpperCase() !== "ADMIN")
+    return res.status(403).json({
+      status: false,
+      message: "Você não tem permissão para realizar este tipo de ação.",
+    });
+
+  const matriculaExist = await prisma.funcionario.findFirst({
+    where: { matricula: data.matricula },
+  });
+
+  if (matriculaExist)
+    return res
+      .status(400)
+      .json({ status: false, message: "Matrícula existente, tente outra." });
+
+  const usuarioExiste = await prisma.funcionario.findFirst({
+    where: { usuario: data.usuario },
+  });
+  if (usuarioExiste)
+    return res
+      .status(400)
+      .json({ status: false, message: "Matrícula existente, tente outra." });
+
+  await prisma.funcionario.create({
+    data: {
+      nome: data.nome,
+      usuario: data.usuario,
+      matricula: data.matricula,
+      cargo: data.cargo,
+      admissao: new Date(data.admissao),
+      senha: data.senha,
+      nivelAcesso: data.nivelAcesso || "TECNICO",
+    },
+  });
+
+  return res
+    .status(201)
+    .json({ status: false, message: "Funcionário cadastrado com sucesso." });
+};
+
+export const atualizarDadosFuncionario = async (req, res) => {
+  const matricula = Number(req.params.matricula);
+  const outraMatricula = Number(req.params.outraMatricula);
+  const data = req.body;
+  const { funcionarioMatricula, funcionarioNivelAcesso } = req;
+
+  // Se não der certo, redirecionar para o login e deslogar
+  if (!conferirMatriculas(matricula, funcionarioMatricula))
+    return res.status(403).json({ status: false, message: "Acesso negado." });
+
+  if (funcionarioNivelAcesso.toString().toUpperCase() !== "ADMIN")
+    return res.status(403).json({
+      status: false,
+      message: "Você não tem permissão para realizar este tipo de ação.",
+    });
+
+  const dadosAtualizados = await prisma.funcionario.update({
+    where: { matricula: Number(outraMatricula) },
+    data,
+  });
+
+  if (!dadosAtualizados)
+    return res.status(400).json({
+      status: false,
+      message: "Erro ao atualizar dados de funcionário.",
+    });
+
+  return res.status(200).json({
+    status: true,
+    message: "Dados atualizados com sucesso.",
+  });
+};
+
+export const excluirFuncionario = async (req, res) => {
+  const { matricula, outraMatricula } = req.params;
+  const { funcionarioMatricula, funcionarioNivelAcesso } = req;
+
+  // Se não der certo, redirecionar para o login e deslogar
+  if (!conferirMatriculas(matricula, funcionarioMatricula))
+    return res.status(403).json({ status: false, message: "Acesso negado." });
+
+  if (funcionarioNivelAcesso.toString().toUpperCase() !== "ADMIN")
+    return res.status(403).json({
+      status: false,
+      message: "Você não tem permissão para realizar este tipo de ação.",
+    });
+
+  if (matricula === outraMatricula)
+    return res.status(401).json({
+      status: false,
+      message: "Acesso negado, não é permitido excluir a si mesmo.",
+    });
+
+  await prisma.funcionario.delete({
+    where: { matricula: Number(outraMatricula) },
+  });
+
+  return res
+    .status(200)
+    .json({ status: true, message: "Funcionário excluído com sucesso." });
+};
+
+export const listarFuncionarios = async (req, res) => {
+  const { funcionarioMatricula, funcionarioNivelAcesso } = req;
+  const { matricula } = req.params;
+
+  if (!conferirMatriculas(matricula, funcionarioMatricula))
+    return res.status(403).json({ status: false, message: "Acesso negado." });
+
+  if (funcionarioNivelAcesso === "TECNICO") {
+    return res.status(403).json({ status: false, message: "Acesso restrito." });
+  }
+
+  try {
+    const funcionarios = await prisma.funcionario.findMany();
+
+    const data =
+      funcionarioNivelAcesso === "SUPERVISOR"
+        ? funcionarios.map(({ senha, ...rest }) => rest)
+        : funcionarios;
+
+    return res
+      .status(200)
+      .json({ status: true, messagem: "Lista de funcionários.", data });
+  } catch (error) {
+    return res
+      .status(500)
+      .json({ status: false, message: "Erro ao listar funcionários." });
+  }
+};
+
+export const listarOrdensDoFuncionario = async (req, res) => {
+  const matricula = Number(req.params.matricula);
+  const { status } = req.query;
+  const nivelAcesso = req.funcionarioNivelAcesso;
+
+  if (!conferirMatriculas(matricula, req.funcionarioMatricula))
+    return res.status(403).json({ status: false, message: "Acesso negado." });
+
+  const ordens = await prisma.ordem.findMany({
+    where: {
+      ...(status ? { status } : {}),
+      ...(nivelAcesso === "ADMIN"
+        ? {}
+        : {
+            OR: [
+              { supervisorMatricula: matricula },
+              { tecnico: { some: { matricula } } },
+            ],
+          }),
+    },
+    orderBy: {
+      createdAt: "desc",
+    },
+    include: {
+      tecnico: {
+        select: { nome: true, matricula: true },
+      },
+      supervisor: { select: { nome: true, matricula: true } },
+    },
+  });
+
+  return res.status(200).json({
+    status: true,
+    message: "Ordens localizadas.",
+    data: ordens,
+  });
+};
+
+export const criarOs = async (req, res) => {
+  const data = req.body;
+  const { matricula } = req.params;
+  const { funcionarioMatricula, funcionarioNivelAcesso } = req;
+
+  if (!conferirMatriculas(matricula, funcionarioMatricula))
+    return res.status(403).json({ status: false, message: "Acesso negado." });
+
+  if (funcionarioNivelAcesso.toString().toUpperCase() === "TECNICO")
+    return res
+      .status(403)
+      .json({ status: true, message: "Você não tem permissão para criar OS." });
+
+  const ordemExist = await prisma.ordem.findFirst({
+    where: {
+      cliente: data.cliente,
+      localServico: data.localServico,
+      previsaoInicio: data.previsaoInicio,
+      descricaoInicial: data.descricaoInicial,
+    },
+  });
+
+  if (ordemExist)
+    return res.status(403).json({
+      status: false,
+      message: `Serviço já existe e está vinculada à OS ${ordemExist.numeroOs}`,
+    });
+
+  const now = new Date();
+
+  const ano = now.getFullYear(); // ano vigente
+  const mes = String(now.getMonth() + 1).padStart(2, "0"); // mês vigente
+
+  const prefixo = `${ano}${mes}`; // cocatena ano+mês
+
+  // Conta quantas OS já existem para o mês atual
+  const countMes = await prisma.ordem.count({
+    where: {
+      createdAt: {
+        gte: new Date(`${ano}-${mes}-01T00:00:00.000Z`),
+        lt: new Date(
+          `${ano}-${String(Number(mes) + 1).padStart(2, "0")}-01T00:00:00.000Z`
+        ),
+      },
+    },
+  });
+
+  const numeroSequencial = String(countMes + 1).padStart(3, "0"); // gera o próximo n° disponível do mês
+  const numberOs = `${prefixo}${numeroSequencial}`; // cocatena com ano+mês+n°disponível do mês
+  const novaOS = await prisma.ordem.create({
+    data: {
+      numeroOs: numberOs,
+      cliente: data.cliente,
+      nomeResponsavel: data.nomeResponsavel,
+      contato: data.contato,
+      email: data.email,
+      localServico: data.localServico,
+      descricaoInicial: data.descricaoInicial,
+      previsaoInicio: new Date(data.previsaoInicio),
+      ...(data.supervisorMatricula && {
+        supervisor: {
+          connect: { matricula: data.supervisorMatricula },
+        },
+      }),
+      ...(data.tecnicoMatricula &&
+        data.tecnicoMatricula.length > 0 && {
+          tecnico: {
+            connect: data.tecnicoMatricula.map((matricula) => ({ matricula })),
+          },
+        }),
+      status: "ABERTA",
+    },
+    include: {
+      supervisor: {
+        select: {
+          nome: true,
+          matricula: true,
+        },
+      },
+      tecnico: {
+        select: {
+          nome: true,
+          matricula: true,
+        },
+      },
+    },
+  });
+  return res
+    .status(201)
+    .json({ status: true, message: "OS criada com sucesso." });
+};
+
+export const adicionarTecnicoNaOs = async (numeroOs, tecnicoMatricula, res) => {
+  const ordem = await prisma.ordem.findUnique({
+    where: { numeroOs },
+    include: { tecnico: true },
+  });
+  const alreadyExists = ordem.tecnico.some((t) =>
+    tecnicoMatricula.includes(t.matricula)
+  );
+
+  if (alreadyExists)
+    return res
+      .status(400)
+      .json({ status: false, message: "Técnico já está vinculado à OS." });
+
+  const adicionado = await prisma.ordem.update({
+    where: { numeroOs },
+    data: {
+      ...(tecnicoMatricula &&
+        tecnicoMatricula.length > 0 && {
+          tecnico: {
+            connect: tecnicoMatricula.map((matricula) => ({ matricula })),
+          },
+        }),
+    },
+    include: { tecnico: { select: { nome: true, matricula: true } } },
+  });
+
+  return res.status(200).json({
+    status: true,
+    message: "Técnico adicionado com sucesso.",
+    data: adicionado.tecnico,
+  });
+};
+
+export const removerTecnicoNaOs = async (numeroOs, tecnicoMatricula, res) => {
+  const ordem = await prisma.ordem.findUnique({
+    where: { numeroOs },
+    include: { tecnico: true },
+  });
+
+  const exists = ordem.tecnico.some((t) => t.matricula === tecnicoMatricula);
+
+  if (!exists)
+    return res
+      .status(400)
+      .json({ status: false, message: "Técnico não está vinculado à OS." });
+
+  const removido = await prisma.ordem.update({
+    where: { numeroOs },
+    data: {
+      tecnico: {
+        disconnect: { matricula: tecnicoMatricula },
+      },
+    },
+    include: { tecnico: { select: { nome: true, matricula: true } } },
+  });
+
+  return res.status(200).json({
+    status: true,
+    message: "Técnico removido com sucesso.",
+    data: removido.tecnico,
+  });
+};
+
+export const trocarSupervisorNaOs = async (
+  numeroOs,
+  supervisorMatricula,
+  res
+) => {
+  const supervisor = await prisma.funcionario.findUnique({
+    where: { matricula: supervisorMatricula },
+  });
+
+  if (!supervisor || supervisor.nivelAcesso !== "SUPERVISOR")
+    return res.status(401).json({
+      status: false,
+      message: "Matrícula informada não pertence a um supervisor.",
+    });
+
+  const ordem = await prisma.ordem.findUnique({
+    where: { numeroOs },
+    include: { supervisor: true },
+  });
+
+  const atualMatricula = ordem.supervisor?.matricula;
+
+  if (atualMatricula === supervisorMatricula)
+    return res.status(401).json({
+      status: false,
+      message: "Supervisor informado já está vinculado.",
+    });
+
+  await prisma.ordem.update({
+    where: { numeroOs },
+    data: {
+      supervisor: {
+        connect: { matricula: supervisorMatricula },
+      },
+    },
+  });
+
+  return res
+    .status(200)
+    .json({ status: true, message: "Supervisor alterado com sucesso." });
+};
+
+export const atualizaStatusOs = async (numeroOs, data, res) => {
+  const statusOrdemAtualizada = await prisma.ordem.update({
+    where: { numeroOs },
+    data: {
+      status: data.status,
+    },
+  });
+
+  return res
+    .status(200)
+    .json(
+      { status: true, message: "Status atualizado com sucesso." },
+      statusOrdemAtualizada
+    );
+};
+
+export const detalharOrdemFuncionario = async (req, res) => {
+  const { numeroOs, matricula } = req.params;
+  const nivelAcesso = req.funcionarioNivelAcesso;
+
+  if (!conferirMatriculas(Number(matricula), req.funcionarioMatricula))
+    return res.status(403).json({ status: false, message: "Acesso negado." });
+
+  const ordem = await prisma.ordem.findUnique({
+    where: { numeroOs },
+    include: { tecnico: true, supervisor: true },
+  });
+
+  if (!ordem) {
+    return res.status(404).json({
+      status: false,
+      message: "Ordem de serviço não localizada ou não existe.",
+    });
+  }
+
+  if (
+    nivelAcesso !== "ADMIN" &&
+    ordem.supervisorMatricula !== Number(matricula) &&
+    !ordem.tecnico.some((t) => t.matricula === Number(matricula))
+  ) {
+    return res
+      .status(403)
+      .json({ status: false, message: "Acesso negado à ordem." });
+  }
+
+  return res.status(200).json({ status: true, data: ordem });
+};
+
+export const listarComponentesDaOrdem = async (req, res) => {
+  const { numeroOs, matricula } = req.params;
+  const nivelAcesso = req.funcionarioNivelAcesso;
+
+  if (!conferirMatriculas(Number(matricula), req.funcionarioMatricula))
+    return res.status(403).json({ status: false, message: "Acesso negado." });
+
+  const ordem = await prisma.ordem.findUnique({
+    where: { numeroOs },
+    include: {
+      tecnico: true,
+      supervisor: true,
+      componente: true,
+    },
+  });
+
+  if (!ordem)
+    return res
+      .status(404)
+      .json({ status: false, message: "Ordem não encontrada." });
+
+  if (
+    nivelAcesso !== "ADMIN" &&
+    ordem.supervisorMatricula !== Number(matricula) &&
+    !ordem.tecnico.some((t) => t.matricula === Number(matricula))
+  ) {
+    return res
+      .status(403)
+      .json({ status: false, message: "Acesso negado à ordem." });
+  }
+
+  return res.status(200).json({ status: true, data: ordem.componente });
+};
+
+export const buscarFuncionarioPorMatricula = async (req, res) => {
+  const { matricula, outraMatricula } = req.params;
+  const nivelAcesso = req.funcionarioNivelAcesso;
+
+  if (!conferirMatriculas(Number(matricula), req.funcionarioMatricula))
+    return res.status(403).json({ status: false, message: "Acesso negado." });
+
+  if (nivelAcesso !== "ADMIN" && nivelAcesso !== "SUPERVISOR") {
+    return res.status(403).json({ status: false, message: "Acesso restrito." });
+  }
+
+  const funcionario = await prisma.funcionario.findFirst({
+    where: { matricula: Number(outraMatricula) },
+  });
+
+  if (!funcionario) {
+    return res
+      .status(404)
+      .json({ status: false, message: "Funcionário não encontrado." });
+  }
+
+  const { senha, ...rest } = funcionario;
+  return res.status(200).json({
+    status: true,
+    data: nivelAcesso === "SUPERVISOR" ? rest : funcionario,
+  });
+};
+
+export const adicionarComponente = async (req, res) => {
+  const data = req.body;
+  const { matricula, numeroOs } = req.params;
+  const { funcionarioMatricula, funcionarioNivelAcesso } = req;
+  const { numeroSerie } = data;
+
+  // Se não der certo, redirecionar para o login e deslogar
+  if (!conferirMatriculas(matricula, req.funcionarioMatricula))
+    return res.status(403).json({ status: false, message: "Acesso negado." });
+
+  const osVinculada = await prisma.ordem.findFirst({
+    where: { numeroOs },
+    select: { tecnico: true },
+  });
+
+  if (
+    !osVinculada.tecnico.includes(funcionarioMatricula) &&
+    funcionarioNivelAcesso === "TECNICO"
+  )
+    return res.status(401).json({
+      status: false,
+      message: "Acesso negado, técnico não vinculado à OS ou não autorizado.",
+    });
+
+  const componenteExiste = await prisma.componente.findFirst({
+    where: { numeroSerie, ordemOs: numeroOs },
+  });
+
+  if (componenteExiste)
+    return res.status(400).json({
+      status: false,
+      message: "Já existe um componente com esse número de série nesta OS.",
+    });
+
+  const componenteCriado = await prisma.componente.create({
+    data: {
+      ...data,
+      ordem: { connect: { numeroOs } },
+    },
+  });
+
+  return res.status(201).json({
+    status: false,
+    message: "Componente cadastrado com sucesso.",
+    data: componenteCriado,
+  });
+};
+
+export const atualizarComponente = async (req, res) => {
+  const { matricula, numeroOs, componenteId } = req.params;
+  const { funcionarioMatricula, funcionarioNivelAcesso } = req;
+  const data = req.body;
+
+  // Se não der certo, redirecionar para o login e deslogar
+  if (!conferirMatriculas(matricula, funcionarioMatricula))
+    return res.status(403).json({ status: false, message: "Acesso negado." });
+
+  const osVinculada = await prisma.ordem.findFirst({
+    where: { numeroOs },
+    include: {
+      tecnico: true,
+    },
+  });
+
+  if (
+    !osVinculada.tecnico.includes(funcionarioMatricula) &&
+    funcionarioNivelAcesso === "TECNICO"
+  )
+    return res.status(401).json({
+      status: false,
+      message: "Acesso negado, técnico não vinculado à OS ou não autorizado.",
+    });
+
+  const componenteExiste = await prisma.componente.findFirst({
+    where: { id: Number(componenteId), ordemOs: numeroOs },
+  });
+  if (!componenteExiste)
+    return res.status(400).json({
+      status: false,
+      message: "Componente não encontrado ou foi excluído",
+    });
+
+  await prisma.componente.update({
+    where: { id: Number(componenteId) },
+    data: {
+      ...data,
+    },
+  });
+
+  return res
+    .status(200)
+    .json({ status: true, message: "Componente atualizado com sucesso." });
 };
