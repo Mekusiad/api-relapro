@@ -890,3 +890,141 @@ export const listarLogs = async (req, res) => {
 
   return res.status(200).json({ status: true, data: logs });
 };
+
+export const cadastrarEquipamento = async (req, res) => {
+  const data = req.body;
+  const { matricula } = req.params;
+  const { funcionarioMatricula, funcionarioNivelAcesso } = req;
+
+  if (!conferirMatriculas(matricula, funcionarioMatricula))
+    return res.status(403).json({ status: false, message: "Acesso negado." });
+
+  if (funcionarioNivelAcesso.toString().toUpperCase() !== "ADMIN")
+    return res.status(403).json({
+      status: false,
+      message: "Você não tem permissão para cadastrar equipamento.",
+    });
+
+  const equipamentoExiste = await prisma.equipamento.findFirst({
+    where: { numeroSerie: data.numeroSerie },
+  });
+
+  if (equipamentoExiste)
+    return res.status(401).json({
+      status: false,
+      message: "Número de série já existe cadastrado em outro equipamento.",
+    });
+
+  await prisma.equipamento.create({
+    data: {
+      nome: data.nome,
+      descricao: data.descricao,
+      modelo: data.modelo,
+      numeroSerie: data.numeroSerie,
+    },
+  });
+
+  return res
+    .status(201)
+    .json({ status: true, message: "Equipamento cadastrado com sucesso." });
+};
+
+export const atualizarEquipamento = async (req, res) => {
+  const data = req.body;
+  const { matricula, equipamentoId } = req.params;
+  const { funcionarioMatricula, funcionarioNivelAcesso } = req;
+
+  if (!conferirMatriculas(matricula, funcionarioMatricula))
+    return res.status(403).json({ status: false, message: "Acesso negado." });
+
+  if (funcionarioNivelAcesso.toString().toUpperCase() !== "ADMIN")
+    return res.status(403).json({
+      status: false,
+      message: "Você não tem permissão para atuallizar dados do equipamento.",
+    });
+
+  const equipamentoExiste = await prisma.equipamento.findFirst({
+    where: { id: Number(equipamentoId) },
+  });
+
+  if (!equipamentoExiste)
+    return res.status(401).json({
+      status: false,
+      message: "Equipamento informado não existe ou foi excluído.",
+    });
+
+  await prisma.equipamento.update({
+    where: { id: Number(equipamentoId) },
+    data,
+  });
+
+  return res
+    .status(200)
+    .json({ status: true, message: "Equipamento atualizado com sucesso." });
+};
+
+export const listarEquipamentos = async (req, res) => {
+  const { matricula } = req.params;
+  const { funcionarioMatricula } = req;
+
+  if (!conferirMatriculas(matricula, funcionarioMatricula))
+    return res.status(403).json({ status: false, message: "Acesso negado." });
+
+  const equipamentoExiste = await prisma.equipamento.findMany({});
+
+  if (!equipamentoExiste)
+    return res.status(401).json({
+      status: false,
+      message: "Equipamento informado não existe ou foi excluído.",
+    });
+
+  return res.status(200).json({
+    statue: true,
+    message:
+      equipamentoExiste.length > 0
+        ? "Equipamentos encontrados."
+        : "No momento não existe equipamento cadastrado.",
+    data: equipamentoExiste,
+  });
+};
+
+export const excluirEquipamento = async (req, res) => {
+  const { matricula, equipamentoId } = req.params;
+  const { funcionarioMatricula, funcionarioNivelAcesso } = req;
+
+  if (!conferirMatriculas(matricula, funcionarioMatricula))
+    return res.status(403).json({ status: false, message: "Acesso negado." });
+
+  if (funcionarioNivelAcesso.toString().toUpperCase() !== "ADMIN")
+    return res.status(403).json({
+      status: false,
+      message: "Você não tem permissão para excluir equipamento.",
+    });
+
+  const equipamentoExiste = await prisma.equipamento.findFirst({
+    where: { id: Number(equipamentoId) },
+  });
+
+  if (!equipamentoExiste)
+    return res.status(401).json({
+      status: false,
+      message: "Equipamento informado não existe ou foi excluído.",
+    });
+
+  await prisma.equipamento.delete({ where: { id: Number(equipamentoId) } });
+
+  // 🪵 Registrar log
+  await prisma.logAtividade.create({
+    data: {
+      acao: "EXCLUIR",
+      entidade: "equipamento",
+      dadosAfetados: equipamentoExiste,
+      feitoPor: Number(matricula),
+    },
+  });
+
+  return res.status(200).json({
+    statue: true,
+    message: "Equipamento excluído com sucesso.",
+  });
+};

@@ -19,6 +19,10 @@ import {
   homeListarLogsController,
   homeExcluirEnsaioComponenteController,
   homeExcluirComponenteController,
+  homeCadastrarEquipamentoController,
+  homeAtualizarEquipamentoController,
+  homeListarEquipamentosController,
+  homeExcluirEquipamentoController,
 } from "../controllers/homeController.js";
 
 export const homeRoutes = express.Router();
@@ -121,3 +125,27 @@ homeRoutes.delete(
 
 // GET /home/:matricula/logs
 homeRoutes.get("/home/:matricula/logs", homeListarLogsController);
+
+// POST /home/:matricula/equipamentos
+homeRoutes.post(
+  "/home/:matricula/equipamentos",
+  homeCadastrarEquipamentoController
+);
+
+// PUT /home/:matricula/equipamentos/:equipamentoId
+homeRoutes.put(
+  "/home/:matricula/equipamentos/:equipamentoId",
+  homeAtualizarEquipamentoController
+);
+
+// GET /home/:matricula/equipamentos/
+homeRoutes.get(
+  "/home/:matricula/equipamentos/",
+  homeListarEquipamentosController
+);
+
+// DELETE /home/:matricula/equipamentos/:equipamentoId
+homeRoutes.delete(
+  "/home/:matricula/equipamentos/:equipamentoId",
+  homeExcluirEquipamentoController
+);

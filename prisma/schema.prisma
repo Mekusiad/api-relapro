@@ -287,27 +287,27 @@ model Equipamento {
   // ensaioTrafoAlta      EnsaioTrafoAlta @relation(fields: [ensaioTrafoAlta], references: [id])
   // ensaioTrafoAltaId Int
 
-  ensaioTrafoPotencia   EnsaioTrafoPotencia @relation(fields: [ensaioTrafoPotenciaId], references: [id])
-  ensaioTrafoPotenciaId Int
+  ensaioTrafoPotencia   EnsaioTrafoPotencia? @relation(fields: [ensaioTrafoPotenciaId], references: [id])
+  ensaioTrafoPotenciaId Int?
 
   // ensaioTrafoForca      EnsaioTrafoForca @relation(fields: [ensaioTrafoForcaId], references: [id])
   // ensaioTrafoForcaId Int
 
-  ensaioTrafoCorrente   EnsaioTrafoCorrente @relation(fields: [ensaioTrafoCorrenteId], references: [id])
-  ensaioTrafoCorrenteId Int
+  ensaioTrafoCorrente   EnsaioTrafoCorrente? @relation(fields: [ensaioTrafoCorrenteId], references: [id])
+  ensaioTrafoCorrenteId Int?
 
-  ensaioDisjuntor   EnsaioDisjuntor @relation(fields: [ensaioDisjuntorId], references: [id])
-  ensaioDisjuntorId Int
+  ensaioDisjuntor   EnsaioDisjuntor? @relation(fields: [ensaioDisjuntorId], references: [id])
+  ensaioDisjuntorId Int?
 
-  malhaAterramento      MalhaAterramento @relation(fields: [malhaAterramentoSerie], references: [id])
-  malhaAterramentoSerie Int
+  malhaAterramento      MalhaAterramento? @relation(fields: [malhaAterramentoSerie], references: [id])
+  malhaAterramentoSerie Int?
 
-  ensaioResistor              EnsaioResistorAterramento @relation(fields: [EnsaioResistorAterramentoId], references: [id])
-  EnsaioResistorAterramentoId Int
+  ensaioResistor              EnsaioResistorAterramento? @relation(fields: [EnsaioResistorAterramentoId], references: [id])
+  EnsaioResistorAterramentoId Int?
 
-  ensaioChaveSeccionadora   EnsaioChaveSeccionadora @relation(fields: [ensaioChaveSeccionadoraId], references: [id])
-  ensaioChaveSeccionadoraId Int
-
+  ensaioChaveSeccionadora   EnsaioChaveSeccionadora? @relation(fields: [ensaioChaveSeccionadoraId], references: [id])
+  ensaioChaveSeccionadoraId Int?
+  
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }

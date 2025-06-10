@@ -20,6 +20,10 @@ import {
   listarLogs,
   excluirEnsaioComponente,
   excluirComponenteNaOs,
+  cadastrarEquipamento,
+  atualizarEquipamento,
+  listarEquipamentos,
+  excluirEquipamento,
 } from "../services/homeServices.js";
 
 import { conferirMatriculas } from "../utils/conferirMatriculas.js";
@@ -218,10 +222,54 @@ export const homeListarLogsController = async (req, res) => {
   try {
     await listarLogs(req, res);
   } catch (error) {
+    return handleError(res, error, "Erro interno no servidor ao listar logs.");
+  }
+};
+
+export const homeCadastrarEquipamentoController = async (req, res) => {
+  try {
+    await cadastrarEquipamento(req, res);
+  } catch (error) {
     return handleError(
       res,
       error,
-      "Erro interno no servidor ao adicionar ensaio ao componente."
+      "Erro interno no servidor ao cadastrar equipamento."
+    );
+  }
+};
+
+export const homeAtualizarEquipamentoController = async (req, res) => {
+  try {
+    await atualizarEquipamento(req, res);
+  } catch (error) {
+    return handleError(
+      res,
+      error,
+      "Erro interno no servidor ao atualizar equipamento."
+    );
+  }
+};
+
+export const homeListarEquipamentosController = async (req, res) => {
+  try {
+    await listarEquipamentos(req, res);
+  } catch (error) {
+    return handleError(
+      res,
+      error,
+      "Erro interno no servidor ao listar equipamentos."
+    );
+  }
+};
+
+export const homeExcluirEquipamentoController = async (req, res) => {
+  try {
+    await excluirEquipamento(req, res);
+  } catch (error) {
+    return handleError(
+      res,
+      error,
+      "Erro interno no servidor ao excluir equipamento."
     );
   }
 };
