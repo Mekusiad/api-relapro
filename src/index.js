@@ -16,7 +16,14 @@ app.use("/uploads", express.static("src/uploads"));
 app.use("/api", loginRoutes);
 app.use("/api", homeRoutes);
 
-app.get("/", (req, res) => res.json("API rodando"));
+// Rota de verificação de status (acordar o app)
+app.get("/status", (req, res) => {
+  res.status(200).json({
+    status: true,
+    message: "Servidor acordado e operando normalmente 🟢",
+    timestamp: new Date().toISOString(),
+  });
+});
 
 const PORT = process.env.PORT || 3000;
 
