@@ -209,7 +209,7 @@ export const listarFuncionarios = async (req, res) => {
 
 export const listarOrdensDoFuncionario = async (req, res) => {
   const matricula = Number(req.params.matricula);
-  const { status } = req.query;
+  const { status, numeroOs, cliente } = req.query;
   const nivelAcesso = req.funcionarioNivelAcesso;
 
   if (!conferirMatriculas(matricula, req.funcionarioMatricula))
@@ -217,7 +217,16 @@ export const listarOrdensDoFuncionario = async (req, res) => {
 
   const ordens = await prisma.ordem.findMany({
     where: {
-      ...(status ? { status } : {}),
+      ...(status ? { status: String(status) } : {}),
+      ...(numeroOs ? { numeroOs: { equals: String(numeroOs) } } : {}),
+      ...(cliente
+        ? {
+            cliente: {
+              contains: String(cliente.toLowerCase()),
+              // mode: "insensitive"
+            },
+          }
+        : {}),
       ...(nivelAcesso === "ADMIN"
         ? {}
         : {
@@ -512,7 +521,7 @@ export const detalharOrdemFuncionario = async (req, res) => {
 
   const ordem = await prisma.ordem.findUnique({
     where: { numeroOs },
-    include: { tecnico: true, supervisor: true },
+    include: { tecnico: true, supervisor: true, recomendacao: true },
   });
 
   if (!ordem) {
@@ -601,7 +610,6 @@ export const adicionarComponenteNaOs = async (req, res) => {
   const data = req.body;
   const { matricula, numeroOs } = req.params;
   const { funcionarioMatricula, funcionarioNivelAcesso } = req;
-  const { numeroSerie } = data;
 
   // Se não der certo, redirecionar para o login e deslogar
   if (!conferirMatriculas(matricula, req.funcionarioMatricula))
@@ -622,9 +630,8 @@ export const adicionarComponenteNaOs = async (req, res) => {
     });
 
   const componenteExiste = await prisma.componente.findFirst({
-    where: { numeroSerie, ordemOs: numeroOs },
+    where: { numeroSerie: data.numeroSerie, ordemOs: numeroOs },
   });
-
   if (componenteExiste)
     return res.status(400).json({
       status: false,
