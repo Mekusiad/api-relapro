@@ -57,12 +57,13 @@ model Ordem {
   updatedAt        DateTime    @updatedAt
 
   // Supervisor: apenas um
-  supervisor          Funcionario? @relation("SupervisorOrdem", fields: [supervisorMatricula], references: [matricula])
+  supervisor          Funcionario? @relation("SupervisorOrdem", fields: [supervisorMatricula], references: [matricula], onDelete: Cascade)
   supervisorMatricula Int?
 
   // Técnicos: vários
   tecnico Funcionario[] @relation("TecnicoOrdem")
 
+  recomendacao            Recomendacao[]
   componente              Componente[]
   malhaAterramento        MalhaAterramento[]
   ensaioChaveSeccionadora EnsaioChaveSeccionadora[]
@@ -102,11 +103,12 @@ model Componente {
   createdAt          DateTime       @default(now())
   updatedAt          DateTime       @updatedAt
 
-  ordem   Ordem  @relation(fields: [ordemOs], references: [numeroOs])
+  ordem   Ordem  @relation(fields: [ordemOs], references: [numeroOs], onDelete: Cascade)
   ordemOs String
 
   // ensaioTrafoAlta EnsaioTrafoAlta[]
   // ensaioTrafoForca EnsaioTrafoForca[]
+  recomendacao              Recomendacao[]
   ensaioTrafoPotencia       EnsaioTrafoPotencia?
   ensaioTrafoCorrente       EnsaioTrafoCorrente?
   ensaioDisjuntor           EnsaioDisjuntor?
@@ -162,7 +164,7 @@ model EnsaioTrafoPotencia {
   protecaoTransformador6          String
   protecaoTransformadorObservacao String
 
-  componente   Componente @relation(fields: [componenteID], references: [id])
+  componente   Componente @relation(fields: [componenteID], references: [id], onDelete: Cascade)
   componenteID Int        @unique
 
   equipamentoUsado Equipamento[]
@@ -183,7 +185,7 @@ model EnsaioTrafoCorrente {
   resistenciaIsolamentoSxMassa Int
   observacao                   String
 
-  componente   Componente @relation(fields: [componenteID], references: [id])
+  componente   Componente @relation(fields: [componenteID], references: [id], onDelete: Cascade)
   componenteID Int        @unique
 
   equipamentoUsado Equipamento[]
@@ -214,7 +216,7 @@ model EnsaioDisjuntor {
 
   observacao String
 
-  componente                 Componente    @relation(fields: [componenteID], references: [id])
+  componente                 Componente    @relation(fields: [componenteID], references: [id], onDelete: Cascade)
   componenteID               Int           @unique
   responsavelEnsaioMatricula Int
   equipamentoUsado           Equipamento[]
@@ -230,7 +232,7 @@ model EnsaioResistorAterramento {
   resistenciaIsolamento   Float
   observacao              String
 
-  componente   Componente @relation(fields: [componenteID], references: [id])
+  componente   Componente @relation(fields: [componenteID], references: [id], onDelete: Cascade)
   componenteID Int        @unique
 
   equipamentoUsado           Equipamento[]
@@ -252,7 +254,7 @@ model EnsaioChaveSeccionadora {
 
   equipamentoUsado Equipamento[]
 
-  ordem                      Ordem    @relation(fields: [ordemOs], references: [numeroOs])
+  ordem                      Ordem    @relation(fields: [ordemOs], references: [numeroOs], onDelete: Cascade)
   ordemOs                    String
   responsavelEnsaioMatricula Int
   createdAt                  DateTime @default(now())
@@ -268,7 +270,7 @@ model MalhaAterramento {
   servico3                    String?
   observacao                  String?
 
-  ordem   Ordem  @relation(fields: [ordemOs], references: [numeroOs])
+  ordem   Ordem  @relation(fields: [ordemOs], references: [numeroOs], onDelete: Cascade)
   ordemOs String
 
   equipamentoUsado           Equipamento[]
@@ -287,27 +289,27 @@ model Equipamento {
   // ensaioTrafoAlta      EnsaioTrafoAlta @relation(fields: [ensaioTrafoAlta], references: [id])
   // ensaioTrafoAltaId Int
 
-  ensaioTrafoPotencia   EnsaioTrafoPotencia? @relation(fields: [ensaioTrafoPotenciaId], references: [id])
+  ensaioTrafoPotencia   EnsaioTrafoPotencia? @relation(fields: [ensaioTrafoPotenciaId], references: [id], onDelete: Cascade)
   ensaioTrafoPotenciaId Int?
 
   // ensaioTrafoForca      EnsaioTrafoForca @relation(fields: [ensaioTrafoForcaId], references: [id])
   // ensaioTrafoForcaId Int
 
-  ensaioTrafoCorrente   EnsaioTrafoCorrente? @relation(fields: [ensaioTrafoCorrenteId], references: [id])
+  ensaioTrafoCorrente   EnsaioTrafoCorrente? @relation(fields: [ensaioTrafoCorrenteId], references: [id], onDelete: Cascade)
   ensaioTrafoCorrenteId Int?
 
-  ensaioDisjuntor   EnsaioDisjuntor? @relation(fields: [ensaioDisjuntorId], references: [id])
+  ensaioDisjuntor   EnsaioDisjuntor? @relation(fields: [ensaioDisjuntorId], references: [id], onDelete: Cascade)
   ensaioDisjuntorId Int?
 
-  malhaAterramento      MalhaAterramento? @relation(fields: [malhaAterramentoSerie], references: [id])
+  malhaAterramento      MalhaAterramento? @relation(fields: [malhaAterramentoSerie], references: [id], onDelete: Cascade)
   malhaAterramentoSerie Int?
 
-  ensaioResistor              EnsaioResistorAterramento? @relation(fields: [EnsaioResistorAterramentoId], references: [id])
+  ensaioResistor              EnsaioResistorAterramento? @relation(fields: [EnsaioResistorAterramentoId], references: [id], onDelete: Cascade)
   EnsaioResistorAterramentoId Int?
 
-  ensaioChaveSeccionadora   EnsaioChaveSeccionadora? @relation(fields: [ensaioChaveSeccionadoraId], references: [id])
+  ensaioChaveSeccionadora   EnsaioChaveSeccionadora? @relation(fields: [ensaioChaveSeccionadoraId], references: [id], onDelete: Cascade)
   ensaioChaveSeccionadoraId Int?
-  
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
@@ -319,4 +321,15 @@ model LogAtividade {
   dadosAfetados  Json     // snapshot do que foi afetado
   feitoPor       Int      // matrícula de quem realizou a ação
   criadoEm       DateTime @default(now())
+}
+
+model Recomendacao {
+  id Int @id @default(autoincrement())
+
+  componente Componente? @relation(fields: [componenteId], references: [id])
+  componenteId Int
+  observacao String
+
+  ordem Ordem @relation(fields: [ordemOs],references: [numeroOs])
+  ordemOs String
 }
