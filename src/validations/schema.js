@@ -5,6 +5,36 @@ export const loginSchema = z.object({
   senha: z.string().min(5, "Senha é obrigatória."),
 });
 
+export const listarOrdensDoFuncionarioSchema = {
+  params: z.object({
+    matricula: z
+      .string()
+      .regex(/^\d+$/, "A matrícula deve conter apenas números.")
+      .transform(Number),
+  }),
+
+  query: z.object({
+    status: z
+      .string()
+      .optional()
+      .refine(
+        (val) => !val || ["ABERTA", "EM_ANDAMENTO", "FINALIZADA"].includes(val),
+        {
+          message: "Status inválido. Use: ABERTA, EM_ANDAMENTO ou FINALIZADA.",
+        }
+      ),
+    numeroOs: z.string().optional(),
+    cliente: z.string().optional(),
+    page: z
+      .string()
+      .optional()
+      .transform((val) => (val ? parseInt(val, 10) : 1))
+      .refine((val) => Number.isInteger(val) && val > 0, {
+        message: "A página deve ser um número inteiro positivo.",
+      }),
+  }),
+};
+
 export const employeeSchema = z.object({
   nome: z.string().min(1, "Nome é obrigatório."),
   usuario: z.string().min(1, "Nome de usuário é obrigatório."),

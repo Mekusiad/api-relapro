@@ -1,5 +1,6 @@
 import { PrismaClient } from "../generated/prisma/index.js";
 import { conferirMatriculas } from "../utils/conferirMatriculas.js";
+import { listarOrdensDoFuncionarioSchema } from "../validations/schema.js";
 
 const prisma = new PrismaClient();
 
@@ -243,11 +244,25 @@ export const listarFuncionarios = async (req, res) => {
 };
 
 export const listarOrdensDoFuncionario = async (req, res) => {
-  const matricula = Number(req.params.matricula);
-  const { status, numeroOs, cliente } = req.query;
+  const paramsValid = listarOrdensDoFuncionarioSchema.params.safeParse(
+    req.params
+  );
+  const queryValid = listarOrdensDoFuncionarioSchema.query.safeParse(req.query);
+
+  if (!paramsValid.success || !queryValid.success) {
+    return res.status(400).json({
+      status: false,
+      message: "Erro de validação.",
+      errors: {
+        params: !paramsValid.success ? paramsValid.error.format() : null,
+        query: !queryValid.success ? queryValid.error.format() : null,
+      },
+    });
+  }
+  const { matricula } = paramsValid.data;
+  const { status, numeroOs, cliente, page } = queryValid.data;
   const nivelAcesso = req.funcionarioNivelAcesso;
 
-  const page = parseInt(req.query.page) || 1;
   const limit = 10;
   const skip = (page - 1) * limit;
 
@@ -274,7 +289,6 @@ export const listarOrdensDoFuncionario = async (req, res) => {
           ],
         }),
   };
-
   // Buscar as ordens com paginação
   const ordens = await prisma.ordem.findMany({
     where,
@@ -298,7 +312,10 @@ export const listarOrdensDoFuncionario = async (req, res) => {
 
   return res.status(200).json({
     status: true,
-    message: "Ordens localizadas.",
+    message:
+      ordens.length > 0
+        ? "Ordens localizadas."
+        : "Nenhum dado encontrado com base no filtro usado.",
     data: { currentPage: page, totalPages, totalOrdens, ordens },
   });
 };
