@@ -15,22 +15,57 @@ export const homeInfo = async (req, res) => {
       .status(404)
       .json({ status: false, message: "Funcionário não encontrado." });
 
-  // Se for ADMIN, carrega estatísticas de ordens
   let estatisticasOS = null;
 
-  if (funcionario.nivelAcesso === "ADMIN") {
-    const [abertas, andamento, finalizadas] = await Promise.all([
-      prisma.ordem.count({ where: { status: "ABERTA" } }),
-      prisma.ordem.count({ where: { status: "EM_ANDAMENTO" } }),
-      prisma.ordem.count({ where: { status: "FINALIZADA" } }),
-    ]);
+  // Filtros baseados no nível de acesso
+  let filtroOrdens = {};
 
-    estatisticasOS = {
-      abertas,
-      andamento,
-      finalizadas,
+  if (funcionario.nivelAcesso === "ADMIN") {
+    // Sem filtro, acesso total
+    filtroOrdens = {};
+  } else if (funcionario.nivelAcesso === "SUPERVISOR") {
+    // Acesso apenas a ordens onde é supervisor ou técnico
+    filtroOrdens = {
+      OR: [
+        {
+          supervisorMatricula: {
+            some: {
+              matricula: Number(funcionario.matricula),
+            },
+          },
+        },
+        {
+          tecnico: {
+            some: {
+              matricula: Number(funcionario.matricula),
+            },
+          },
+        },
+      ],
+    };
+  } else if (funcionario.nivelAcesso === "TECNICO") {
+    // Acesso apenas a ordens onde é técnico
+    filtroOrdens = {
+      tecnico: {
+        some: {
+          matricula: Number(funcionario.matricula),
+        },
+      },
     };
   }
+
+  // Carrega estatísticas baseadas no filtro
+  const [abertas, andamento, finalizadas] = await Promise.all([
+    prisma.ordem.count({ where: { ...filtroOrdens, status: "ABERTA" } }),
+    prisma.ordem.count({ where: { ...filtroOrdens, status: "EM_ANDAMENTO" } }),
+    prisma.ordem.count({ where: { ...filtroOrdens, status: "FINALIZADA" } }),
+  ]);
+
+  estatisticasOS = {
+    abertas,
+    andamento,
+    finalizadas,
+  };
 
   return res.status(200).json({
     status: true,
@@ -264,9 +299,10 @@ export const criarOs = async (req, res) => {
     return res.status(403).json({ status: false, message: "Acesso negado." });
 
   if (funcionarioNivelAcesso.toString().toUpperCase() === "TECNICO")
-    return res
-      .status(403)
-      .json({ status: true, message: "Você não tem permissão para criar OS." });
+    return res.status(403).json({
+      status: false,
+      message: "Você não tem permissão para criar OS.",
+    });
 
   const ordemExist = await prisma.ordem.findFirst({
     where: {
@@ -325,7 +361,7 @@ export const criarOs = async (req, res) => {
             connect: data.tecnicoMatricula.map((matricula) => ({ matricula })),
           },
         }),
-      status: "ABERTA",
+      status: data?.status || "ABERTA",
     },
     include: {
       supervisor: {
