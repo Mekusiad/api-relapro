@@ -247,33 +247,42 @@ export const listarOrdensDoFuncionario = async (req, res) => {
   const { status, numeroOs, cliente } = req.query;
   const nivelAcesso = req.funcionarioNivelAcesso;
 
+  const page = parseInt(req.query.page) || 1;
+  const limit = 10;
+  const skip = (page - 1) * limit;
+
   if (!conferirMatriculas(matricula, req.funcionarioMatricula))
     return res.status(403).json({ status: false, message: "Acesso negado." });
 
+  const where = {
+    ...(status ? { status: String(status) } : {}),
+    ...(numeroOs ? { numeroOs: { equals: String(numeroOs) } } : {}),
+    ...(cliente
+      ? {
+          cliente: {
+            contains: String(cliente.toLowerCase()),
+            // mode: "insensitive"
+          },
+        }
+      : {}),
+    ...(nivelAcesso === "ADMIN"
+      ? {}
+      : {
+          OR: [
+            { supervisorMatricula: matricula },
+            { tecnico: { some: { matricula } } },
+          ],
+        }),
+  };
+
+  // Buscar as ordens com paginação
   const ordens = await prisma.ordem.findMany({
-    where: {
-      ...(status ? { status: String(status) } : {}),
-      ...(numeroOs ? { numeroOs: { equals: String(numeroOs) } } : {}),
-      ...(cliente
-        ? {
-            cliente: {
-              contains: String(cliente.toLowerCase()),
-              // mode: "insensitive"
-            },
-          }
-        : {}),
-      ...(nivelAcesso === "ADMIN"
-        ? {}
-        : {
-            OR: [
-              { supervisorMatricula: matricula },
-              { tecnico: { some: { matricula } } },
-            ],
-          }),
-    },
+    where,
     orderBy: {
       createdAt: "desc",
     },
+    take: limit, // Limita para 10 resultados
+    skip, // Pula os registros das páginas anteriores
     include: {
       tecnico: {
         select: { nome: true, matricula: true },
@@ -283,10 +292,14 @@ export const listarOrdensDoFuncionario = async (req, res) => {
     },
   });
 
+  // Contar o total de ordens para calcular número de páginas
+  const totalOrdens = await prisma.ordem.count({ where });
+  const totalPages = Math.ceil(totalOrdens / limit);
+
   return res.status(200).json({
     status: true,
     message: "Ordens localizadas.",
-    data: ordens,
+    data: { currentPage: page, totalPages, totalOrdens, ordens },
   });
 };
 
