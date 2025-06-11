@@ -100,6 +100,7 @@ model Componente {
   circuito           Float?
   tipoPressao        String?
   pressao            Float?
+  bitolaCabo         Float?
   createdAt          DateTime       @default(now())
   updatedAt          DateTime       @updatedAt
 
@@ -113,6 +114,10 @@ model Componente {
   ensaioTrafoCorrente       EnsaioTrafoCorrente?
   ensaioDisjuntor           EnsaioDisjuntor?
   ensaioResistorAterramento EnsaioResistorAterramento?
+  medicaoCaboMufla          MedicaoCaboMufla?
+  ensaioFPTrafo             EnsaioFPTrafo?
+  ensaioFPBucha             EnsaioFPBucha?
+  ensaioCorrenteExcitacao   EnsaioCorrenteExcitacao?
 
   @@unique([numeroSerie])
 }
@@ -129,6 +134,8 @@ enum TipoComponente {
   RESISTOR
   CHAVE_SECCIONADORA
   MALHA
+  BUCHA
+  CABOMUFLA
 }
 
 model EnsaioTrafoPotencia {
@@ -279,6 +286,91 @@ model MalhaAterramento {
   updatedAt                  DateTime      @updatedAt
 }
 
+model MedicaoCaboMufla {
+  id Int @id @default(autoincrement())
+  resistenciaIsolamentoX0xMassa Int
+  resistenciaIsolamentoX11xMassa Int
+  resistenciaIsolamentoX12xMassa Int
+  resistenciaIsolamentoX21xMassa Int
+  resistenciaIsolamentoX22xMassa Int
+  resistenciaIsolamentoX31xMassa Int
+  resistenciaIsolamentoX32xMassa Int
+
+  servico1 String
+  servico2 String
+  servico3 String
+
+  observacao String
+
+  componente   Componente @relation(fields: [componenteID], references: [id], onDelete: Cascade)
+  componenteID Int @unique
+
+  equipamento Equipamento[]
+
+  createdAt                  DateTime @default(now())
+  updatedAt                  DateTime @updatedAt
+}
+
+model EnsaioFPTrafo {
+  id Int @id @default(autoincrement())
+  correnteN1 Float
+  correnteN2 Float
+  correnteN3 Float
+  correnteN4 Float
+  correnteN5 Float
+  correnteN6 Float
+
+  wattsN1 Float
+  wattsN2 Float
+  wattsN3 Float
+  wattsN4 Float
+  wattsN5 Float
+  wattsN6 Float
+
+  fatorPotenciaN1 Float
+  fatorPotenciaN2 Float
+  fatorPotenciaN3 Float
+  fatorPotenciaN4 Float
+  fatorPotenciaN5 Float
+  fatorPotenciaN6 Float
+
+  capacitanciaN1 Float
+  capacitanciaN2 Float
+  capacitanciaN3 Float
+  capacitanciaN4 Float
+  capacitanciaN5 Float
+  capacitanciaN6 Float
+
+  componente   Componente @relation(fields: [componenteID], references: [id], onDelete: Cascade)
+  componenteID Int        @unique
+
+  equipamento Equipamento[]
+}
+
+model EnsaioFPBucha{
+  id Int @id @default(autoincrement())
+  corrente Float
+  watts Float
+  fatorPotencia Float
+  capacitancia Float
+
+  componente   Componente @relation(fields: [componenteID], references: [id], onDelete: Cascade)
+  componenteID Int        @unique
+
+  equipamento Equipamento []
+}
+
+model EnsaioCorrenteExcitacao {
+  id Int @id @default(autoincrement())
+  correnteH1H3 Float
+  correnteH2H1 Float
+  correnteH3H2 Float
+
+componente   Componente @relation(fields: [componenteID], references: [id], onDelete: Cascade)
+  componenteID Int        @unique
+
+  equipamento Equipamento []
+}
 model Equipamento {
   id          Int    @id @default(autoincrement())
   nome        String
@@ -310,6 +402,19 @@ model Equipamento {
   ensaioChaveSeccionadora   EnsaioChaveSeccionadora? @relation(fields: [ensaioChaveSeccionadoraId], references: [id], onDelete: Cascade)
   ensaioChaveSeccionadoraId Int?
 
+  ensaioFPTrafo EnsaioFPTrafo @relation(fields: [EnsaioFPTrafoId],references: [id], onDelete: Cascade)
+  EnsaioFPTrafoId Int
+
+  medicaoCaboMufla MedicaoCaboMufla? @relation(fields: [medicaoCaboMuflaId],references: [id], onDelete: Cascade)
+  medicaoCaboMuflaId Int
+
+  ensaioFPBucha EnsaioFPBucha? @relation(fields: [EnsaioFPBuchaId],references: [id],onDelete: Cascade)
+  EnsaioFPBuchaId Int
+
+  ensaioCorrenteExcitacao EnsaioCorrenteExcitacao? @relation(fields: [ensaioCorrenteExcitacaoId],references: [id],onDelete: Cascade)
+  ensaioCorrenteExcitacaoId Int
+
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
@@ -332,4 +437,7 @@ model Recomendacao {
 
   ordem Ordem @relation(fields: [ordemOs],references: [numeroOs])
   ordemOs String
+
+    createdAt                  DateTime @default(now())
+  updatedAt                  DateTime @updatedAt
 }
