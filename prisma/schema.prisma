@@ -63,16 +63,29 @@ model Ordem {
   // Técnicos: vários
   tecnico Funcionario[] @relation("TecnicoOrdem")
 
-  recomendacao            Recomendacao[]
-  componente              Componente[]
-  malhaAterramento        MalhaAterramento[]
-  ensaioChaveSeccionadora EnsaioChaveSeccionadora[]
+  subestacoes Subestacao[]
 }
 
 enum StatusOrdem {
   ABERTA
   EM_ANDAMENTO
   FINALIZADA
+}
+
+model Subestacao {
+  id          Int    @id @default(autoincrement())
+  nome        String // Nome ou código da subestação
+
+  ordem   Ordem  @relation(fields: [ordemOs], references: [numeroOs], onDelete: Cascade)
+  ordemOs String
+
+  componentes             Componente[] // Subestação possui vários componentes
+  recomendacao            Recomendacao[]
+  malhaAterramento        MalhaAterramento[]
+  ensaioChaveSeccionadora EnsaioChaveSeccionadora[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model Componente {
@@ -104,8 +117,8 @@ model Componente {
   createdAt          DateTime       @default(now())
   updatedAt          DateTime       @updatedAt
 
-  ordem   Ordem  @relation(fields: [ordemOs], references: [numeroOs], onDelete: Cascade)
-  ordemOs String
+  subestacao   Subestacao @relation(fields: [subestacaoId], references: [id], onDelete: Cascade)
+  subestacaoId Int
 
   // ensaioTrafoAlta EnsaioTrafoAlta[]
   // ensaioTrafoForca EnsaioTrafoForca[]
@@ -261,11 +274,11 @@ model EnsaioChaveSeccionadora {
 
   equipamentoUsado Equipamento[]
 
-  ordem                      Ordem    @relation(fields: [ordemOs], references: [numeroOs], onDelete: Cascade)
-  ordemOs                    String
+  subestacao                 Subestacao @relation(fields: [subestacaoId], references: [id], onDelete: Cascade)
+  subestacaoId               Int
   responsavelEnsaioMatricula Int
-  createdAt                  DateTime @default(now())
-  updatedAt                  DateTime @updatedAt
+  createdAt                  DateTime   @default(now())
+  updatedAt                  DateTime   @updatedAt
 }
 
 model MalhaAterramento {
@@ -277,8 +290,8 @@ model MalhaAterramento {
   servico3                    String?
   observacao                  String?
 
-  ordem   Ordem  @relation(fields: [ordemOs], references: [numeroOs], onDelete: Cascade)
-  ordemOs String
+  subestacao   Subestacao @relation(fields: [subestacaoId], references: [id], onDelete: Cascade)
+  subestacaoId Int
 
   equipamentoUsado           Equipamento[]
   responsavelEnsaioMatricula Int
@@ -287,8 +300,8 @@ model MalhaAterramento {
 }
 
 model MedicaoCaboMufla {
-  id Int @id @default(autoincrement())
-  resistenciaIsolamentoX0xMassa Int
+  id                             Int @id @default(autoincrement())
+  resistenciaIsolamentoX0xMassa  Int
   resistenciaIsolamentoX11xMassa Int
   resistenciaIsolamentoX12xMassa Int
   resistenciaIsolamentoX21xMassa Int
@@ -303,16 +316,16 @@ model MedicaoCaboMufla {
   observacao String
 
   componente   Componente @relation(fields: [componenteID], references: [id], onDelete: Cascade)
-  componenteID Int @unique
+  componenteID Int        @unique
 
   equipamento Equipamento[]
 
-  createdAt                  DateTime @default(now())
-  updatedAt                  DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model EnsaioFPTrafo {
-  id Int @id @default(autoincrement())
+  id         Int   @id @default(autoincrement())
   correnteN1 Float
   correnteN2 Float
   correnteN3 Float
@@ -347,30 +360,31 @@ model EnsaioFPTrafo {
   equipamento Equipamento[]
 }
 
-model EnsaioFPBucha{
-  id Int @id @default(autoincrement())
-  corrente Float
-  watts Float
+model EnsaioFPBucha {
+  id            Int   @id @default(autoincrement())
+  corrente      Float
+  watts         Float
   fatorPotencia Float
-  capacitancia Float
+  capacitancia  Float
 
   componente   Componente @relation(fields: [componenteID], references: [id], onDelete: Cascade)
   componenteID Int        @unique
 
-  equipamento Equipamento []
+  equipamento Equipamento[]
 }
 
 model EnsaioCorrenteExcitacao {
-  id Int @id @default(autoincrement())
+  id           Int   @id @default(autoincrement())
   correnteH1H3 Float
   correnteH2H1 Float
   correnteH3H2 Float
 
-componente   Componente @relation(fields: [componenteID], references: [id], onDelete: Cascade)
+  componente   Componente @relation(fields: [componenteID], references: [id], onDelete: Cascade)
   componenteID Int        @unique
 
-  equipamento Equipamento []
+  equipamento Equipamento[]
 }
+
 model Equipamento {
   id          Int    @id @default(autoincrement())
   nome        String
@@ -402,42 +416,41 @@ model Equipamento {
   ensaioChaveSeccionadora   EnsaioChaveSeccionadora? @relation(fields: [ensaioChaveSeccionadoraId], references: [id], onDelete: Cascade)
   ensaioChaveSeccionadoraId Int?
 
-  ensaioFPTrafo EnsaioFPTrafo @relation(fields: [EnsaioFPTrafoId],references: [id], onDelete: Cascade)
+  ensaioFPTrafo   EnsaioFPTrafo @relation(fields: [EnsaioFPTrafoId], references: [id], onDelete: Cascade)
   EnsaioFPTrafoId Int
 
-  medicaoCaboMufla MedicaoCaboMufla? @relation(fields: [medicaoCaboMuflaId],references: [id], onDelete: Cascade)
+  medicaoCaboMufla   MedicaoCaboMufla? @relation(fields: [medicaoCaboMuflaId], references: [id], onDelete: Cascade)
   medicaoCaboMuflaId Int
 
-  ensaioFPBucha EnsaioFPBucha? @relation(fields: [EnsaioFPBuchaId],references: [id],onDelete: Cascade)
+  ensaioFPBucha   EnsaioFPBucha? @relation(fields: [EnsaioFPBuchaId], references: [id], onDelete: Cascade)
   EnsaioFPBuchaId Int
 
-  ensaioCorrenteExcitacao EnsaioCorrenteExcitacao? @relation(fields: [ensaioCorrenteExcitacaoId],references: [id],onDelete: Cascade)
+  ensaioCorrenteExcitacao   EnsaioCorrenteExcitacao? @relation(fields: [ensaioCorrenteExcitacaoId], references: [id], onDelete: Cascade)
   ensaioCorrenteExcitacaoId Int
-
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
 
 model LogAtividade {
-  id             Int      @id @default(autoincrement())
-  acao           String   // EXCLUIR, CRIAR, ATUALIZAR
-  entidade       String   // funcionario, ordem, componente etc.
-  dadosAfetados  Json     // snapshot do que foi afetado
-  feitoPor       Int      // matrícula de quem realizou a ação
-  criadoEm       DateTime @default(now())
+  id            Int      @id @default(autoincrement())
+  acao          String // EXCLUIR, CRIAR, ATUALIZAR
+  entidade      String // funcionario, ordem, componente etc.
+  dadosAfetados Json // snapshot do que foi afetado
+  feitoPor      Int // matrícula de quem realizou a ação
+  criadoEm      DateTime @default(now())
 }
 
 model Recomendacao {
   id Int @id @default(autoincrement())
 
-  componente Componente? @relation(fields: [componenteId], references: [id])
+  componente   Componente? @relation(fields: [componenteId], references: [id])
   componenteId Int
-  observacao String
+  observacao   String
 
-  ordem Ordem @relation(fields: [ordemOs],references: [numeroOs])
-  ordemOs String
+  subestacao   Subestacao @relation(fields: [subestacaoId], references: [id], onDelete: Cascade)
+  subestacaoId Int
 
-    createdAt                  DateTime @default(now())
-  updatedAt                  DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
