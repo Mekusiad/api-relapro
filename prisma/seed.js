@@ -200,12 +200,21 @@ async function main() {
       status: "FINALIZADA",
     },
   });
+
+  // Cria subestação
+  const subestacao1 = await prisma.subestacao.create({
+    data: {
+      nome: "Subestação de 69kV",
+      ordem: { connect: { numeroOs: "202506003" } },
+    },
+  });
+
   // Cria um equipamento
   await prisma.componente.create({
     data: {
       nomeEquipamento: "TRANFORMADOR DE POTÊNCIA",
       tipo: "TRAFO_POTENCIA",
-      ordemOs: "202506001",
+      subestacao: { connect: { id: subestacao1.id } },
     },
   });
 }
