@@ -23,6 +23,10 @@ import {
   homeAtualizarEquipamentoController,
   homeListarEquipamentosController,
   homeExcluirEquipamentoController,
+  homeadicionarSubestacaoController,
+  homeRemoverSubestacaoController,
+  homeAtualizarDadosSubestaçãoController,
+  homeListarSubestacaoController,
 } from "../controllers/homeController.js";
 
 export const homeRoutes = express.Router();
@@ -43,6 +47,30 @@ homeRoutes.post(
 homeRoutes.put(
   "/home/:matricula/funcionarios/:outraMatricula",
   homeAtualizadosDadosFuncionarioController
+);
+
+// POST /home:/matricula/ordens/:numeroOs/subestacoes -> Cria subestação
+homeRoutes.post(
+  "/home/:matricula/ordens/:numeroOs/subestacoes",
+  homeadicionarSubestacaoController
+);
+
+// GET /home:/matricula/ordens/:numeroOs/subestacoes -> Cria subestação
+homeRoutes.get(
+  "/home/:matricula/ordens/:numeroOs/subestacoes",
+  homeListarSubestacaoController
+);
+
+// DELETE /home:/matricula/ordens/:numeroOs/subestacoes -> Exclui subestação
+homeRoutes.delete(
+  "/home/:matricula/ordens/:numeroOs/subestacoes/:subestacaoId",
+  homeRemoverSubestacaoController
+);
+
+// PUT /home:/matricula/ordens/:numeroOs/subestacoes -> Atualiza dados subestação
+homeRoutes.put(
+  "/home/:matricula/ordens/:numeroOs/subestacoes/:subestacaoId",
+  homeAtualizarDadosSubestaçãoController
 );
 
 // DELETE /home/:matricula/funcionarios/:outraMatricula -> Excluir funcionário
@@ -89,19 +117,19 @@ homeRoutes.get(
 
 // POST /home/:matricula/ordens/:numeroOs/componentes -> Adiciona um componente na OS.
 homeRoutes.post(
-  "/home/:matricula/ordens/:numeroOs/componentes",
+  "/home/:matricula/ordens/:numeroOs/subestacoes/:subestacaoId/componentes",
   homeAdicionarComponenteController
 );
 
 // PUT /home/:matricula/ordens/:numeroOs/componentes/:componenteId -> Atualiza dados do componente
 homeRoutes.put(
-  "/home/:matricula/ordens/:numeroOs/componentes/:componenteId",
+  "/home/:matricula/ordens/:numeroOs/subestacoes/:subestacaoId/componentes/:componenteId",
   homeAtualizarComponenteController
 );
 
 //DELETE /home/:matricula/ordens/:numeroOs/componentes/:componenteId -> Exclui componente da OS
 homeRoutes.delete(
-  "/home/:matricula/ordens/:numeroOs/componentes/:componenteId",
+  "/home/:matricula/ordens/:numeroOs/subestacoes/:subestacaoId/componentes/:componenteId",
   homeExcluirComponenteController
 );
 

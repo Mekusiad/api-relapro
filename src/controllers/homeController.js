@@ -2,9 +2,9 @@ import {
   homeInfo,
   criarOs,
   listarFuncionarios,
-  adicionarComponenteNaOs,
+  adicionarComponente,
   adicionarTecnicoNaOs,
-  atualizarComponenteNaOs,
+  atualizarComponente,
   atualizaStatusOs,
   buscarFuncionarioPorMatricula,
   detalharOrdemFuncionario,
@@ -24,6 +24,10 @@ import {
   atualizarEquipamento,
   listarEquipamentos,
   excluirEquipamento,
+  adicionarSubestacao,
+  removerSubestacao,
+  atualizarDadosSubestação,
+  listarSubestacao,
 } from "../services/homeServices.js";
 
 import { conferirMatriculas } from "../utils/conferirMatriculas.js";
@@ -134,6 +138,38 @@ export const homeAtualizarOrdemController = async (req, res) => {
   }
 };
 
+export const homeadicionarSubestacaoController = async (req, res) => {
+  try {
+    await adicionarSubestacao(req, res);
+  } catch (error) {
+    return handleError(res, error, error.message);
+  }
+};
+
+export const homeListarSubestacaoController = async (req, res) => {
+  try {
+    await listarSubestacao(req, res);
+  } catch (error) {
+    return handleError(res, error, error.message);
+  }
+};
+
+export const homeRemoverSubestacaoController = async (req, res) => {
+  try {
+    await removerSubestacao(req, res);
+  } catch (error) {
+    return handleError(res, error, error.message);
+  }
+};
+
+export const homeAtualizarDadosSubestaçãoController = async (req, res) => {
+  try {
+    await atualizarDadosSubestação(req, res);
+  } catch (error) {
+    return handleError(res, error, error.message);
+  }
+};
+
 export const homeDetalharOrdemFuncionarioController = async (req, res) => {
   try {
     await detalharOrdemFuncionario(req, res);
@@ -160,7 +196,7 @@ export const homeBuscarFuncionarioPorMatriculaController = async (req, res) => {
 
 export const homeAdicionarComponenteController = async (req, res) => {
   try {
-    await adicionarComponenteNaOs(req, res);
+    await adicionarComponente(req, res);
   } catch (error) {
     return handleError(
       res,
@@ -172,7 +208,7 @@ export const homeAdicionarComponenteController = async (req, res) => {
 
 export const homeAtualizarComponenteController = async (req, res) => {
   try {
-    await atualizarComponenteNaOs(req, res);
+    await atualizarComponente(req, res);
   } catch (error) {
     return handleError(
       res,

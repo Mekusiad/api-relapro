@@ -302,7 +302,11 @@ export const listarOrdensDoFuncionario = async (req, res) => {
         select: { nome: true, matricula: true },
       },
       supervisor: { select: { nome: true, matricula: true } },
-      componente: { include: { ensaioTrafoCorrente: true } },
+      subestacoes: {
+        include: {
+          componentes: { include: { ensaioTrafoCorrente: true } },
+        },
+      },
     },
   });
 
@@ -578,6 +582,166 @@ export const atualizaStatusOs = async (numeroOs, data, res) => {
     );
 };
 
+export const adicionarSubestacao = async (req, res) => {
+  //
+  //
+  const data = req.body;
+  const { matricula, numeroOs } = req.params;
+  const { funcionarioMatricula, funcionarioNivelAcesso } = req;
+
+  if (!conferirMatriculas(matricula, funcionarioMatricula))
+    return res.status(403).json({ status: false, message: "Acesso negado." });
+
+  if (funcionarioNivelAcesso.toString().toUpperCase() === "TECNICO")
+    return res.status(403).json({
+      status: false,
+      message: "Você não para adicionar uma subestação.",
+    });
+
+  const subestacaoExist = await prisma.subestacao.findFirst({
+    where: {
+      ordemOs: numeroOs,
+      nome: data.nome,
+    },
+  });
+
+  if (subestacaoExist)
+    return res.status(403).json({
+      status: false,
+      message: `Subestação já está vinculada na OS ${subestacaoExist.ordemOs}`,
+    });
+
+  await prisma.subestacao.create({
+    data: {
+      nome: data.nome,
+      ordemOs: numeroOs,
+    },
+  });
+
+  return res
+    .status(201)
+    .json({ status: false, message: "Subestação cadastrada com sucesso." });
+};
+
+export const listarSubestacao = async (req, res) => {
+  const data = req.body;
+  const { matricula, numeroOs } = req.params;
+  const { funcionarioMatricula, funcionarioNivelAcesso } = req;
+
+  if (!conferirMatriculas(matricula, funcionarioMatricula))
+    return res.status(403).json({ status: false, message: "Acesso negado." });
+
+  if (funcionarioNivelAcesso.toString().toUpperCase() === "TECNICO")
+    return res.status(403).json({
+      status: false,
+      message: "Você não para adicionar uma subestação.",
+    });
+
+  const subestacaoExist = await prisma.subestacao.findMany({
+    where: {
+      ordemOs: numeroOs,
+    },
+  });
+
+  if (!subestacaoExist)
+    return res.status(403).json({
+      status: false,
+      message: `No momento não possui subestação vinculada na OS ${numeroOs}`,
+    });
+
+  return res.status(200).json({
+    status: true,
+    message:
+      subestacaoExist.length > 0
+        ? "Subestações localizadas."
+        : "No momento não possui subestação vinculada na OS",
+    data: subestacaoExist,
+  });
+};
+
+export const removerSubestacao = async (req, res) => {
+  const { matricula, numeroOs, subestacaoId } = req.params;
+  const { funcionarioMatricula, funcionarioNivelAcesso } = req;
+
+  if (!conferirMatriculas(matricula, funcionarioMatricula))
+    return res.status(403).json({ status: false, message: "Acesso negado." });
+
+  if (funcionarioNivelAcesso.toString().toUpperCase() === "TECNICO")
+    return res.status(403).json({
+      status: false,
+      message: "Você não permissão para remover uma subestação.",
+    });
+
+  const subestacaoExist = await prisma.subestacao.findFirst({
+    where: {
+      id: Number(subestacaoId),
+      ordemOs: numeroOs,
+    },
+  });
+
+  if (!subestacaoExist)
+    return res.status(403).json({
+      status: false,
+      message: `Não foi localizada subestação vinculada na OS ${numeroOs}`,
+    });
+
+  // 🪵 Registrar log
+  await prisma.logAtividade.create({
+    data: {
+      acao: "EXCLUIR",
+      entidade: "subestação",
+      dadosAfetados: subestacaoExist,
+      feitoPor: Number(matricula),
+    },
+  });
+
+  await prisma.subestacao.delete({
+    where: {
+      id: Number(subestacaoId),
+    },
+  });
+
+  return res
+    .status(201)
+    .json({ status: false, message: "Subestação excluída com sucesso." });
+};
+
+export const atualizarDadosSubestação = async (req, res) => {
+  const { matricula, numeroOs, subestacaoId } = req.params;
+  const { funcionarioMatricula, funcionarioNivelAcesso } = req;
+
+  if (!conferirMatriculas(matricula, funcionarioMatricula))
+    return res.status(403).json({ status: false, message: "Acesso negado." });
+
+  if (funcionarioNivelAcesso.toString().toUpperCase() === "TECNICO")
+    return res.status(403).json({
+      status: false,
+      message: "Você não para atualizar uma subestação.",
+    });
+
+  const subestacaoExist = await prisma.subestacao.findFirst({
+    where: {
+      id: Number(subestacaoId),
+      ordemOs: numeroOs,
+    },
+  });
+
+  if (!subestacaoExist)
+    return res.status(403).json({
+      status: false,
+      message: `Não foi localizada a subestação vinculada na OS ${numeroOs}`,
+    });
+
+  await prisma.subestacao.update({
+    where: { id: Number(subestacaoId) },
+    data,
+  });
+
+  return res
+    .status(200)
+    .json({ status: true, message: "Dados da subestação atualizada." });
+};
+
 export const detalharOrdemFuncionario = async (req, res) => {
   const { numeroOs, matricula } = req.params;
   const nivelAcesso = req.funcionarioNivelAcesso;
@@ -587,7 +751,7 @@ export const detalharOrdemFuncionario = async (req, res) => {
 
   const ordem = await prisma.ordem.findUnique({
     where: { numeroOs },
-    include: { tecnico: true, supervisor: true, recomendacao: true },
+    include: { tecnico: true, supervisor: true, subestacoes: true },
   });
 
   if (!ordem) {
@@ -672,9 +836,9 @@ export const buscarFuncionarioPorMatricula = async (req, res) => {
   });
 };
 
-export const adicionarComponenteNaOs = async (req, res) => {
+export const adicionarComponente = async (req, res) => {
   const data = req.body;
-  const { matricula, numeroOs } = req.params;
+  const { matricula, numeroOs, subestacaoId } = req.params;
   const { funcionarioMatricula, funcionarioNivelAcesso } = req;
 
   // Se não der certo, redirecionar para o login e deslogar
@@ -696,18 +860,21 @@ export const adicionarComponenteNaOs = async (req, res) => {
     });
 
   const componenteExiste = await prisma.componente.findFirst({
-    where: { numeroSerie: data.numeroSerie, ordemOs: numeroOs },
+    where: {
+      numeroSerie: data.numeroSerie,
+      subestacaoId: Number(subestacaoId),
+    },
   });
-  if (componenteExiste)
-    return res.status(400).json({
-      status: false,
-      message: "Já existe um componente com esse número de série nesta OS.",
-    });
 
+  if (componenteExiste)
+    return res.status(403).json({
+      status: false,
+      message: `Já existe o componente com esse número de série vinculado na subestação.`,
+    });
   const componenteCriado = await prisma.componente.create({
     data: {
       ...data,
-      ordem: { connect: { numeroOs } },
+      subestacao: { connect: { id: Number(subestacaoId) } },
     },
   });
 
@@ -718,8 +885,8 @@ export const adicionarComponenteNaOs = async (req, res) => {
   });
 };
 
-export const atualizarComponenteNaOs = async (req, res) => {
-  const { matricula, numeroOs, componenteId } = req.params;
+export const atualizarComponente = async (req, res) => {
+  const { matricula, numeroOs, subestacaoId, componenteId } = req.params;
   const { funcionarioMatricula, funcionarioNivelAcesso } = req;
   const data = req.body;
 
@@ -744,7 +911,7 @@ export const atualizarComponenteNaOs = async (req, res) => {
     });
 
   const componenteExiste = await prisma.componente.findFirst({
-    where: { id: Number(componenteId), ordemOs: numeroOs },
+    where: { id: Number(componenteId), subestacaoId: Number(subestacaoId) },
   });
   if (!componenteExiste)
     return res.status(400).json({
@@ -765,7 +932,8 @@ export const atualizarComponenteNaOs = async (req, res) => {
 };
 
 export const excluirComponenteNaOs = async (req, res) => {
-  const { matricula, numeroOs, componenteId } = req.params;
+  //
+  const { matricula, numeroOs, subestacaoId, componenteId } = req.params;
   const { funcionarioMatricula, funcionarioNivelAcesso } = req;
 
   // Se não der certo, redirecionar para o login e deslogar
@@ -779,11 +947,12 @@ export const excluirComponenteNaOs = async (req, res) => {
     });
 
   const componenteExist = await prisma.componente.findFirst({
-    where: { id: Number(componenteId) },
-    include: { ordem: true },
+    where: { id: Number(componenteId), subestacaoId: Number(subestacaoId) },
+    include: { subestacao: true },
   });
+  console.log(componenteExist);
 
-  if (componenteExist.ordem.numeroOs !== numeroOs)
+  if (!componenteExist)
     return res.status(400).json({
       status: false,
       message: "Componente não está vinculado na OS ou foi excluído.",
