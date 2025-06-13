@@ -29,11 +29,7 @@ export const homeInfo = async (req, res) => {
     filtroOrdens = {
       OR: [
         {
-          supervisorMatricula: {
-            some: {
-              matricula: Number(funcionario.matricula),
-            },
-          },
+          supervisorMatricula: Number(funcionario.matricula),
         },
         {
           tecnico: {
@@ -54,12 +50,24 @@ export const homeInfo = async (req, res) => {
       },
     };
   }
-
   // Carrega estatísticas baseadas no filtro
-  const [abertas, andamento, finalizadas] = await Promise.all([
+  const [abertas, andamento, finalizadas, ordens] = await Promise.all([
     prisma.ordem.count({ where: { ...filtroOrdens, status: "ABERTA" } }),
     prisma.ordem.count({ where: { ...filtroOrdens, status: "EM_ANDAMENTO" } }),
     prisma.ordem.count({ where: { ...filtroOrdens, status: "FINALIZADA" } }),
+    prisma.ordem.findMany({
+      where: filtroOrdens,
+      select: {
+        id: true,
+        numeroOs: true,
+        cliente: true,
+        status: true,
+        previsaoInicio: true,
+        previsaoTermino: true,
+      },
+      orderBy: { createdAt: "desc" },
+      take: 10, // opcional: limitar a 10 últimas ordens
+    }),
   ]);
 
   estatisticasOS = {
@@ -79,6 +87,7 @@ export const homeInfo = async (req, res) => {
       supervisor: funcionario.supervisor,
       tecnico: funcionario.tecnico,
       estatisticasOS,
+      ordens,
     },
   });
 };
@@ -977,7 +986,7 @@ export const excluirComponenteNaOs = async (req, res) => {
 export const adicionarEnsaioComponente = async (req, res) => {
   const { funcionarioMatricula, funcionarioNivelAcesso } = req;
   const componenteId = Number(req.params.componenteId);
-  const { matricula, numeroOs } = req.params;
+  const { matricula, numeroOs, subestacaoId } = req.params;
   const data = req.body;
 
   // Se não der certo, redirecionar para o login e deslogar
@@ -987,28 +996,29 @@ export const adicionarEnsaioComponente = async (req, res) => {
   const componenteEnsaiado = await prisma.componente.findUnique({
     where: { id: componenteId },
     include: {
-      ordem: true,
+      subestacao: true,
     },
   });
 
-  const ordemComponenteEnsaiado = await prisma.ordem.findUnique({
-    where: { numeroOs },
+  const subestacaoComponenteEnsaiado = await prisma.subestacao.findFirst({
+    where: { ordemOs: numeroOs },
     include: {
-      supervisor: true,
-      tecnico: true,
+      ordem: {
+        include: { supervisor: true, tecnico: true },
+      },
     },
   });
 
-  if (!componenteEnsaiado || !ordemComponenteEnsaiado)
+  if (!componenteEnsaiado || !subestacaoComponenteEnsaiado)
     return res.status(400).json({
       status: false,
       message: "Componente ou OS informada inválida.",
     });
 
-  if (componenteEnsaiado.ordem.numeroOs !== numeroOs)
+  if (componenteEnsaiado.subestacao.ordemOs !== numeroOs)
     return res.status.json({
       status: false,
-      message: "Componente não pertence à ordem de serviço informada.",
+      message: "Componente não pertence à subestação informada.",
     });
 
   if (componenteEnsaiado.tipo.toLocaleUpperCase() === "TRAFO_CORRENTE") {
@@ -1023,7 +1033,7 @@ export const adicionarEnsaioComponente = async (req, res) => {
       });
 
     if (funcionarioNivelAcesso === "TECNICO") {
-      const tecnicoVinculado = ordem.tecnico.some(
+      const tecnicoVinculado = subestacaoComponenteEnsaiado.ordem.tecnico.some(
         (t) => t.matricula === funcionarioMatricula
       );
 
@@ -1068,8 +1078,7 @@ export const adicionarEnsaioComponente = async (req, res) => {
 
 export const excluirEnsaioComponente = async (req, res) => {
   const { funcionarioMatricula, funcionarioNivelAcesso } = req;
-  const { matricula, numeroOs, componenteId, ensaioId } = req.params;
-  const data = req.body;
+  const { matricula, subestacaoId, componenteId, ensaioId } = req.params;
 
   // Se não der certo, redirecionar para o login e deslogar
   if (!conferirMatriculas(matricula, funcionarioMatricula))
@@ -1093,10 +1102,10 @@ export const excluirEnsaioComponente = async (req, res) => {
 
   const componenteEnsaiado = await prisma.componente.findUnique({
     where: { id: Number(componenteId) },
-    include: { ordem: true },
+    include: { subestacao: true },
   });
 
-  if (componenteEnsaiado.ordem.numeroOs !== numeroOs)
+  if (componenteEnsaiado.subestacao.id !== Number(subestacaoId))
     return res.status(400).json({
       status: false,
       message: "Componente não está vinculado na OS ou foi excluído.",

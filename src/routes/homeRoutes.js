@@ -141,13 +141,13 @@ homeRoutes.get(
 
 // POST /home/:matricula/ordens/:numeroOs/componentes/:componenteId/ensaio -> Adiciona ensaio ao componente
 homeRoutes.post(
-  "/home/:matricula/ordens/:numeroOs/componentes/:componenteId/ensaio",
+  "/home/:matricula/ordens/:numeroOs/subestacoes/:subestacaoId/componentes/:componenteId/ensaio",
   homeAdicionarEnsaioComponenteController
 );
 
 // DELETE /home/:matricula/ordens/:numeroOs/componentes/:componenteId/ensaio/:ensaioId -> Excluir ensaio do componente
 homeRoutes.delete(
-  "/home/:matricula/ordens/:numeroOs/componentes/:componenteId/ensaio/:ensaioId",
+  "/home/:matricula/ordens/:numeroOs/subestacoes/:subestacaoId/componentes/:componenteId/ensaio/:ensaioId",
   homeExcluirEnsaioComponenteController
 );
 
