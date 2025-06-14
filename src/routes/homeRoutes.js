@@ -37,6 +37,7 @@ import {
   atualizarDadosFuncionarioSchema,
   criarOrdemSchema,
   excluirFuncionarioSchema,
+  excluirOsSchema,
   homeInfoSchema,
   listarFuncionariosSchema,
   registrarFuncionarioSchema,
@@ -132,7 +133,13 @@ homeRoutes.post(
 );
 
 // DELETE /home/:admin/ordens/:numeroOs -> Excluir OS
-homeRoutes.delete("/home/:matricula/ordens/:numeroOs", homeExcluirOsController);
+homeRoutes.delete(
+  "/home/:matricula/ordens/:numeroOs",
+  conferirMatriculaMiddleware("matricula"),
+  conferirNivelAcessoMiddleware("ADMIN"),
+  validateReq(excluirOsSchema, "params"),
+  homeExcluirOsController
+);
 
 // PUT /home/:matricula/ordens/:numeroOs -> Atualiza ordem(add/remove técnico, troca supervisor, atualiza status)
 homeRoutes.put(

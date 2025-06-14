@@ -150,6 +150,13 @@ export const criarOrdemSchema = z
   })
   .strict();
 
+export const excluirOsSchema = z
+  .object({
+    matricula: z.string().regex(/^\d+$/).transform(Number),
+    numeroOs: z.string().min(1),
+  })
+  .strict();
+
 export const employeeSchema = z.object({
   nome: z.string().min(1, "Nome é obrigatório."),
   usuario: z.string().min(1, "Nome de usuário é obrigatório."),

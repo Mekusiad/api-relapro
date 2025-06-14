@@ -399,16 +399,7 @@ export const criarOs = async (req, res) => {
 };
 
 export const excluirOs = async (req, res) => {
-  const { matricula, numeroOs } = req.params;
-  const { funcionarioMatricula, funcionarioNivelAcesso } = req;
-
-  if (!conferirMatriculas(matricula, funcionarioMatricula))
-    return res.status(403).json({ status: false, message: "Acesso negado." });
-
-  if (funcionarioNivelAcesso.toString().toUpperCase() !== "ADMIN")
-    return res
-      .status(403)
-      .json({ status: true, message: "Você não tem permissão para criar OS." });
+  const { matricula, numeroOs } = req.validatedData;
 
   // 📝 Obter dados antes da exclusão
   const ordemExcluida = await prisma.ordem.findUnique({
@@ -416,9 +407,10 @@ export const excluirOs = async (req, res) => {
   });
 
   if (!ordemExcluida)
-    return res
-      .status(404)
-      .json({ status: false, message: "OS não encontrada." });
+    return res.status(404).json({
+      status: false,
+      message: "OS não encontrada ou já foi excluída.",
+    });
 
   await prisma.ordem.delete({
     where: {

@@ -134,7 +134,7 @@ async function main() {
   // Cria Ordem de Serviço com supervisor e técnicos conectados
   const os = await prisma.ordem.create({
     data: {
-      numeroOs: "202506001",
+      numeroOs: "2025001",
       cliente: "LG",
       nomeResponsavel: "Rafael",
       contato: "92993552808",
@@ -157,7 +157,7 @@ async function main() {
 
   const os1 = await prisma.ordem.create({
     data: {
-      numeroOs: "202506002",
+      numeroOs: "2025002",
       cliente: "LG1",
       nomeResponsavel: "Rafael",
       contato: "92993552808",
@@ -180,7 +180,7 @@ async function main() {
 
   const os2 = await prisma.ordem.create({
     data: {
-      numeroOs: "202506003",
+      numeroOs: "2025003",
       cliente: "LG2",
       nomeResponsavel: "Rafael",
       contato: "92993552808",
