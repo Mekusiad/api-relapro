@@ -191,32 +191,21 @@ export const excluirFuncionario = async (req, res) => {
 };
 
 export const listarFuncionarios = async (req, res) => {
-  const { funcionarioMatricula, funcionarioNivelAcesso } = req;
-  const { matricula } = req.params;
+  const funcionarios = await prisma.funcionario.findMany({
+    orderBy: {
+      nome: "asc",
+    },
+  });
+  const { funcionarioNivelAcesso } = req;
 
-  if (!conferirMatriculas(matricula, funcionarioMatricula))
-    return res.status(403).json({ status: false, message: "Acesso negado." });
+  const data =
+    funcionarioNivelAcesso === "SUPERVISOR"
+      ? funcionarios.map(({ senha, nivelAcesso, ...rest }) => rest)
+      : funcionarios;
 
-  if (funcionarioNivelAcesso === "TECNICO") {
-    return res.status(403).json({ status: false, message: "Acesso restrito." });
-  }
-
-  try {
-    const funcionarios = await prisma.funcionario.findMany();
-
-    const data =
-      funcionarioNivelAcesso === "SUPERVISOR"
-        ? funcionarios.map(({ senha, ...rest }) => rest)
-        : funcionarios;
-
-    return res
-      .status(200)
-      .json({ status: true, messagem: "Lista de funcionários.", data });
-  } catch (error) {
-    return res
-      .status(500)
-      .json({ status: false, message: "Erro ao listar funcionários." });
-  }
+  return res
+    .status(200)
+    .json({ status: true, messagem: "Lista de funcionários.", data });
 };
 
 export const listarOrdensDoFuncionario = async (req, res) => {

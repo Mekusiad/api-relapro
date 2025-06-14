@@ -37,6 +37,7 @@ import {
   atualizarDadosFuncionarioSchema,
   excluirFuncionarioSchema,
   homeInfoSchema,
+  listarFuncionariosSchema,
   registrarFuncionarioSchema,
 } from "../validations/schema.js";
 import { conferirMatriculaMiddleware } from "../middlewares/conferirMatriculaMiddleware.js";
@@ -108,6 +109,9 @@ homeRoutes.delete(
 // GET /home/:matricula/funcionarios → lista todos os funcionários (admin/supervisor)
 homeRoutes.get(
   "/home/:matricula/funcionarios",
+  conferirMatriculaMiddleware("matricula"),
+  conferirNivelAcessoMiddleware("ADMIN", "SUPERVISOR"),
+  validateReq(listarFuncionariosSchema, "params"),
   homeListarFuncionarioController
 );
 

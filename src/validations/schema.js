@@ -53,16 +53,26 @@ export const atualizarDadosFuncionarioSchema = z
   })
   .strict();
 
-export const excluirFuncionarioSchema = z.object({
-  matricula: z.preprocess(
-    (val) => String(val).trim(),
-    z.string().regex(/^\d+$/, "A matrícula deve conter apenas números")
-  ),
-  outraMatricula: z.preprocess(
-    (val) => String(val).trim(),
-    z.string().regex(/^\d+$/, "A matrícula deve conter apenas números")
-  ),
-});
+export const excluirFuncionarioSchema = z
+  .object({
+    matricula: z.preprocess(
+      (val) => String(val).trim(),
+      z.string().regex(/^\d+$/, "A matrícula deve conter apenas números")
+    ),
+    outraMatricula: z.preprocess(
+      (val) => String(val).trim(),
+      z.string().regex(/^\d+$/, "A matrícula deve conter apenas números")
+    ),
+  })
+  .strict();
+
+export const listarFuncionariosSchema = z
+  .object({
+    matricula: z
+      .string()
+      .regex(/^\d+$/, "A matrícula deve conter apenas números"),
+  })
+  .strict();
 
 export const listarOrdensDoFuncionarioSchema = {
   params: z.object({
