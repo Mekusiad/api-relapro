@@ -33,6 +33,8 @@ model Funcionario {
 
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
+
+  foto Foto[]
 }
 
 enum NivelAcesso {
@@ -72,9 +74,62 @@ enum StatusOrdem {
   FINALIZADA
 }
 
+model Foto {
+  id        Int      @id @default(autoincrement())
+  descricao String
+  fotoUrl   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  componente   Componente @relation(fields: [componenteId], references: [id])
+  componenteId Int
+
+  subestacao   Subestacao @relation(fields: [subestacaoId], references: [id])
+  subestacaoId Int
+
+  funcionario   Funcionario @relation(fields: [funcionarioId], references: [id])
+  funcionarioId Int
+
+  ensaioTrafoPotencia   EnsaioTrafoPotencia @relation(fields: [ensaioTrafoPotenciaId], references: [id])
+  ensaioTrafoPotenciaId Int
+
+  ensaioTrafoCorrente   EnsaioTrafoCorrente @relation(fields: [ensaioTrafoCorrenteId], references: [id])
+  ensaioTrafoCorrenteId Int
+
+  ensaioDisjuntor   EnsaioDisjuntor @relation(fields: [ensaioDisjuntorId], references: [id])
+  ensaioDisjuntorId Int
+
+  ensaioResistorAterramento   EnsaioResistorAterramento @relation(fields: [ensaioResistorAterramentoId], references: [id])
+  ensaioResistorAterramentoId Int
+
+  ensaioChaveSeccionadora   EnsaioChaveSeccionadora @relation(fields: [ensaioResistorAterramentoId], references: [id])
+  ensaioChaveSeccionadoraId Int
+
+  malhaAterramento   MalhaAterramento @relation(fields: [malhaAterramentoId], references: [id])
+  malhaAterramentoId Int
+
+  medicaoCaboMufla   MedicaoCaboMufla @relation(fields: [medicaoCaboMuflaId], references: [id])
+  medicaoCaboMuflaId Int
+
+  ensaioFPTrafo   EnsaioFPTrafo @relation(fields: [ensaioFPTrafoId], references: [id])
+  ensaioFPTrafoId Int
+
+  ensaioFPBucha   EnsaioFPBucha @relation(fields: [ensaioFPBuchaId], references: [id])
+  ensaioFPBuchaId Int
+
+  ensaioCorrenteExcitacao   EnsaioCorrenteExcitacao @relation(fields: [ensaioCorrenteExcitacaoId], references: [id])
+  ensaioCorrenteExcitacaoId Int
+
+  equipamento   Equipamento @relation(fields: [ensaioCorrenteExcitacaoId], references: [id])
+  equipamentoId Int
+
+  recomendacao   Recomendacao @relation(fields: [recomendacaoId], references: [id])
+  recomendacaoId Int
+}
+
 model Subestacao {
-  id          Int    @id @default(autoincrement())
-  nome        String // Nome ou código da subestação
+  id   Int    @id @default(autoincrement())
+  nome String // Nome ou código da subestação
 
   ordem   Ordem  @relation(fields: [ordemOs], references: [numeroOs], onDelete: Cascade)
   ordemOs String
@@ -83,6 +138,7 @@ model Subestacao {
   recomendacao            Recomendacao[]
   malhaAterramento        MalhaAterramento[]
   ensaioChaveSeccionadora EnsaioChaveSeccionadora[]
+  foto                    Foto[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -122,6 +178,7 @@ model Componente {
 
   // ensaioTrafoAlta EnsaioTrafoAlta[]
   // ensaioTrafoForca EnsaioTrafoForca[]
+  foto                      Foto[]
   recomendacao              Recomendacao[]
   ensaioTrafoPotencia       EnsaioTrafoPotencia?
   ensaioTrafoCorrente       EnsaioTrafoCorrente?
@@ -162,7 +219,7 @@ model EnsaioTrafoPotencia {
   relacaoMedida2       Float
   relacaoMedida3       Float
 
-  resistenciaOhmicaEnrolamentoAt1 Float @default(0)
+  resistenciaOhmicaEnrolamentoAt1 Float
   resistenciaOhmicaEnrolamentoAt2 Float
   resistenciaOhmicaEnrolamentoAt3 Float
 
@@ -188,6 +245,7 @@ model EnsaioTrafoPotencia {
   componenteID Int        @unique
 
   equipamentoUsado Equipamento[]
+  foto             Foto[]
 
   responsavelEnsaioMatricula Int
 
@@ -209,6 +267,7 @@ model EnsaioTrafoCorrente {
   componenteID Int        @unique
 
   equipamentoUsado Equipamento[]
+  foto             Foto[]
 
   responsavelEnsaioMatricula Int
 
@@ -240,6 +299,7 @@ model EnsaioDisjuntor {
   componenteID               Int           @unique
   responsavelEnsaioMatricula Int
   equipamentoUsado           Equipamento[]
+  foto                       Foto[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -256,6 +316,7 @@ model EnsaioResistorAterramento {
   componenteID Int        @unique
 
   equipamentoUsado           Equipamento[]
+  foto                       Foto[]
   responsavelEnsaioMatricula Int
   createdAt                  DateTime      @default(now())
   updatedAt                  DateTime      @updatedAt
@@ -273,6 +334,7 @@ model EnsaioChaveSeccionadora {
   observacao             String
 
   equipamentoUsado Equipamento[]
+  foto             Foto[]
 
   subestacao                 Subestacao @relation(fields: [subestacaoId], references: [id], onDelete: Cascade)
   subestacaoId               Int
@@ -294,6 +356,7 @@ model MalhaAterramento {
   subestacaoId Int
 
   equipamentoUsado           Equipamento[]
+  foto                       Foto[]
   responsavelEnsaioMatricula Int
   createdAt                  DateTime      @default(now())
   updatedAt                  DateTime      @updatedAt
@@ -319,6 +382,7 @@ model MedicaoCaboMufla {
   componenteID Int        @unique
 
   equipamento Equipamento[]
+  foto        Foto[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -358,6 +422,7 @@ model EnsaioFPTrafo {
   componenteID Int        @unique
 
   equipamento Equipamento[]
+  foto        Foto[]
 }
 
 model EnsaioFPBucha {
@@ -371,6 +436,7 @@ model EnsaioFPBucha {
   componenteID Int        @unique
 
   equipamento Equipamento[]
+  foto        Foto[]
 }
 
 model EnsaioCorrenteExcitacao {
@@ -383,6 +449,7 @@ model EnsaioCorrenteExcitacao {
   componenteID Int        @unique
 
   equipamento Equipamento[]
+  foto        Foto[]
 }
 
 model Equipamento {
@@ -428,6 +495,8 @@ model Equipamento {
   ensaioCorrenteExcitacao   EnsaioCorrenteExcitacao? @relation(fields: [ensaioCorrenteExcitacaoId], references: [id], onDelete: Cascade)
   ensaioCorrenteExcitacaoId Int
 
+  foto Foto[]
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
@@ -451,6 +520,7 @@ model Recomendacao {
   subestacao   Subestacao @relation(fields: [subestacaoId], references: [id], onDelete: Cascade)
   subestacaoId Int
 
+  foto      Foto[]
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
