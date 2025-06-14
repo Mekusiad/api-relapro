@@ -533,8 +533,19 @@ export const adicionarTecnicoNaOs = async (req, res) => {
 };
 
 export const removerTecnicoNaOs = async (req, res) => {
-  const { numeroOs } = req.params;
-  let { tecnicoMatricula } = req.body; // Pode ser um número ou array
+  const result = adicionarTecnicoSchema.safeParse({
+    numeroOs: req.params.numeroOs,
+    tecnicoMatricula: req.body.tecnicoMatricula,
+  });
+
+  if (!result.success) {
+    return res.status(400).json({
+      status: false,
+      message: "Erro de validação.",
+      errors: result.error.format(),
+    });
+  }
+  const { numeroOs, tecnicoMatricula } = result.data;
 
   // Garante que seja sempre um array
   if (!Array.isArray(tecnicoMatricula)) {
@@ -567,9 +578,9 @@ export const removerTecnicoNaOs = async (req, res) => {
     });
 
   // Verifica quais técnicos realmente estão vinculados
-  const tecnicosVinculados = ordem.tecnico.map((t) => t.matricula);
+  const tecnicosVinculados = ordem.tecnico.map((t) => Number(t.matricula));
   const naoVinculados = tecnicoMatricula.filter(
-    (matricula) => !tecnicosVinculados.includes(matricula)
+    (matricula) => !tecnicosVinculados.includes(Number(matricula))
   );
 
   if (naoVinculados.length > 0) {
@@ -585,7 +596,9 @@ export const removerTecnicoNaOs = async (req, res) => {
     where: { numeroOs },
     data: {
       tecnico: {
-        disconnect: tecnicoMatricula.map((matricula) => ({ matricula })),
+        disconnect: tecnicoMatricula.map((matricula) => ({
+          matricula: Number(matricula),
+        })),
       },
     },
     include: {
