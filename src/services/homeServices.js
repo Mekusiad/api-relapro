@@ -2,6 +2,7 @@ import { PrismaClient } from "../generated/prisma/index.js";
 import { conferirMatriculas } from "../utils/conferirMatriculas.js";
 import {
   adicionarTecnicoSchema,
+  atualizaStatusSchema,
   listarOrdensDoFuncionarioSchema,
   trocarSupervisorSchema,
 } from "../validations/schema.js";
@@ -675,14 +676,34 @@ export const trocarSupervisorNaOs = async (req, res) => {
 };
 
 export const atualizaStatusOs = async (req, res) => {
-  const { numeroOs } = req.params;
-  const { status } = req.body;
-  await prisma.ordem.update({
+  const result = atualizaStatusSchema.safeParse({
+    numeroOs: req.params.numeroOs,
+    status: req.body.status,
+  });
+
+  if (!result.success) {
+    return res.status(400).json({
+      status: false,
+      message: "Erro de validação.",
+      errors: result.error.format(),
+    });
+  }
+
+  const { numeroOs, status } = result.data;
+
+  const ordem = await prisma.ordem.update({
     where: { numeroOs },
     data: {
       status,
     },
   });
+
+  if (!ordem) {
+    return res.status(404).json({
+      status: false,
+      message: "OS não encontrada.",
+    });
+  }
 
   return res
     .status(200)
