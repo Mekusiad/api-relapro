@@ -181,6 +181,16 @@ export const removerTecnicoSchema = z
   })
   .strict();
 
+export const trocarSupervisorSchema = z
+  .object({
+    numeroOs: z.string().min(1, "Número da OS é obrigatório."),
+    supervisorMatricula: z.coerce.number({
+      required_error: "A matrícula do supervisor é obrigatória.",
+      invalid_type_error: "A matrícula deve ser um número.",
+    }),
+  })
+  .strict();
+
 export const employeeSchema = z.object({
   nome: z.string().min(1, "Nome é obrigatório."),
   usuario: z.string().min(1, "Nome de usuário é obrigatório."),

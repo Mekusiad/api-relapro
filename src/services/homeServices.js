@@ -3,6 +3,7 @@ import { conferirMatriculas } from "../utils/conferirMatriculas.js";
 import {
   adicionarTecnicoSchema,
   listarOrdensDoFuncionarioSchema,
+  trocarSupervisorSchema,
 } from "../validations/schema.js";
 
 const prisma = new PrismaClient();
@@ -616,9 +617,21 @@ export const removerTecnicoNaOs = async (req, res) => {
 };
 
 export const trocarSupervisorNaOs = async (req, res) => {
-  const { numeroOs } = req.params;
-  const { supervisorMatricula } = req.body;
-  console.log(supervisorMatricula);
+  const result = trocarSupervisorSchema.safeParse({
+    numeroOs: req.params.numeroOs,
+    supervisorMatricula: req.body.supervisorMatricula,
+  });
+
+  if (!result.success) {
+    return res.status(400).json({
+      status: false,
+      message: "Erro de validação.",
+      errors: result.error.format(),
+    });
+  }
+
+  const { numeroOs, supervisorMatricula } = result.data;
+
   const ordem = await prisma.ordem.findUnique({
     where: { numeroOs },
     include: { supervisor: true },
@@ -630,7 +643,7 @@ export const trocarSupervisorNaOs = async (req, res) => {
       .json({ status: false, message: "OS não encontrada ou foi excluída" });
 
   const supervisor = await prisma.funcionario.findUnique({
-    where: { matricula: supervisorMatricula },
+    where: { matricula: Number(supervisorMatricula) },
   });
 
   if (!supervisor || supervisor.nivelAcesso !== "SUPERVISOR")
@@ -651,7 +664,7 @@ export const trocarSupervisorNaOs = async (req, res) => {
     where: { numeroOs },
     data: {
       supervisor: {
-        connect: { matricula: supervisorMatricula },
+        connect: { matricula: Number(supervisorMatricula) },
       },
     },
   });
