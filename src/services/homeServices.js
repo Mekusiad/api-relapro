@@ -94,13 +94,6 @@ export const homeInfo = async (req, res) => {
 
 export const registrarFuncionario = async (req, res) => {
   const data = req.validatedData; // <-- dados validados aqui
-  const { funcionarioNivelAcesso } = req;
-
-  if (funcionarioNivelAcesso.toString().toUpperCase() !== "ADMIN")
-    return res.status(403).json({
-      status: false,
-      message: "Você não tem permissão para realizar este tipo de ação.",
-    });
 
   const matriculaExist = await prisma.funcionario.findFirst({
     where: { matricula: data.matricula },
@@ -114,10 +107,11 @@ export const registrarFuncionario = async (req, res) => {
   const usuarioExiste = await prisma.funcionario.findFirst({
     where: { usuario: data.usuario },
   });
+
   if (usuarioExiste)
     return res
       .status(400)
-      .json({ status: false, message: "Matrícula existente, tente outra." });
+      .json({ status: false, message: "Usuário existente, tente outra." });
 
   await prisma.funcionario.create({
     data: {
@@ -139,17 +133,6 @@ export const registrarFuncionario = async (req, res) => {
 export const atualizarDadosFuncionario = async (req, res) => {
   const outraMatricula = Number(req.params.outraMatricula);
   const data = req.validatedData;
-  const { funcionarioNivelAcesso } = req;
-
-  // Se não der certo, redirecionar para o login e deslogar
-  // if (!conferirMatriculas(matricula, funcionarioMatricula))
-  //   return res.status(403).json({ status: false, message: "Acesso negado." });
-
-  if (funcionarioNivelAcesso.toString().toUpperCase() !== "ADMIN")
-    return res.status(403).json({
-      status: false,
-      message: "Você não tem permissão para realizar este tipo de ação.",
-    });
 
   const dadosAtualizados = await prisma.funcionario.update({
     where: { matricula: Number(outraMatricula) },

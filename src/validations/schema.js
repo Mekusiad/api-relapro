@@ -5,32 +5,36 @@ export const loginSchema = z.object({
   senha: z.string().min(5, "Senha é obrigatória."),
 });
 
-export const homeInfoSchema = z.object({
-  funcionarioMatricula: z.preprocess(
-    (val) => String(val).trim(),
-    z.string().regex(/^\d+$/, "A matrícula deve conter apenas números")
-  ),
-});
+export const homeInfoSchema = z
+  .object({
+    funcionarioMatricula: z.preprocess(
+      (val) => String(val).trim(),
+      z.string().regex(/^\d+$/, "A matrícula deve conter apenas números")
+    ),
+  })
+  .strict();
 
-export const registrarFuncionarioSchema = z.object({
-  nome: z
-    .string()
-    .min(3, "Nome é obrigatório e deve ter pelo menos 3 caracteres"),
-  usuario: z.string().min(3, "Usuário é obrigatório"),
-  matricula: z.preprocess(
-    (val) => Number(val),
-    z
-      .number()
-      .int()
-      .positive("Matrícula inválida, deve ser um número inteiro e positivo.")
-  ),
-  cargo: z.string().min(2, "Cargo é obrigatório"),
-  admissao: z.string().refine((val) => !isNaN(Date.parse(val)), {
-    message: "Data de admissão inválida",
-  }),
-  senha: z.string().min(6, "A senha deve ter pelo menos 6 caracteres"),
-  nivelAcesso: z.enum(["ADMIN", "SUPERVISOR", "TECNICO"]).optional(),
-});
+export const registrarFuncionarioSchema = z
+  .object({
+    nome: z
+      .string()
+      .min(3, "Nome é obrigatório e deve ter pelo menos 3 caracteres"),
+    usuario: z.string().min(3, "Usuário é obrigatório"),
+    matricula: z.preprocess(
+      (val) => Number(val),
+      z
+        .number()
+        .int()
+        .positive("Matrícula inválida, deve ser um número inteiro e positivo.")
+    ),
+    cargo: z.string().min(2, "Cargo é obrigatório"),
+    admissao: z.string().refine((val) => !isNaN(Date.parse(val)), {
+      message: "Data de admissão inválida",
+    }),
+    senha: z.string().min(6, "A senha deve ter pelo menos 6 caracteres"),
+    nivelAcesso: z.enum(["ADMIN", "SUPERVISOR", "TECNICO"]).optional(),
+  })
+  .strict();
 
 export const atualizarDadosFuncionarioSchema = z
   .object({

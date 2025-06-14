@@ -39,6 +39,7 @@ import {
   registrarFuncionarioSchema,
 } from "../validations/schema.js";
 import { conferirMatriculaMiddleware } from "../middlewares/conferirMatriculaMiddleware.js";
+import { conferirNivelAcessoMiddleware } from "../middlewares/conferirNivelAcessoMiddleware.js";
 
 export const homeRoutes = express.Router();
 
@@ -56,6 +57,7 @@ homeRoutes.get(
 homeRoutes.post(
   "/home/:matricula/funcionarios",
   conferirMatriculaMiddleware("matricula"),
+  conferirNivelAcessoMiddleware("ADMIN"),
   validateReq(registrarFuncionarioSchema, "body"),
   homeRegistrarFuncionarioController
 );
@@ -64,6 +66,7 @@ homeRoutes.post(
 homeRoutes.put(
   "/home/:matricula/funcionarios/:outraMatricula",
   conferirMatriculaMiddleware("matricula"),
+  conferirNivelAcessoMiddleware("ADMIN"),
   validateReq(atualizarDadosFuncionarioSchema, "body"),
   homeAtualizadosDadosFuncionarioController
 );
