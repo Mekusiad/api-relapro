@@ -287,18 +287,7 @@ export const listarOrdensDoFuncionario = async (req, res) => {
 };
 
 export const criarOs = async (req, res) => {
-  const data = req.body;
-  const { matricula } = req.params;
-  const { funcionarioMatricula, funcionarioNivelAcesso } = req;
-
-  if (!conferirMatriculas(matricula, funcionarioMatricula))
-    return res.status(403).json({ status: false, message: "Acesso negado." });
-
-  if (funcionarioNivelAcesso.toString().toUpperCase() === "TECNICO")
-    return res.status(403).json({
-      status: false,
-      message: "Você não tem permissão para criar OS.",
-    });
+  const data = req.validatedData;
 
   const ordemExist = await prisma.ordem.findFirst({
     where: {
@@ -315,27 +304,56 @@ export const criarOs = async (req, res) => {
       message: `Serviço já existe e está vinculada à OS ${ordemExist.numeroOs}`,
     });
 
+  // Verificar se supervisor existe
+  const supervisorExiste = await prisma.funcionario.findUnique({
+    where: { matricula: Number(data.supervisorMatricula) },
+  });
+
+  if (!supervisorExiste) {
+    return res.status(404).json({
+      status: false,
+      message: `Supervisor com matrícula ${data.supervisorMatricula} não encontrado.`,
+    });
+  }
+
+  // Verificar técnicos (se enviados)
+  if (data.tecnicoMatricula && data.tecnicoMatricula.length > 0) {
+    const tecnicos = await prisma.funcionario.findMany({
+      where: {
+        matricula: { in: data.tecnicoMatricula },
+      },
+    });
+
+    if (tecnicos.length !== data.tecnicoMatricula.length) {
+      const encontrados = tecnicos.map((t) => t.matricula);
+      const naoEncontrados = data.tecnicoMatricula.filter(
+        (m) => !encontrados.includes(m)
+      );
+      return res.status(404).json({
+        status: false,
+        message: `Técnico(s) não encontrado(s): ${naoEncontrados.join(", ")}`,
+      });
+    }
+  }
+
   const now = new Date();
+  const ano = now.getFullYear();
 
-  const ano = now.getFullYear(); // ano vigente
-  const mes = String(now.getMonth() + 1).padStart(2, "0"); // mês vigente
-
-  const prefixo = `${ano}${mes}`; // cocatena ano+mês
-
-  // Conta quantas OS já existem para o mês atual
-  const countMes = await prisma.ordem.count({
+  // Conta quantas OS "ABERTA" já existem no ano atual
+  const countAno = await prisma.ordem.count({
     where: {
+      status: "ABERTA",
       createdAt: {
-        gte: new Date(`${ano}-${mes}-01T00:00:00.000Z`),
-        lt: new Date(
-          `${ano}-${String(Number(mes) + 1).padStart(2, "0")}-01T00:00:00.000Z`
-        ),
+        gte: new Date(`${ano}-01-01T00:00:00.000Z`),
+        lt: new Date(`${ano + 1}-01-01T00:00:00.000Z`),
       },
     },
   });
-  const numeroSequencial = String(countMes + 1).padStart(3, "0"); // gera o próximo n° disponível do mês
-  const numberOs = `${prefixo}${numeroSequencial}`; // cocatena com ano+mês+n°disponível do mês
-  const novaOS = await prisma.ordem.create({
+
+  const numeroSequencial = String(countAno + 1).padStart(3, "0"); // Ex: 001, 012, 103
+  const numberOs = `${ano}${numeroSequencial}`; // Ex: 2025001, 2025012
+
+  await prisma.ordem.create({
     data: {
       numeroOs: numberOs,
       cliente: data.cliente,
@@ -347,13 +365,15 @@ export const criarOs = async (req, res) => {
       previsaoInicio: new Date(data.previsaoInicio),
       ...(data.supervisorMatricula && {
         supervisor: {
-          connect: { matricula: data.supervisorMatricula },
+          connect: { matricula: Number(data.supervisorMatricula) },
         },
       }),
       ...(data.tecnicoMatricula &&
         data.tecnicoMatricula.length > 0 && {
           tecnico: {
-            connect: data.tecnicoMatricula.map((matricula) => ({ matricula })),
+            connect: data.tecnicoMatricula.map((matricula) => ({
+              matricula: Number(matricula),
+            })),
           },
         }),
       status: data?.status || "ABERTA",

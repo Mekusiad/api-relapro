@@ -110,6 +110,44 @@ export const listarOrdensDoFuncionarioSchema = {
     .strict(),
 };
 
+export const criarOrdemSchema = z.object({
+  cliente: z.string().min(1),
+  nomeResponsavel: z.string().min(1),
+  contato: z.string().min(1),
+  email: z.string().email(),
+  localServico: z.string().min(1),
+  descricaoInicial: z.string().min(1),
+  previsaoInicio: z.string().refine((val) => !isNaN(Date.parse(val)), {
+    message: "Data inválida",
+  }),
+
+  status: z
+    .string()
+    .optional()
+    .refine(
+      (val) => !val || ["ABERTA", "EM_ANDAMENTO", "FINALIZADA"].includes(val),
+      {
+        message: "Status inválido.",
+      }
+    ),
+
+  supervisorMatricula: z.preprocess(
+    (val) => String(val).trim(),
+    z.string().regex(/^\d+$/, "A matrícula deve conter apenas números")
+  ),
+  tecnicoMatricula: z
+    .array(
+      z.preprocess(
+        (val) => Number(val), // converte string para número
+        z
+          .number()
+          .int()
+          .positive("A matrícula deve ser um número inteiro positivo")
+      )
+    )
+    .optional(),
+});
+
 export const employeeSchema = z.object({
   nome: z.string().min(1, "Nome é obrigatório."),
   usuario: z.string().min(1, "Nome de usuário é obrigatório."),

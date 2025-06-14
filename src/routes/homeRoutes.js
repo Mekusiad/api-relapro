@@ -35,6 +35,7 @@ import {
 } from "../middlewares/homeMiddleware.js";
 import {
   atualizarDadosFuncionarioSchema,
+  criarOrdemSchema,
   excluirFuncionarioSchema,
   homeInfoSchema,
   listarFuncionariosSchema,
@@ -122,7 +123,13 @@ homeRoutes.get(
 );
 
 // POST /home/:matricual/ordens -> Criar OS
-homeRoutes.post("/home/:matricula/ordens", homeCriarOsController);
+homeRoutes.post(
+  "/home/:matricula/ordens",
+  conferirMatriculaMiddleware("matricula"),
+  conferirNivelAcessoMiddleware("ADMIN", "SUPERVISOR"),
+  validateReq(criarOrdemSchema, "body"),
+  homeCriarOsController
+);
 
 // DELETE /home/:admin/ordens/:numeroOs -> Excluir OS
 homeRoutes.delete("/home/:matricula/ordens/:numeroOs", homeExcluirOsController);
