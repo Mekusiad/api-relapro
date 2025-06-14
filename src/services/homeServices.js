@@ -5,7 +5,7 @@ import { listarOrdensDoFuncionarioSchema } from "../validations/schema.js";
 const prisma = new PrismaClient();
 
 export const homeInfo = async (req, res) => {
-  const decodedMatricula = req.funcionarioMatricula;
+  const decodedMatricula = req.validatedData.funcionarioMatricula;
 
   const funcionario = await prisma.funcionario.findFirst({
     where: { matricula: Number(decodedMatricula) },
@@ -93,13 +93,8 @@ export const homeInfo = async (req, res) => {
 };
 
 export const registrarFuncionario = async (req, res) => {
-  const matricula = Number(req.params.matricula);
-  const data = req.body;
-  const { funcionarioMatricula, funcionarioNivelAcesso } = req;
-
-  // Se não der certo, redirecionar para o login e deslogar
-  if (!conferirMatriculas(matricula, funcionarioMatricula))
-    return res.status(403).json({ status: false, message: "Acesso negado." });
+  const data = req.validatedData; // <-- dados validados aqui
+  const { funcionarioNivelAcesso } = req;
 
   if (funcionarioNivelAcesso.toString().toUpperCase() !== "ADMIN")
     return res.status(403).json({
@@ -653,8 +648,6 @@ export const atualizaStatusOs = async (req, res) => {
 };
 
 export const adicionarSubestacao = async (req, res) => {
-  //
-  //
   const data = req.body;
   const { matricula, numeroOs } = req.params;
   const { funcionarioMatricula, funcionarioNivelAcesso } = req;
@@ -694,7 +687,6 @@ export const adicionarSubestacao = async (req, res) => {
 };
 
 export const listarSubestacao = async (req, res) => {
-  const data = req.body;
   const { matricula, numeroOs } = req.params;
   const { funcionarioMatricula, funcionarioNivelAcesso } = req;
 
@@ -1017,7 +1009,6 @@ export const atualizarComponente = async (req, res) => {
 };
 
 export const excluirComponenteNaOs = async (req, res) => {
-  //
   const { matricula, subestacaoId, componenteId } = req.params;
   const { funcionarioMatricula, funcionarioNivelAcesso } = req;
 

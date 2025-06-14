@@ -28,6 +28,15 @@ import {
   homeAtualizarDadosSubestaçãoController,
   homeListarSubestacaoController,
 } from "../controllers/homeController.js";
+import {
+  homeInfoMiddleware,
+  registrarFuncionarioMiddleware,
+} from "../middlewares/homeMiddleware.js";
+import {
+  homeInfoSchema,
+  registrarFuncionarioSchema,
+} from "../validations/schema.js";
+import { conferirMatriculaMiddleware } from "../middlewares/conferirMatriculaMiddleware.js";
 
 export const homeRoutes = express.Router();
 
@@ -35,11 +44,17 @@ export const homeRoutes = express.Router();
 homeRoutes.use(verifyToken);
 
 // GET /home -> Página inicial
-homeRoutes.get("/home", homeInfoController);
+homeRoutes.get(
+  "/home",
+  homeInfoMiddleware(homeInfoSchema, "custom"),
+  homeInfoController
+);
 
 // POST /home/:matricula/funcionarios -> Criar funcionário
 homeRoutes.post(
   "/home/:matricula/funcionarios",
+  conferirMatriculaMiddleware("matricula"),
+  registrarFuncionarioMiddleware(registrarFuncionarioSchema, "body"),
   homeRegistrarFuncionarioController
 );
 
