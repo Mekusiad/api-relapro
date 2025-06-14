@@ -153,17 +153,7 @@ export const atualizarDadosFuncionario = async (req, res) => {
 
 export const excluirFuncionario = async (req, res) => {
   const { matricula, outraMatricula } = req.params;
-  const { funcionarioMatricula, funcionarioNivelAcesso } = req;
-
-  // Se não der certo, redirecionar para o login e deslogar
-  if (!conferirMatriculas(matricula, funcionarioMatricula))
-    return res.status(403).json({ status: false, message: "Acesso negado." });
-
-  if (funcionarioNivelAcesso.toString().toUpperCase() !== "ADMIN")
-    return res.status(403).json({
-      status: false,
-      message: "Você não tem permissão para realizar este tipo de ação.",
-    });
+  const { funcionarioMatricula } = req;
 
   if (matricula === outraMatricula)
     return res.status(401).json({

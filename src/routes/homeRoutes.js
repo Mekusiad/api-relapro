@@ -35,6 +35,7 @@ import {
 } from "../middlewares/homeMiddleware.js";
 import {
   atualizarDadosFuncionarioSchema,
+  excluirFuncionarioSchema,
   homeInfoSchema,
   registrarFuncionarioSchema,
 } from "../validations/schema.js";
@@ -98,6 +99,9 @@ homeRoutes.put(
 // DELETE /home/:matricula/funcionarios/:outraMatricula -> Excluir funcionário
 homeRoutes.delete(
   "/home/:matricula/funcionarios/:outraMatricula",
+  conferirMatriculaMiddleware("matricula"),
+  conferirNivelAcessoMiddleware("ADMIN"),
+  validateReq(excluirFuncionarioSchema, "params"),
   homeExcluirFuncionarioController
 );
 
