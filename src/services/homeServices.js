@@ -1,6 +1,9 @@
 import { PrismaClient } from "../generated/prisma/index.js";
 import { conferirMatriculas } from "../utils/conferirMatriculas.js";
-import { listarOrdensDoFuncionarioSchema } from "../validations/schema.js";
+import {
+  adicionarTecnicoSchema,
+  listarOrdensDoFuncionarioSchema,
+} from "../validations/schema.js";
 
 const prisma = new PrismaClient();
 
@@ -434,8 +437,21 @@ export const excluirOs = async (req, res) => {
 };
 
 export const adicionarTecnicoNaOs = async (req, res) => {
-  const { numeroOs } = req.params;
-  const { tecnicoMatricula } = req.body;
+  const result = adicionarTecnicoSchema.safeParse({
+    numeroOs: req.params.numeroOs,
+    tecnicoMatricula: req.body.tecnicoMatricula,
+  });
+
+  if (!result.success) {
+    return res.status(400).json({
+      status: false,
+      message: "Erro de validação.",
+      errors: result.error.format(),
+    });
+  }
+  const { numeroOs, tecnicoMatricula } = result.data;
+
+  // ✅ Buscar OS
   const ordem = await prisma.ordem.findUnique({
     where: { numeroOs },
     include: { tecnico: true },
@@ -446,41 +462,72 @@ export const adicionarTecnicoNaOs = async (req, res) => {
       .status(403)
       .json({ status: false, message: "OS não encontrada ou foi excluída" });
 
-  if (
-    req.funcionarioMatricula.length > 0
-      ? req.funcionarioMatricula.includes(ordem.supervisorMatricula)
-      : req.funcionarioMatricula === ordem.supervisorMatricula
-  )
-    return res.status(403).json({
+  // ✅ Evitar adicionar o próprio supervisor como técnico
+  if (tecnicoMatricula.includes(String(ordem.supervisorMatricula))) {
+    return res.status(400).json({
       status: false,
-      message: "Matrícula já está vinculada a um supervisor.",
+      message: "Supervisor não pode ser adicionado como técnico.",
     });
+  }
 
-  const alreadyExists = ordem.tecnico.some((t) =>
-    tecnicoMatricula.includes(t.matricula)
+  // ✅ Evitar duplicidade
+  const tecnicosExistentes = ordem.tecnico.map((t) => t.matricula);
+  const tecnicosParaAdicionar = tecnicoMatricula.filter(
+    (m) => !tecnicosExistentes.includes(m)
   );
 
-  if (alreadyExists)
-    return res
-      .status(400)
-      .json({ status: false, message: "Técnico já está vinculado à OS." });
+  if (tecnicosParaAdicionar.length === 0) {
+    return res.status(400).json({
+      status: false,
+      message: "Todos os técnicos informados já estão vinculados à OS.",
+    });
+  }
 
+  // 1. Buscar técnicos válidos
+  const tecnicosExistem = await prisma.funcionario.findMany({
+    where: {
+      matricula: {
+        in: tecnicoMatricula.map(Number), // converte para número
+      },
+    },
+    select: { matricula: true },
+  });
+
+  // 2. Obter apenas os que realmente existem
+  const matriculasValidas = tecnicosExistem.map((t) => t.matricula);
+
+  // 3. Verificar se algum técnico está inválido
+  const matriculasInvalidas = tecnicoMatricula
+    .map(Number)
+    .filter((m) => !matriculasValidas.includes(m));
+
+  if (matriculasInvalidas.length > 0) {
+    return res.status(404).json({
+      status: false,
+      message: `As seguintes matrículas não existem: ${matriculasInvalidas.join(
+        ", "
+      )}`,
+    });
+  }
+
+  // ✅ Atualizar
   const adicionado = await prisma.ordem.update({
     where: { numeroOs },
     data: {
-      ...(tecnicoMatricula &&
-        tecnicoMatricula.length > 0 && {
-          tecnico: {
-            connect: tecnicoMatricula.map((matricula) => ({ matricula })),
-          },
-        }),
+      tecnico: {
+        connect: tecnicosParaAdicionar.map((matricula) => ({
+          matricula: Number(matricula),
+        })),
+      },
     },
-    include: { tecnico: { select: { nome: true, matricula: true } } },
+    include: {
+      tecnico: { select: { nome: true, matricula: true } },
+    },
   });
 
   return res.status(200).json({
     status: true,
-    message: "Técnico adicionado com sucesso.",
+    message: "Técnico(s) adicionado(s) com sucesso.",
     data: adicionado.tecnico,
   });
 };

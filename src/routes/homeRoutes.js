@@ -144,6 +144,7 @@ homeRoutes.delete(
 // PUT /home/:matricula/ordens/:numeroOs -> Atualiza ordem(add/remove técnico, troca supervisor, atualiza status)
 homeRoutes.put(
   "/home/:matricula/ordens/:numeroOs",
+  conferirMatriculaMiddleware("matricula"),
   homeAtualizarOrdemController
 );
 

@@ -157,6 +157,18 @@ export const excluirOsSchema = z
   })
   .strict();
 
+export const adicionarTecnicoSchema = z
+  .object({
+    numeroOs: z.string().min(1),
+    tecnicoMatricula: z.array(
+      z.preprocess(
+        (val) => String(val).trim(),
+        z.string().regex(/^\d+$/, "Matrícula inválida")
+      )
+    ),
+  })
+  .strict();
+
 export const employeeSchema = z.object({
   nome: z.string().min(1, "Nome é obrigatório."),
   usuario: z.string().min(1, "Nome de usuário é obrigatório."),
