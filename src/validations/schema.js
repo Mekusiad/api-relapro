@@ -75,33 +75,39 @@ export const listarFuncionariosSchema = z
   .strict();
 
 export const listarOrdensDoFuncionarioSchema = {
-  params: z.object({
-    matricula: z
-      .string()
-      .regex(/^\d+$/, "A matrícula deve conter apenas números.")
-      .transform(Number),
-  }),
+  params: z
+    .object({
+      matricula: z
+        .string()
+        .regex(/^\d+$/, "A matrícula deve conter apenas números.")
+        .transform(Number),
+    })
+    .strict(),
 
-  query: z.object({
-    status: z
-      .string()
-      .optional()
-      .refine(
-        (val) => !val || ["ABERTA", "EM_ANDAMENTO", "FINALIZADA"].includes(val),
-        {
-          message: "Status inválido. Use: ABERTA, EM_ANDAMENTO ou FINALIZADA.",
-        }
-      ),
-    numeroOs: z.string().optional(),
-    cliente: z.string().optional(),
-    page: z
-      .string()
-      .optional()
-      .transform((val) => (val ? parseInt(val, 10) : 1))
-      .refine((val) => Number.isInteger(val) && val > 0, {
-        message: "A página deve ser um número inteiro positivo.",
-      }),
-  }),
+  query: z
+    .object({
+      status: z
+        .string()
+        .optional()
+        .refine(
+          (val) =>
+            !val || ["ABERTA", "EM_ANDAMENTO", "FINALIZADA"].includes(val),
+          {
+            message:
+              "Status inválido. Use: ABERTA, EM_ANDAMENTO ou FINALIZADA.",
+          }
+        ),
+      numeroOs: z.string().optional(),
+      cliente: z.string().optional(),
+      page: z
+        .string()
+        .optional()
+        .transform((val) => (val ? parseInt(val, 10) : 1))
+        .refine((val) => Number.isInteger(val) && val > 0, {
+          message: "A página deve ser um número inteiro positivo.",
+        }),
+    })
+    .strict(),
 };
 
 export const employeeSchema = z.object({

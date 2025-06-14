@@ -231,9 +231,6 @@ export const listarOrdensDoFuncionario = async (req, res) => {
   const limit = 10;
   const skip = (page - 1) * limit;
 
-  if (!conferirMatriculas(matricula, req.funcionarioMatricula))
-    return res.status(403).json({ status: false, message: "Acesso negado." });
-
   const where = {
     ...(status ? { status: String(status) } : {}),
     ...(numeroOs ? { numeroOs: { equals: String(numeroOs) } } : {}),
@@ -336,7 +333,6 @@ export const criarOs = async (req, res) => {
       },
     },
   });
-
   const numeroSequencial = String(countMes + 1).padStart(3, "0"); // gera o próximo n° disponível do mês
   const numberOs = `${prefixo}${numeroSequencial}`; // cocatena com ano+mês+n°disponível do mês
   const novaOS = await prisma.ordem.create({

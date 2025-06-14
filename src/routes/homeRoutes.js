@@ -136,6 +136,7 @@ homeRoutes.put(
 // GET /home/:matricula/ordens → lista todas as ordens da pessoa
 homeRoutes.get(
   "/home/:matricula/ordens",
+  conferirMatriculaMiddleware("matricula"),
   homeListarOrdensDoFuncionarioController
 );
 
