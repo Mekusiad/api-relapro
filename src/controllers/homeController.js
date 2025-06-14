@@ -103,7 +103,7 @@ export const homeExcluirOsController = async (req, res) => {
 };
 
 export const homeAtualizarOrdemController = async (req, res) => {
-  const { matricula, numeroOs } = req.params;
+  const { matricula } = req.params;
   const data = req.body;
 
   if (!conferirMatriculas(matricula, req.funcionarioMatricula))
@@ -112,20 +112,16 @@ export const homeAtualizarOrdemController = async (req, res) => {
   try {
     switch (data.type) {
       case "add-tecnico":
-        return await adicionarTecnicoNaOs(numeroOs, data.tecnicoMatricula, res);
+        return await adicionarTecnicoNaOs(req, res);
 
       case "remove-tecnico":
-        return await removerTecnicoNaOs(numeroOs, data.tecnicoMatricula, res);
+        return await removerTecnicoNaOs(req, res);
 
       case "trocar-supervisor":
-        return await trocarSupervisorNaOs(
-          numeroOs,
-          data.supervisorMatricula,
-          res
-        );
+        return await trocarSupervisorNaOs(req, res);
 
       case "atualiza-status":
-        return await atualizaStatusOs(numeroOs, data.status, res);
+        return await atualizaStatusOs(req, res);
 
       default:
         return res.status(400).json({

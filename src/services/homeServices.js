@@ -469,11 +469,29 @@ export const excluirOs = async (req, res) => {
     .json({ status: true, message: "OS excluída com sucesso." });
 };
 
-export const adicionarTecnicoNaOs = async (numeroOs, tecnicoMatricula, res) => {
+export const adicionarTecnicoNaOs = async (req, res) => {
+  const { numeroOs } = req.params;
+  const { tecnicoMatricula } = req.body;
   const ordem = await prisma.ordem.findUnique({
     where: { numeroOs },
     include: { tecnico: true },
   });
+
+  if (!ordem)
+    return res
+      .status(403)
+      .json({ status: false, message: "OS não encontrada ou foi excluída" });
+
+  if (
+    req.funcionarioMatricula.length > 0
+      ? req.funcionarioMatricula.includes(ordem.supervisorMatricula)
+      : req.funcionarioMatricula === ordem.supervisorMatricula
+  )
+    return res.status(403).json({
+      status: false,
+      message: "Matrícula já está vinculada a um supervisor.",
+    });
+
   const alreadyExists = ordem.tecnico.some((t) =>
     tecnicoMatricula.includes(t.matricula)
   );
@@ -503,41 +521,90 @@ export const adicionarTecnicoNaOs = async (numeroOs, tecnicoMatricula, res) => {
   });
 };
 
-export const removerTecnicoNaOs = async (numeroOs, tecnicoMatricula, res) => {
+export const removerTecnicoNaOs = async (req, res) => {
+  const { numeroOs } = req.params;
+  let { tecnicoMatricula } = req.body; // Pode ser um número ou array
+
+  // Garante que seja sempre um array
+  if (!Array.isArray(tecnicoMatricula)) {
+    if (typeof tecnicoMatricula === "number") {
+      tecnicoMatricula = [tecnicoMatricula];
+    } else {
+      return res.status(400).json({
+        status: false,
+        message: "Envie uma ou mais matrículas válidas.",
+      });
+    }
+  }
+
+  if (tecnicoMatricula.length === 0) {
+    return res.status(400).json({
+      status: false,
+      message: "A lista de técnicos não pode estar vazia.",
+    });
+  }
+
   const ordem = await prisma.ordem.findUnique({
     where: { numeroOs },
     include: { tecnico: true },
   });
 
-  const exists = ordem.tecnico.some((t) => t.matricula === tecnicoMatricula);
+  if (!ordem)
+    return res.status(403).json({
+      status: false,
+      message: "OS não encontrada ou foi excluída",
+    });
 
-  if (!exists)
-    return res
-      .status(400)
-      .json({ status: false, message: "Técnico não está vinculado à OS." });
+  // Verifica quais técnicos realmente estão vinculados
+  const tecnicosVinculados = ordem.tecnico.map((t) => t.matricula);
+  const naoVinculados = tecnicoMatricula.filter(
+    (matricula) => !tecnicosVinculados.includes(matricula)
+  );
+
+  if (naoVinculados.length > 0) {
+    return res.status(400).json({
+      status: false,
+      message: `Os técnico(s) ${naoVinculados.join(
+        ", "
+      )} não estão vinculados na OS.`,
+    });
+  }
 
   const removido = await prisma.ordem.update({
     where: { numeroOs },
     data: {
       tecnico: {
-        disconnect: { matricula: tecnicoMatricula },
+        disconnect: tecnicoMatricula.map((matricula) => ({ matricula })),
       },
     },
-    include: { tecnico: { select: { nome: true, matricula: true } } },
+    include: {
+      tecnico: {
+        select: { nome: true, matricula: true },
+      },
+    },
   });
 
   return res.status(200).json({
     status: true,
-    message: "Técnico removido com sucesso.",
+    message: "Técnico(s) removido(s) com sucesso.",
     data: removido.tecnico,
   });
 };
 
-export const trocarSupervisorNaOs = async (
-  numeroOs,
-  supervisorMatricula,
-  res
-) => {
+export const trocarSupervisorNaOs = async (req, res) => {
+  const { numeroOs } = req.params;
+  const { supervisorMatricula } = req.body;
+  console.log(supervisorMatricula);
+  const ordem = await prisma.ordem.findUnique({
+    where: { numeroOs },
+    include: { supervisor: true },
+  });
+
+  if (!ordem)
+    return res
+      .status(403)
+      .json({ status: false, message: "OS não encontrada ou foi excluída" });
+
   const supervisor = await prisma.funcionario.findUnique({
     where: { matricula: supervisorMatricula },
   });
@@ -545,13 +612,8 @@ export const trocarSupervisorNaOs = async (
   if (!supervisor || supervisor.nivelAcesso !== "SUPERVISOR")
     return res.status(401).json({
       status: false,
-      message: "Matrícula informada não pertence a um supervisor.",
+      message: "Matrícula informada inválida ou não pertence a um supervisor.",
     });
-
-  const ordem = await prisma.ordem.findUnique({
-    where: { numeroOs },
-    include: { supervisor: true },
-  });
 
   const atualMatricula = ordem.supervisor?.matricula;
 
@@ -575,20 +637,19 @@ export const trocarSupervisorNaOs = async (
     .json({ status: true, message: "Supervisor alterado com sucesso." });
 };
 
-export const atualizaStatusOs = async (numeroOs, data, res) => {
-  const statusOrdemAtualizada = await prisma.ordem.update({
+export const atualizaStatusOs = async (req, res) => {
+  const { numeroOs } = req.params;
+  const { status } = req.body;
+  await prisma.ordem.update({
     where: { numeroOs },
     data: {
-      status: data.status,
+      status,
     },
   });
 
   return res
     .status(200)
-    .json(
-      { status: true, message: "Status atualizado com sucesso." },
-      statusOrdemAtualizada
-    );
+    .json({ status: true, message: "Status atualizado com sucesso." });
 };
 
 export const adicionarSubestacao = async (req, res) => {
@@ -718,6 +779,7 @@ export const removerSubestacao = async (req, res) => {
 export const atualizarDadosSubestação = async (req, res) => {
   const { matricula, numeroOs, subestacaoId } = req.params;
   const { funcionarioMatricula, funcionarioNivelAcesso } = req;
+  const data = req.body;
 
   if (!conferirMatriculas(matricula, funcionarioMatricula))
     return res.status(403).json({ status: false, message: "Acesso negado." });
@@ -858,6 +920,10 @@ export const adicionarComponente = async (req, res) => {
     where: { numeroOs },
     select: { tecnico: true },
   });
+  if (!osVinculada)
+    return res
+      .status(403)
+      .json({ status: false, message: "OS não existe ou foi excluída." });
 
   if (
     !osVinculada.tecnico.includes(funcionarioMatricula) &&
@@ -866,6 +932,16 @@ export const adicionarComponente = async (req, res) => {
     return res.status(401).json({
       status: false,
       message: "Acesso negado, técnico não vinculado à OS ou não autorizado.",
+    });
+
+  const subestacaoExiste = await prisma.subestacao.findUnique({
+    where: { id: Number(subestacaoId) },
+  });
+
+  if (!subestacaoExiste)
+    return res.status(403).json({
+      status: false,
+      message: "Subestação não existe ou foi excluída.",
     });
 
   const componenteExiste = await prisma.componente.findFirst({
@@ -942,7 +1018,7 @@ export const atualizarComponente = async (req, res) => {
 
 export const excluirComponenteNaOs = async (req, res) => {
   //
-  const { matricula, numeroOs, subestacaoId, componenteId } = req.params;
+  const { matricula, subestacaoId, componenteId } = req.params;
   const { funcionarioMatricula, funcionarioNivelAcesso } = req;
 
   // Se não der certo, redirecionar para o login e deslogar
@@ -959,7 +1035,6 @@ export const excluirComponenteNaOs = async (req, res) => {
     where: { id: Number(componenteId), subestacaoId: Number(subestacaoId) },
     include: { subestacao: true },
   });
-  console.log(componenteExist);
 
   if (!componenteExist)
     return res.status(400).json({
