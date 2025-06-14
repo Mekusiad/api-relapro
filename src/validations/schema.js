@@ -32,6 +32,23 @@ export const registrarFuncionarioSchema = z.object({
   nivelAcesso: z.enum(["ADMIN", "SUPERVISOR", "TECNICO"]).optional(),
 });
 
+export const atualizarDadosFuncionarioSchema = z
+  .object({
+    nome: z.string().min(3).optional(),
+    usuario: z.string().min(3).optional(),
+    matricula: z
+      .preprocess((val) => Number(val), z.number().int().positive())
+      .optional(),
+    cargo: z.string().min(2).optional(),
+    admissao: z
+      .string()
+      .refine((val) => !isNaN(Date.parse(val)), { message: "Data inválida" })
+      .optional(),
+    senha: z.string().min(6).optional(),
+    nivelAcesso: z.enum(["ADMIN", "SUPERVISOR", "TECNICO"]).optional(),
+  })
+  .strict();
+
 export const listarOrdensDoFuncionarioSchema = {
   params: z.object({
     matricula: z

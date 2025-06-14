@@ -137,14 +137,13 @@ export const registrarFuncionario = async (req, res) => {
 };
 
 export const atualizarDadosFuncionario = async (req, res) => {
-  const matricula = Number(req.params.matricula);
   const outraMatricula = Number(req.params.outraMatricula);
-  const data = req.body;
-  const { funcionarioMatricula, funcionarioNivelAcesso } = req;
+  const data = req.validatedData;
+  const { funcionarioNivelAcesso } = req;
 
   // Se não der certo, redirecionar para o login e deslogar
-  if (!conferirMatriculas(matricula, funcionarioMatricula))
-    return res.status(403).json({ status: false, message: "Acesso negado." });
+  // if (!conferirMatriculas(matricula, funcionarioMatricula))
+  //   return res.status(403).json({ status: false, message: "Acesso negado." });
 
   if (funcionarioNivelAcesso.toString().toUpperCase() !== "ADMIN")
     return res.status(403).json({

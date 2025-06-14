@@ -31,8 +31,10 @@ import {
 import {
   homeInfoMiddleware,
   registrarFuncionarioMiddleware,
+  validateReq,
 } from "../middlewares/homeMiddleware.js";
 import {
+  atualizarDadosFuncionarioSchema,
   homeInfoSchema,
   registrarFuncionarioSchema,
 } from "../validations/schema.js";
@@ -46,7 +48,7 @@ homeRoutes.use(verifyToken);
 // GET /home -> Página inicial
 homeRoutes.get(
   "/home",
-  homeInfoMiddleware(homeInfoSchema, "custom"),
+  validateReq(homeInfoSchema, "custom"),
   homeInfoController
 );
 
@@ -54,13 +56,15 @@ homeRoutes.get(
 homeRoutes.post(
   "/home/:matricula/funcionarios",
   conferirMatriculaMiddleware("matricula"),
-  registrarFuncionarioMiddleware(registrarFuncionarioSchema, "body"),
+  validateReq(registrarFuncionarioSchema, "body"),
   homeRegistrarFuncionarioController
 );
 
 // PUT /home/:matricula/funcionarios/:outraMatricula -> Atualiza dados de outro funcionário
 homeRoutes.put(
   "/home/:matricula/funcionarios/:outraMatricula",
+  conferirMatriculaMiddleware("matricula"),
+  validateReq(atualizarDadosFuncionarioSchema, "body"),
   homeAtualizadosDadosFuncionarioController
 );
 
