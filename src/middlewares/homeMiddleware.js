@@ -59,7 +59,6 @@ export const validateReq = (schema, source = "body") => {
         errors: result.error.format(),
       });
     }
-
     req.validatedData = result.data; // anexa dados validados
     next();
   };

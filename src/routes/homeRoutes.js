@@ -34,6 +34,7 @@ import {
   validateReq,
 } from "../middlewares/homeMiddleware.js";
 import {
+  adicionarSubestacaoSchema,
   atualizarDadosFuncionarioSchema,
   criarOrdemSchema,
   excluirFuncionarioSchema,
@@ -78,12 +79,16 @@ homeRoutes.put(
 // POST /home:/matricula/ordens/:numeroOs/subestacoes -> Cria subestação
 homeRoutes.post(
   "/home/:matricula/ordens/:numeroOs/subestacoes",
+  conferirMatriculaMiddleware("matricula"),
+  conferirNivelAcessoMiddleware("ADMIN"),
+  validateReq(adicionarSubestacaoSchema, "body"),
   homeadicionarSubestacaoController
 );
 
-// GET /home:/matricula/ordens/:numeroOs/subestacoes -> Cria subestação
+// GET /home:/matricula/ordens/:numeroOs/subestacoes -> Listar subestação
 homeRoutes.get(
   "/home/:matricula/ordens/:numeroOs/subestacoes",
+  conferirMatriculaMiddleware("matricula"),
   homeListarSubestacaoController
 );
 

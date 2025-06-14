@@ -191,13 +191,21 @@ export const trocarSupervisorSchema = z
   })
   .strict();
 
-export const atualizaStatusSchema = z.object({
-  numeroOs: z.string().min(1, "Número da OS é obrigatório."),
-  status: z.enum(["ABERTA", "EM_ANDAMENTO", "FINALIZADA", "CANCELADA"], {
-    required_error: "Status é obrigatório.",
-    invalid_type_error: "Status inválido.",
-  }),
-});
+export const atualizaStatusSchema = z
+  .object({
+    numeroOs: z.string().min(1, "Número da OS é obrigatório."),
+    status: z.enum(["ABERTA", "EM_ANDAMENTO", "FINALIZADA", "CANCELADA"], {
+      required_error: "Status é obrigatório.",
+      invalid_type_error: "Status inválido.",
+    }),
+  })
+  .strict();
+
+export const adicionarSubestacaoSchema = z
+  .object({
+    nome: z.string().min(1, "Nome da subestação é obrigatório"),
+  })
+  .strict();
 
 export const employeeSchema = z.object({
   nome: z.string().min(1, "Nome é obrigatório."),
