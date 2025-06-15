@@ -1243,18 +1243,10 @@ export const cadastrarEquipamento = async (req, res) => {
 };
 
 export const atualizarEquipamento = async (req, res) => {
-  const data = req.body;
-  const { matricula, equipamentoId } = req.params;
-  const { funcionarioMatricula, funcionarioNivelAcesso } = req;
-
-  if (!conferirMatriculas(matricula, funcionarioMatricula))
-    return res.status(403).json({ status: false, message: "Acesso negado." });
-
-  if (funcionarioNivelAcesso.toString().toUpperCase() !== "ADMIN")
-    return res.status(403).json({
-      status: false,
-      message: "Você não tem permissão para atuallizar dados do equipamento.",
-    });
+  const {
+    body: data,
+    params: { equipamentoId },
+  } = req.validatedData;
 
   const equipamentoExiste = await prisma.equipamento.findFirst({
     where: { id: Number(equipamentoId) },

@@ -368,10 +368,37 @@ export const buscarFuncionarioPorMatriculaSchema = z.object({
 });
 
 export const cadastrarEquipamentoSchema = z.object({
-  body: z.object({
-    nome: z.string().min(1, "Nome do equipamento é obrigatório."),
-    descricao: z.string().min(1, "Descrição do equipamento é obrigatório."),
-    modelo: z.string().min(1, "Modelo é obrigatório"),
-    numeroSerie: z.string().min(1, "O número de série é obrigatório."),
-  }),
+  body: z
+    .object({
+      nome: z.string().min(1, "Nome do equipamento é obrigatório."),
+      descricao: z.string().min(1, "Descrição do equipamento é obrigatório."),
+      modelo: z.string().min(1, "Modelo é obrigatório"),
+      numeroSerie: z.string().min(1, "O número de série é obrigatório."),
+      foto: z.string().url("URL inválida").optional(),
+    })
+    .strict(),
+});
+
+export const atualizarEquipamentoSchema = z.object({
+  body: z
+    .object({
+      nome: z.string().optional(),
+      descricao: z.string().optional(),
+      modelo: z.string().optional(),
+      numeroSerie: z.string().optional(),
+      foto: z.string().url("URL inválida").optional(),
+    })
+    .strict(),
+  params: z
+    .object({
+      matricula: z
+        .string()
+        .regex(/^\d+$/, "A matrícula deve conter apenas números.")
+        .transform(Number),
+      equipamentoId: z
+        .string()
+        .regex(/^\d+$/, "A matrícula deve conter apenas números.")
+        .transform(Number),
+    })
+    .strict(),
 });
