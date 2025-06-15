@@ -71,7 +71,6 @@ export const validateGenerico = (schema) => {
       params: req.params,
       query: req.query,
     });
-
     if (!result.success) {
       return res.status(400).json({
         status: false,

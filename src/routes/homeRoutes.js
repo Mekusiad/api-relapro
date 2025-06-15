@@ -50,6 +50,7 @@ import {
   adicionarComponenteSchema,
   atualizarComponenteSchema,
   excluirComponenteSchema,
+  cadastrarEquipamentoSchema,
 } from "../validations/schema.js";
 import { conferirMatriculaMiddleware } from "../middlewares/conferirMatriculaMiddleware.js";
 import { conferirNivelAcessoMiddleware } from "../middlewares/conferirNivelAcessoMiddleware.js";
@@ -241,13 +242,16 @@ homeRoutes.get(
   homeListarLogsController
 );
 
-// POST /home/:matricula/equipamentos
+// POST /home/:matricula/equipamentos -> Cadastrar equipamento
 homeRoutes.post(
   "/home/:matricula/equipamentos",
+  conferirMatriculaMiddleware("matricula"),
+  conferirNivelAcessoMiddleware("ADMIN"),
+  validateGenerico(cadastrarEquipamentoSchema),
   homeCadastrarEquipamentoController
 );
 
-// PUT /home/:matricula/equipamentos/:equipamentoId
+// PUT /home/:matricula/equipamentos/:equipamentoId ->Atualizar equipamento
 homeRoutes.put(
   "/home/:matricula/equipamentos/:equipamentoId",
   homeAtualizarEquipamentoController
