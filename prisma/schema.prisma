@@ -483,17 +483,17 @@ model Equipamento {
   ensaioChaveSeccionadora   EnsaioChaveSeccionadora? @relation(fields: [ensaioChaveSeccionadoraId], references: [id], onDelete: Cascade)
   ensaioChaveSeccionadoraId Int?
 
-  ensaioFPTrafo   EnsaioFPTrafo @relation(fields: [EnsaioFPTrafoId], references: [id], onDelete: Cascade)
-  EnsaioFPTrafoId Int
+  ensaioFPTrafo   EnsaioFPTrafo? @relation(fields: [EnsaioFPTrafoId], references: [id], onDelete: Cascade)
+  EnsaioFPTrafoId Int?
 
   medicaoCaboMufla   MedicaoCaboMufla? @relation(fields: [medicaoCaboMuflaId], references: [id], onDelete: Cascade)
-  medicaoCaboMuflaId Int
+  medicaoCaboMuflaId Int?
 
   ensaioFPBucha   EnsaioFPBucha? @relation(fields: [EnsaioFPBuchaId], references: [id], onDelete: Cascade)
-  EnsaioFPBuchaId Int
+  EnsaioFPBuchaId Int?
 
   ensaioCorrenteExcitacao   EnsaioCorrenteExcitacao? @relation(fields: [ensaioCorrenteExcitacaoId], references: [id], onDelete: Cascade)
-  ensaioCorrenteExcitacaoId Int
+  ensaioCorrenteExcitacaoId Int?
 
   foto Foto[]
 
