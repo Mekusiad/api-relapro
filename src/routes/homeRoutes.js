@@ -53,6 +53,7 @@ import {
   cadastrarEquipamentoSchema,
   atualizarEquipamentoSchema,
   removerEquipamentoSchema,
+  listarEquipamentosSchema,
 } from "../validations/schema.js";
 import { conferirMatriculaMiddleware } from "../middlewares/conferirMatriculaMiddleware.js";
 import { conferirNivelAcessoMiddleware } from "../middlewares/conferirNivelAcessoMiddleware.js";
@@ -265,6 +266,8 @@ homeRoutes.put(
 // GET /home/:matricula/equipamentos/
 homeRoutes.get(
   "/home/:matricula/equipamentos/",
+  conferirMatriculaMiddleware("matricula"),
+  validateGenerico(listarEquipamentosSchema),
   homeListarEquipamentosController
 );
 

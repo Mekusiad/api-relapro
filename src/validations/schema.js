@@ -417,3 +417,14 @@ export const removerEquipamentoSchema = z.object({
     })
     .strict(),
 });
+
+export const listarEquipamentosSchema = z.object({
+  params: z
+    .object({
+      matricula: z
+        .string()
+        .regex(/^\d+$/, "A matrícula deve conter apenas números.")
+        .transform(Number),
+    })
+    .strict(),
+});

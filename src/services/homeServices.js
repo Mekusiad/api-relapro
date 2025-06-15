@@ -1269,12 +1269,6 @@ export const atualizarEquipamento = async (req, res) => {
 };
 
 export const listarEquipamentos = async (req, res) => {
-  const { matricula } = req.params;
-  const { funcionarioMatricula } = req;
-
-  if (!conferirMatriculas(matricula, funcionarioMatricula))
-    return res.status(403).json({ status: false, message: "Acesso negado." });
-
   const equipamentoExiste = await prisma.equipamento.findMany({});
 
   if (!equipamentoExiste)
