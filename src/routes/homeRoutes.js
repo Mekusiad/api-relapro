@@ -40,6 +40,7 @@ import {
   listarFuncionariosSchema,
   registrarFuncionarioSchema,
   removerSubestacaoSchema,
+  atualizarDadosSubestacaoSchema,
 } from "../validations/schema.js";
 import { conferirMatriculaMiddleware } from "../middlewares/conferirMatriculaMiddleware.js";
 import { conferirNivelAcessoMiddleware } from "../middlewares/conferirNivelAcessoMiddleware.js";
@@ -104,6 +105,9 @@ homeRoutes.delete(
 // PUT /home:/matricula/ordens/:numeroOs/subestacoes -> Atualiza dados subestação
 homeRoutes.put(
   "/home/:matricula/ordens/:numeroOs/subestacoes/:subestacaoId",
+  conferirMatriculaMiddleware("matricula"),
+  conferirNivelAcessoMiddleware("ADMIN"),
+  validateReq(atualizarDadosSubestacaoSchema, "params"),
   homeAtualizarDadosSubestaçãoController
 );
 

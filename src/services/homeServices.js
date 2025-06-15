@@ -802,18 +802,9 @@ export const removerSubestacao = async (req, res) => {
 };
 
 export const atualizarDadosSubestação = async (req, res) => {
-  const { matricula, numeroOs, subestacaoId } = req.params;
-  const { funcionarioMatricula, funcionarioNivelAcesso } = req;
+  const { numeroOs, subestacaoId } = req.validatedData;
+
   const data = req.body;
-
-  if (!conferirMatriculas(matricula, funcionarioMatricula))
-    return res.status(403).json({ status: false, message: "Acesso negado." });
-
-  if (funcionarioNivelAcesso.toString().toUpperCase() === "TECNICO")
-    return res.status(403).json({
-      status: false,
-      message: "Você não para atualizar uma subestação.",
-    });
 
   const subestacaoExist = await prisma.subestacao.findFirst({
     where: {
