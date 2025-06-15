@@ -738,19 +738,9 @@ export const adicionarSubestacao = async (req, res) => {
     .status(201)
     .json({ status: false, message: "Subestação cadastrada com sucesso." });
 };
-
+//  Parei aqui por enquanto
 export const listarSubestacao = async (req, res) => {
-  const { matricula, numeroOs } = req.params;
-  const { funcionarioMatricula, funcionarioNivelAcesso } = req;
-
-  if (!conferirMatriculas(matricula, funcionarioMatricula))
-    return res.status(403).json({ status: false, message: "Acesso negado." });
-
-  if (funcionarioNivelAcesso.toString().toUpperCase() === "TECNICO")
-    return res.status(403).json({
-      status: false,
-      message: "Você não para adicionar uma subestação.",
-    });
+  const { numeroOs } = req.validatedData;
 
   const subestacaoExist = await prisma.subestacao.findMany({
     where: {
@@ -775,17 +765,7 @@ export const listarSubestacao = async (req, res) => {
 };
 
 export const removerSubestacao = async (req, res) => {
-  const { matricula, numeroOs, subestacaoId } = req.params;
-  const { funcionarioMatricula, funcionarioNivelAcesso } = req;
-
-  if (!conferirMatriculas(matricula, funcionarioMatricula))
-    return res.status(403).json({ status: false, message: "Acesso negado." });
-
-  if (funcionarioNivelAcesso.toString().toUpperCase() === "TECNICO")
-    return res.status(403).json({
-      status: false,
-      message: "Você não permissão para remover uma subestação.",
-    });
+  const { matricula, numeroOs, subestacaoId } = req.validatedData;
 
   const subestacaoExist = await prisma.subestacao.findFirst({
     where: {

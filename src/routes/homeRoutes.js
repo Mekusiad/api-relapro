@@ -28,12 +28,9 @@ import {
   homeAtualizarDadosSubestaçãoController,
   homeListarSubestacaoController,
 } from "../controllers/homeController.js";
+import { validateReq } from "../middlewares/homeMiddleware.js";
 import {
-  homeInfoMiddleware,
-  registrarFuncionarioMiddleware,
-  validateReq,
-} from "../middlewares/homeMiddleware.js";
-import {
+  listarSubestacaoSchema,
   adicionarSubestacaoSchema,
   atualizarDadosFuncionarioSchema,
   criarOrdemSchema,
@@ -89,6 +86,8 @@ homeRoutes.post(
 homeRoutes.get(
   "/home/:matricula/ordens/:numeroOs/subestacoes",
   conferirMatriculaMiddleware("matricula"),
+  conferirNivelAcessoMiddleware("ADMIN"),
+  validateReq(listarSubestacaoSchema, "params"),
   homeListarSubestacaoController
 );
 

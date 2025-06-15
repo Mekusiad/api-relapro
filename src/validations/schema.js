@@ -203,7 +203,18 @@ export const atualizaStatusSchema = z
 
 export const adicionarSubestacaoSchema = z
   .object({
-    nome: z.string().min(1, "Nome da subestação é obrigatório"),
+    numeroOs: z.string().min(1),
+    matricula: z.string().min(1),
+  })
+  .strict();
+
+export const listarSubestacaoSchema = z
+  .object({
+    matricula: z
+      .string()
+      .regex(/^\d+$/, "A matrícula deve conter apenas números.")
+      .transform(Number),
+    numeroOs: z.string().min(1, "Número da OS é obrigatório."),
   })
   .strict();
 
