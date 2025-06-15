@@ -43,6 +43,7 @@ import {
   atualizarDadosSubestacaoSchema,
   detalharOrdemFuncionarioSchema,
   listarComponentesDaSubestacaoSchema,
+  buscarFuncionarioPorMatriculaSchema,
 } from "../validations/schema.js";
 import { conferirMatriculaMiddleware } from "../middlewares/conferirMatriculaMiddleware.js";
 import { conferirNivelAcessoMiddleware } from "../middlewares/conferirNivelAcessoMiddleware.js";
@@ -134,6 +135,9 @@ homeRoutes.get(
 // GET /home/:matricula/funcionarios/:outraMatricula → busca funcionário específico
 homeRoutes.get(
   "/home/:matricula/funcionarios/:outraMatricula",
+  conferirMatriculaMiddleware("matricula"),
+  conferirNivelAcessoMiddleware("ADMIN", "SUPERVISOR"),
+  validateReq(buscarFuncionarioPorMatriculaSchema, "params"),
   homeBuscarFuncionarioPorMatriculaController
 );
 

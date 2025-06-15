@@ -270,6 +270,17 @@ export const listarComponentesDaSubestacaoSchema = z
   })
   .strict();
 
+export const buscarFuncionarioPorMatriculaSchema = z.object({
+  matricula: z
+    .string()
+    .regex(/^\d+$/, "A matrícula deve conter apenas números.")
+    .transform(Number),
+  outraMatricula: z
+    .string()
+    .regex(/^\d+$/, "A matrícula deve conter apenas números.")
+    .transform(Number),
+});
+
 export const employeeSchema = z.object({
   nome: z.string().min(1, "Nome é obrigatório."),
   usuario: z.string().min(1, "Nome de usuário é obrigatório."),
