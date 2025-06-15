@@ -63,3 +63,24 @@ export const validateReq = (schema, source = "body") => {
     next();
   };
 };
+
+export const validateGenerico = (schema) => {
+  return (req, res, next) => {
+    const result = schema.safeParse({
+      body: req.body,
+      params: req.params,
+      query: req.query,
+    });
+
+    if (!result.success) {
+      return res.status(400).json({
+        status: false,
+        message: "Erro de validação.",
+        errors: result.error.format(),
+      });
+    }
+
+    req.validatedData = result.data;
+    next();
+  };
+};
