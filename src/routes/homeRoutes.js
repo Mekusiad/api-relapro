@@ -49,6 +49,7 @@ import {
   buscarFuncionarioPorMatriculaSchema,
   adicionarComponenteSchema,
   atualizarComponenteSchema,
+  excluirComponenteSchema,
 } from "../validations/schema.js";
 import { conferirMatriculaMiddleware } from "../middlewares/conferirMatriculaMiddleware.js";
 import { conferirNivelAcessoMiddleware } from "../middlewares/conferirNivelAcessoMiddleware.js";
@@ -203,9 +204,12 @@ homeRoutes.put(
   homeAtualizarComponenteController
 );
 
-//DELETE /home/:matricula/ordens/:numeroOs/componentes/:componenteId -> Exclui componente da OS
+//DELETE /home/:matricula/ordens/:numeroOs/subestacoes/:subestacaoId/componentes/:componenteId -> Exclui componente da OS
 homeRoutes.delete(
   "/home/:matricula/ordens/:numeroOs/subestacoes/:subestacaoId/componentes/:componenteId",
+  conferirMatriculaMiddleware("matricula"),
+  conferirNivelAcessoMiddleware("ADMIN", "SUPERVISOR"),
+  validateGenerico(excluirComponenteSchema),
   homeExcluirComponenteController
 );
 

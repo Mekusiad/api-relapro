@@ -1031,18 +1031,9 @@ export const atualizarComponente = async (req, res) => {
 };
 
 export const excluirComponenteNaOs = async (req, res) => {
-  const { matricula, subestacaoId, componenteId } = req.params;
-  const { funcionarioMatricula, funcionarioNivelAcesso } = req;
-
-  // Se não der certo, redirecionar para o login e deslogar
-  if (!conferirMatriculas(matricula, funcionarioMatricula))
-    return res.status(403).json({ status: false, message: "Acesso negado." });
-
-  if (funcionarioNivelAcesso !== "ADMIN")
-    return res.status(401).json({
-      status: false,
-      message: "Acesso negado, técnico não vinculado à OS ou não autorizado.",
-    });
+  const {
+    params: { matricula, subestacaoId, componenteId },
+  } = req.validatedData;
 
   const componenteExist = await prisma.componente.findFirst({
     where: { id: Number(componenteId), subestacaoId: Number(subestacaoId) },

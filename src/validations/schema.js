@@ -345,6 +345,17 @@ export const atualizarComponenteSchema = z.object({
   query: z.object({}).optional(),
 });
 
+export const excluirComponenteSchema = z.object({
+  params: z
+    .object({
+      matricula: z.coerce.number(),
+      numeroOs: z.string(),
+      subestacaoId: z.coerce.number(),
+      componenteId: z.coerce.number(),
+    })
+    .strict(),
+});
+
 export const buscarFuncionarioPorMatriculaSchema = z.object({
   matricula: z
     .string()
