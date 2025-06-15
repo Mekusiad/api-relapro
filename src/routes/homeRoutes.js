@@ -48,6 +48,7 @@ import {
   listarComponentesDaSubestacaoSchema,
   buscarFuncionarioPorMatriculaSchema,
   adicionarComponenteSchema,
+  atualizarComponenteSchema,
 } from "../validations/schema.js";
 import { conferirMatriculaMiddleware } from "../middlewares/conferirMatriculaMiddleware.js";
 import { conferirNivelAcessoMiddleware } from "../middlewares/conferirNivelAcessoMiddleware.js";
@@ -197,6 +198,8 @@ homeRoutes.post(
 // PUT /home/:matricula/ordens/:numeroOs/componentes/:componenteId -> Atualiza dados do componente
 homeRoutes.put(
   "/home/:matricula/ordens/:numeroOs/subestacoes/:subestacaoId/componentes/:componenteId",
+  conferirMatriculaMiddleware("matricula"),
+  validateGenerico(atualizarComponenteSchema),
   homeAtualizarComponenteController
 );
 

@@ -289,6 +289,62 @@ export const adicionarComponenteSchema = z.object({
   query: z.object({}).optional(),
 });
 
+export const atualizarComponenteSchema = z.object({
+  params: z
+    .object({
+      matricula: z.coerce.number(),
+      numeroOs: z.string(),
+      subestacaoId: z.coerce.number(),
+      componenteId: z.coerce.number(),
+    })
+    .strict(),
+  body: z
+    .object({
+      nomeEquipamento: z.string().optional(),
+      cliente: z.string().optional(),
+      tag: z.string().optional(),
+      localizacao: z.string().optional(),
+      tipo: z
+        .enum([
+          "TRAFO_ALTA",
+          "TRAFO_MEDIA",
+          "TRAFO_CORRENTE",
+          "TRAFO_POTENCIA",
+          "TRAFO_FORCA",
+          "DISJUNTOR_ALTA",
+          "DISJUNTO_MEDIA",
+          "DISJUNTOR_BAIXA",
+          "RESISTOR",
+          "CHAVE_SECCIONADORA",
+          "MALHA",
+          "BUCHA",
+          "CABOMUFLA",
+        ])
+        .optional(),
+      modelo: z.string().optional(),
+      fabricante: z.string().optional(),
+      numeroSerie: z.string().optional(),
+      meioIsolante: z.string().optional(),
+      anoFabricacao: z.coerce.number().int().optional(),
+      massaTotal: z.coerce.number().optional(),
+      potencia: z.string().optional(),
+      tipoTensaoAt: z.string().optional(),
+      tensaoAt: z.coerce.number().optional(),
+      tipoTensaoBt: z.string().optional(),
+      tensaoBt: z.coerce.number().optional(),
+      volumeOleoIsolante: z.coerce.number().optional(),
+      temperaturaEnsaio: z.coerce.number().optional(),
+      umidadeRelativaAr: z.coerce.number().optional(),
+      exatidao: z.coerce.number().optional(),
+      circuito: z.coerce.number().optional(),
+      tipoPressao: z.string().optional(),
+      pressao: z.coerce.number().optional(),
+      bitolaCabo: z.coerce.number().optional(),
+    })
+    .strict(),
+  query: z.object({}).optional(),
+});
+
 export const buscarFuncionarioPorMatriculaSchema = z.object({
   matricula: z
     .string()

@@ -987,13 +987,11 @@ export const adicionarComponente = async (req, res) => {
 };
 
 export const atualizarComponente = async (req, res) => {
-  const { matricula, numeroOs, subestacaoId, componenteId } = req.params;
+  const {
+    params: { numeroOs, subestacaoId, componenteId },
+    body: data,
+  } = req.validatedData;
   const { funcionarioMatricula, funcionarioNivelAcesso } = req;
-  const data = req.body;
-
-  // Se não der certo, redirecionar para o login e deslogar
-  if (!conferirMatriculas(matricula, funcionarioMatricula))
-    return res.status(403).json({ status: false, message: "Acesso negado." });
 
   const osVinculada = await prisma.ordem.findFirst({
     where: { numeroOs },
