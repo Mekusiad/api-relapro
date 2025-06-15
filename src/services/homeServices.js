@@ -711,8 +711,8 @@ export const atualizaStatusOs = async (req, res) => {
 };
 
 export const adicionarSubestacao = async (req, res) => {
-  const data = req.validatedData;
-  const { numeroOs } = req.params;
+  const data = req.body;
+  const { numeroOs } = req.validatedData;
 
   const subestacaoExist = await prisma.subestacao.findFirst({
     where: {
@@ -901,7 +901,7 @@ export const listarComponentesDaSubestacao = async (req, res) => {
     data: subestacaoExiste.componentes,
   });
 };
-//  Parei aqui por enquanto
+
 export const buscarFuncionarioPorMatricula = async (req, res) => {
   const { outraMatricula } = req.validatedData;
   const nivelAcesso = req.funcionarioNivelAcesso;
@@ -911,12 +911,10 @@ export const buscarFuncionarioPorMatricula = async (req, res) => {
   });
 
   if (!funcionario) {
-    return res
-      .status(404)
-      .json({
-        status: false,
-        message: "Funcionário não encontrado ou não existe.",
-      });
+    return res.status(404).json({
+      status: false,
+      message: "Funcionário não encontrado ou não existe.",
+    });
   }
 
   const { senha, ...rest } = funcionario;
@@ -925,7 +923,7 @@ export const buscarFuncionarioPorMatricula = async (req, res) => {
     data: nivelAcesso === "SUPERVISOR" ? rest : funcionario,
   });
 };
-
+//  Parei aqui por enquanto
 export const adicionarComponente = async (req, res) => {
   const data = req.body;
   const { matricula, numeroOs, subestacaoId } = req.params;

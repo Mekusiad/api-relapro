@@ -83,7 +83,7 @@ homeRoutes.post(
   "/home/:matricula/ordens/:numeroOs/subestacoes",
   conferirMatriculaMiddleware("matricula"),
   conferirNivelAcessoMiddleware("ADMIN"),
-  validateReq(adicionarSubestacaoSchema, "body"),
+  validateReq(adicionarSubestacaoSchema, "params"),
   homeadicionarSubestacaoController
 );
 
