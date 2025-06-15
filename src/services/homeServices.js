@@ -830,11 +830,8 @@ export const atualizarDadosSubestação = async (req, res) => {
 };
 
 export const detalharOrdemFuncionario = async (req, res) => {
-  const { numeroOs, matricula } = req.params;
+  const { matricula, numeroOs } = req.validatedData;
   const nivelAcesso = req.funcionarioNivelAcesso;
-
-  if (!conferirMatriculas(Number(matricula), req.funcionarioMatricula))
-    return res.status(403).json({ status: false, message: "Acesso negado." });
 
   const ordem = await prisma.ordem.findUnique({
     where: { numeroOs },

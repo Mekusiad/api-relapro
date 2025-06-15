@@ -41,6 +41,7 @@ import {
   registrarFuncionarioSchema,
   removerSubestacaoSchema,
   atualizarDadosSubestacaoSchema,
+  detalharOrdemFuncionarioSchema,
 } from "../validations/schema.js";
 import { conferirMatriculaMiddleware } from "../middlewares/conferirMatriculaMiddleware.js";
 import { conferirNivelAcessoMiddleware } from "../middlewares/conferirNivelAcessoMiddleware.js";
@@ -170,6 +171,8 @@ homeRoutes.get(
 // GET /home/:matricula/ordens/:numeroOs → detalhes da ordem
 homeRoutes.get(
   "/home/:matricula/ordens/:numeroOs",
+  conferirMatriculaMiddleware("matricula"),
+  validateReq(detalharOrdemFuncionarioSchema, "params"),
   homeDetalharOrdemFuncionarioController
 );
 
