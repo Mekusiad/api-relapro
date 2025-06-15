@@ -269,6 +269,25 @@ export const listarComponentesDaSubestacaoSchema = z
       .transform(Number),
   })
   .strict();
+// A partir daqui foi usado o validateGererico - Usar depois nas rotas anteriores.
+export const adicionarComponenteSchema = z.object({
+  params: z
+    .object({
+      matricula: z.coerce.number(),
+      numeroOs: z.string(),
+      subestacaoId: z.coerce.number(),
+    })
+    .strict(),
+  body: z
+    .object({
+      nomeEquipamento: z.string().min(1, "Nome é obrigatório"),
+      numeroSerie: z.string().min(1, "Número de série é obrigatório"),
+      tipo: z.string().min(1, "Tipo é obrigatório"),
+      fabricante: z.string().min(1, "Tipo é obrigatório"),
+    })
+    .strict(),
+  query: z.object({}).optional(),
+});
 
 export const buscarFuncionarioPorMatriculaSchema = z.object({
   matricula: z

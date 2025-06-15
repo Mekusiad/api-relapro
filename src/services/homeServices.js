@@ -923,15 +923,14 @@ export const buscarFuncionarioPorMatricula = async (req, res) => {
     data: nivelAcesso === "SUPERVISOR" ? rest : funcionario,
   });
 };
-//  Parei aqui por enquanto
+//  Usei a partir daqui o validateGenerico - Ajustar depois para as rotas de cima.
 export const adicionarComponente = async (req, res) => {
-  const data = req.body;
-  const { matricula, numeroOs, subestacaoId } = req.params;
-  const { funcionarioMatricula, funcionarioNivelAcesso } = req;
+  const {
+    params: { numeroOs, subestacaoId },
+    body: data,
+  } = req.validatedData;
 
-  // Se não der certo, redirecionar para o login e deslogar
-  if (!conferirMatriculas(matricula, req.funcionarioMatricula))
-    return res.status(403).json({ status: false, message: "Acesso negado." });
+  const { funcionarioMatricula, funcionarioNivelAcesso } = req;
 
   const osVinculada = await prisma.ordem.findFirst({
     where: { numeroOs },
