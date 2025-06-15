@@ -6,3 +6,4 @@ dev.db
 dev.db-journal
 
 /src/generated/prisma
+./generated/prisma/

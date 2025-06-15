@@ -9,15 +9,15 @@ generator client {
   output   = "../src/generated/prisma"
 }
 
-// datasource db {
-//   provider = "postgresql"
-//   url      = env("DATABASE_URL")
-// }
-
 datasource db {
-  provider = "sqlite"
-  url      = "file:./dev.db" // cria o banco local aqui
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
+
+// datasource db {
+//   provider = "sqlite"
+//   url      = "file:./dev.db" // cria o banco local aqui
+// }
 
 model Funcionario {
   id          Int         @id @default(autoincrement())
@@ -102,7 +102,7 @@ model Foto {
   ensaioResistorAterramento   EnsaioResistorAterramento @relation(fields: [ensaioResistorAterramentoId], references: [id])
   ensaioResistorAterramentoId Int
 
-  ensaioChaveSeccionadora   EnsaioChaveSeccionadora @relation(fields: [ensaioResistorAterramentoId], references: [id])
+  ensaioChaveSeccionadora   EnsaioChaveSeccionadora @relation(fields: [ensaioChaveSeccionadoraId], references: [id])
   ensaioChaveSeccionadoraId Int
 
   malhaAterramento   MalhaAterramento @relation(fields: [malhaAterramentoId], references: [id])
@@ -120,7 +120,7 @@ model Foto {
   ensaioCorrenteExcitacao   EnsaioCorrenteExcitacao @relation(fields: [ensaioCorrenteExcitacaoId], references: [id])
   ensaioCorrenteExcitacaoId Int
 
-  equipamento   Equipamento @relation(fields: [ensaioCorrenteExcitacaoId], references: [id])
+  equipamento   Equipamento @relation(fields: [equipamentoId], references: [id])
   equipamentoId Int
 
   recomendacao   Recomendacao @relation(fields: [recomendacaoId], references: [id])
