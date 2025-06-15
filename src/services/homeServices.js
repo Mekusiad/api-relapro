@@ -859,7 +859,7 @@ export const detalharOrdemFuncionario = async (req, res) => {
 };
 
 export const listarComponentesDaSubestacao = async (req, res) => {
-  const { matricula, numeroOs, subestacaoId } = req.params;
+  const { matricula, numeroOs, subestacaoId } = req.validatedData;
   const nivelAcesso = req.funcionarioNivelAcesso;
 
   const ordem = await prisma.ordem.findUnique({
