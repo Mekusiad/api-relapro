@@ -1061,7 +1061,7 @@ export const excluirComponenteNaOs = async (req, res) => {
     .status(200)
     .json({ status: true, message: "Componente foi excluído com sucesso." });
 };
-
+// Não fiz ainda
 export const adicionarEnsaioComponente = async (req, res) => {
   const { funcionarioMatricula, funcionarioNivelAcesso } = req;
   const componenteId = Number(req.params.componenteId);
@@ -1154,7 +1154,7 @@ export const adicionarEnsaioComponente = async (req, res) => {
     });
   }
 };
-
+// Não fiz ainda
 export const excluirEnsaioComponente = async (req, res) => {
   const { funcionarioMatricula, funcionarioNivelAcesso } = req;
   const { matricula, subestacaoId, componenteId, ensaioId } = req.params;
@@ -1209,11 +1209,6 @@ export const excluirEnsaioComponente = async (req, res) => {
 };
 
 export const listarLogs = async (req, res) => {
-  const { funcionarioNivelAcesso } = req;
-
-  if (funcionarioNivelAcesso !== "ADMIN")
-    return res.status(403).json({ status: false, message: "Acesso restrito." });
-
   const logs = await prisma.logAtividade.findMany({
     orderBy: { criadoEm: "desc" },
   });

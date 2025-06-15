@@ -234,7 +234,12 @@ homeRoutes.delete(
 );
 
 // GET /home/:matricula/logs
-homeRoutes.get("/home/:matricula/logs", homeListarLogsController);
+homeRoutes.get(
+  "/home/:matricula/logs",
+  conferirMatriculaMiddleware("matricula"),
+  conferirNivelAcessoMiddleware("ADMIN"),
+  homeListarLogsController
+);
 
 // POST /home/:matricula/equipamentos
 homeRoutes.post(
