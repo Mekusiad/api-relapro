@@ -1294,17 +1294,9 @@ export const listarEquipamentos = async (req, res) => {
 };
 
 export const excluirEquipamento = async (req, res) => {
-  const { matricula, equipamentoId } = req.params;
-  const { funcionarioMatricula, funcionarioNivelAcesso } = req;
-
-  if (!conferirMatriculas(matricula, funcionarioMatricula))
-    return res.status(403).json({ status: false, message: "Acesso negado." });
-
-  if (funcionarioNivelAcesso.toString().toUpperCase() !== "ADMIN")
-    return res.status(403).json({
-      status: false,
-      message: "Você não tem permissão para excluir equipamento.",
-    });
+  const {
+    params: { matricula, equipamentoId },
+  } = req.validatedData;
 
   const equipamentoExiste = await prisma.equipamento.findFirst({
     where: { id: Number(equipamentoId) },

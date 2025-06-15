@@ -52,6 +52,7 @@ import {
   excluirComponenteSchema,
   cadastrarEquipamentoSchema,
   atualizarEquipamentoSchema,
+  removerEquipamentoSchema,
 } from "../validations/schema.js";
 import { conferirMatriculaMiddleware } from "../middlewares/conferirMatriculaMiddleware.js";
 import { conferirNivelAcessoMiddleware } from "../middlewares/conferirNivelAcessoMiddleware.js";
@@ -270,5 +271,8 @@ homeRoutes.get(
 // DELETE /home/:matricula/equipamentos/:equipamentoId
 homeRoutes.delete(
   "/home/:matricula/equipamentos/:equipamentoId",
+  conferirMatriculaMiddleware("matricula"),
+  conferirNivelAcessoMiddleware("ADMIN"),
+  validateGenerico(removerEquipamentoSchema),
   homeExcluirEquipamentoController
 );

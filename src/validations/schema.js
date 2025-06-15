@@ -397,7 +397,22 @@ export const atualizarEquipamentoSchema = z.object({
         .transform(Number),
       equipamentoId: z
         .string()
+        .regex(/^\d+$/, "Id do equipamento deve conter apenas números.")
+        .transform(Number),
+    })
+    .strict(),
+});
+
+export const removerEquipamentoSchema = z.object({
+  params: z
+    .object({
+      matricula: z
+        .string()
         .regex(/^\d+$/, "A matrícula deve conter apenas números.")
+        .transform(Number),
+      equipamentoId: z
+        .string()
+        .regex(/^\d+$/, "Id do equipamento deve conter apenas números.")
         .transform(Number),
     })
     .strict(),
