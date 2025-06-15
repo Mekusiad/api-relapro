@@ -858,26 +858,33 @@ export const detalharOrdemFuncionario = async (req, res) => {
   return res.status(200).json({ status: true, data: ordem });
 };
 
-export const listarComponentesDaOrdem = async (req, res) => {
-  const { numeroOs, matricula } = req.params;
+export const listarComponentesDaSubestacao = async (req, res) => {
+  const { matricula, numeroOs, subestacaoId } = req.params;
   const nivelAcesso = req.funcionarioNivelAcesso;
-
-  if (!conferirMatriculas(Number(matricula), req.funcionarioMatricula))
-    return res.status(403).json({ status: false, message: "Acesso negado." });
 
   const ordem = await prisma.ordem.findUnique({
     where: { numeroOs },
     include: {
       tecnico: true,
       supervisor: true,
-      componente: true,
+      subestacoes: true,
     },
   });
 
   if (!ordem)
-    return res
-      .status(404)
-      .json({ status: false, message: "Ordem não encontrada." });
+    return res.status(404).json({
+      status: false,
+      message: "Ordem não encontrada ou foi excluída.",
+    });
+  const subestacaoExiste = await prisma.subestacao.findFirst({
+    where: { id: Number(subestacaoId) },
+    include: { componentes: true },
+  });
+  if (!subestacaoExiste)
+    return res.status(403).json({
+      status: false,
+      message: "Subestação não existe ou não vinculada à OS.",
+    });
 
   if (
     nivelAcesso !== "ADMIN" &&
@@ -889,7 +896,10 @@ export const listarComponentesDaOrdem = async (req, res) => {
       .json({ status: false, message: "Acesso negado à ordem." });
   }
 
-  return res.status(200).json({ status: true, data: ordem.componente });
+  return res.status(200).json({
+    status: true,
+    data: subestacaoExiste.componentes,
+  });
 };
 
 export const buscarFuncionarioPorMatricula = async (req, res) => {

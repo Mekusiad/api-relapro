@@ -8,7 +8,7 @@ import {
   atualizaStatusOs,
   buscarFuncionarioPorMatricula,
   detalharOrdemFuncionario,
-  listarComponentesDaOrdem,
+  listarComponentesDaSubestacao,
   listarOrdensDoFuncionario,
   removerTecnicoNaOs,
   trocarSupervisorNaOs,
@@ -176,7 +176,7 @@ export const homeDetalharOrdemFuncionarioController = async (req, res) => {
 
 export const homeListarComponentesDaOrdemController = async (req, res) => {
   try {
-    await listarComponentesDaOrdem(req, res);
+    await listarComponentesDaSubestacao(req, res);
   } catch (error) {
     return handleError(res, error, error.message);
   }
