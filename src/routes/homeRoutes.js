@@ -39,6 +39,7 @@ import {
   homeInfoSchema,
   listarFuncionariosSchema,
   registrarFuncionarioSchema,
+  removerSubestacaoSchema,
 } from "../validations/schema.js";
 import { conferirMatriculaMiddleware } from "../middlewares/conferirMatriculaMiddleware.js";
 import { conferirNivelAcessoMiddleware } from "../middlewares/conferirNivelAcessoMiddleware.js";
@@ -94,6 +95,9 @@ homeRoutes.get(
 // DELETE /home:/matricula/ordens/:numeroOs/subestacoes -> Exclui subestação
 homeRoutes.delete(
   "/home/:matricula/ordens/:numeroOs/subestacoes/:subestacaoId",
+  conferirMatriculaMiddleware("matricula"),
+  conferirNivelAcessoMiddleware("ADMIN"),
+  validateReq(removerSubestacaoSchema, "params"),
   homeRemoverSubestacaoController
 );
 
