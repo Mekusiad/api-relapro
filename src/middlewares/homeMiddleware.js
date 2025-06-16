@@ -1,3 +1,5 @@
+import { ensaioSchema, schemasPorTipo } from "../validations/schema.js";
+
 export const homeInfoMiddleware = (schema, source = "body") => {
   return (req, res, next) => {
     let data;
@@ -80,6 +82,55 @@ export const validateGenerico = (schema) => {
     }
 
     req.validatedData = result.data;
+    next();
+  };
+};
+
+export const validarEnsaioMiddleware = (ensaioSchema, schemasPorTipo) => {
+  return (req, res, next) => {
+    const dadosRequisicao = {
+      body: req.body,
+      params: req.params,
+      query: req.query,
+    };
+
+    const parsed = ensaioSchema.safeParse(dadosRequisicao);
+    if (!parsed.success) {
+      return res.status(400).json({
+        status: false,
+        message: "Erro de validação da requisição",
+        error: parsed.error.format(),
+      });
+    }
+
+    const { tipo, data } = parsed.data.body;
+    const schemaDoTipo = schemasPorTipo[tipo];
+
+    if (!tipo || !schemaDoTipo) {
+      return res.status(400).json({
+        status: false,
+        message: "Tipo de ensaio desconhecido ou inválido.",
+      });
+    }
+
+    const validDados = schemaDoTipo.safeParse(data);
+
+    if (!validDados.success) {
+      console.log(validDados.error);
+      return res.status(400).json({
+        status: false,
+        message: "Erro na validação dos dados do ensaio",
+        error: validDados.error.format(),
+      });
+    }
+    req.validatedData = {
+      ...parsed.data, // inclui body, params, query
+      body: {
+        ...parsed.data.body,
+        dados: validDados.data, // dados validados e limpos
+      },
+    };
+
     next();
   };
 };

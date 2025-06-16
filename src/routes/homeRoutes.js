@@ -29,6 +29,7 @@ import {
   homeListarSubestacaoController,
 } from "../controllers/homeController.js";
 import {
+  validarEnsaioMiddleware,
   validateGenerico,
   validateReq,
 } from "../middlewares/homeMiddleware.js";
@@ -54,6 +55,8 @@ import {
   atualizarEquipamentoSchema,
   removerEquipamentoSchema,
   listarEquipamentosSchema,
+  schemasPorTipo,
+  ensaioSchema,
 } from "../validations/schema.js";
 import { conferirMatriculaMiddleware } from "../middlewares/conferirMatriculaMiddleware.js";
 import { conferirNivelAcessoMiddleware } from "../middlewares/conferirNivelAcessoMiddleware.js";
@@ -228,6 +231,8 @@ homeRoutes.get(
 // POST /home/:matricula/ordens/:numeroOs/componentes/:componenteId/ensaio -> Adiciona ensaio ao componente
 homeRoutes.post(
   "/home/:matricula/ordens/:numeroOs/subestacoes/:subestacaoId/componentes/:componenteId/ensaio",
+  conferirMatriculaMiddleware("matricula"),
+  validarEnsaioMiddleware(ensaioSchema, schemasPorTipo),
   homeAdicionarEnsaioComponenteController
 );
 

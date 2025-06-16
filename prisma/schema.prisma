@@ -9,15 +9,15 @@ generator client {
   // output   = "../src/generated/prisma"
 }
 
-datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
-}
-
 // datasource db {
-//   provider = "sqlite"
-//   url      = "file:./dev.db" // cria o banco local aqui
+//   provider = "postgresql"
+//   url      = env("DATABASE_URL")
 // }
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db" // cria o banco local aqui
+}
 
 model Funcionario {
   id          Int         @id @default(autoincrement())
@@ -120,6 +120,10 @@ model Foto {
   ensaioCorrenteExcitacao   EnsaioCorrenteExcitacao @relation(fields: [ensaioCorrenteExcitacaoId], references: [id])
   ensaioCorrenteExcitacaoId Int
 
+  ensaio   Ensaio @relation(fields: [ensaioId], references: [id])
+  ensaioId Int
+  
+
   equipamento   Equipamento @relation(fields: [equipamentoId], references: [id])
   equipamentoId Int
 
@@ -175,6 +179,8 @@ model Componente {
 
   subestacao   Subestacao @relation(fields: [subestacaoId], references: [id], onDelete: Cascade)
   subestacaoId Int
+
+  ensaio Ensaio[]
 
   // ensaioTrafoAlta EnsaioTrafoAlta[]
   // ensaioTrafoForca EnsaioTrafoForca[]
@@ -495,6 +501,10 @@ model Equipamento {
   ensaioCorrenteExcitacao   EnsaioCorrenteExcitacao? @relation(fields: [ensaioCorrenteExcitacaoId], references: [id], onDelete: Cascade)
   ensaioCorrenteExcitacaoId Int?
 
+  ensaio   Ensaio? @relation(fields: [ensaioCorrenteExcitacaoId], references: [id], onDelete: Cascade)
+  ensaioId Int?
+  
+
   foto Foto[]
 
   createdAt DateTime @default(now())
@@ -523,4 +533,22 @@ model Recomendacao {
   foto      Foto[]
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+
+model Ensaio {
+  id           Int          @id @default(autoincrement())
+  tipo         TipoComponente
+  dados        Json
+  componente   Componente?  @relation(fields: [componenteId], references: [id], onDelete: Cascade)
+  componenteId Int?
+
+  responsavelMatricula Int
+
+  equipamentoUsado Equipamento[]
+  fotos       Foto[]
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  @@unique([tipo, componenteId])
 }

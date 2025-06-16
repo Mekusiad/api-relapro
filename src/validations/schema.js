@@ -428,3 +428,99 @@ export const listarEquipamentosSchema = z.object({
     })
     .strict(),
 });
+
+export const ensaioSchema = z.object({
+  body: z.object({
+    tipo: z.enum([
+      "TRAFO_POTENCIA",
+      "TRAFO_CORRENTE",
+      "DISJUNTOR",
+      "RESISTOR_ATERRAMENTO",
+      "CHAVE_SECCIONADORA",
+      "MALHA_ATERRAMENTO",
+      "MEDICAO_CABO_MUFLA",
+      "FP_TRAFO",
+      "FP_BUCHA",
+      "CORRENTE_EXCITACAO",
+      "OUTRO",
+    ]),
+    data: z.any(),
+    equipamentoUsado: z.array(z.number()),
+    foto: z.array(z.string().url()).optional(),
+  }),
+  params: z.object({
+    matricula: z.string().regex(/^\d+$/), // ou .transform(Number) se preferir
+    numeroOs: z.string(),
+    subestacaoId: z.string().transform(Number),
+    componenteId: z.string().transform(Number),
+  }),
+  query: z.object({}).optional(), // se houver filtros, coloque aqui
+});
+
+// Schemas por tipo de ensaio
+const trafoPotenciaSchema = z.object({
+  tapComutadorAt: z.string(),
+  tapComutadorBt: z.string(),
+  relacaoMedida1: z.number(),
+  resistenciaOhmicaEnrolamentoAt1: z.number(),
+  resistenciaOhmicaEnrolamentoBt1: z.number(),
+  resistenciaIsolamentoAtxBt: z.number().optional(),
+  observacao: z.string().optional(),
+});
+
+export const trafoCorrenteSchema = z
+  .object({
+    relacaoMedida: z.coerce.number(),
+    relacaoOhmica: z.coerce.number(),
+    resistenciaIsolamentoPxS: z.coerce.number(),
+    resistenciaIsolamentoPxMassa: z.coerce.number(),
+    resistenciaIsolamentoSxMassa: z.coerce.number(),
+    observacao: z.string(),
+  })
+  .strict();
+
+const disjuntorSchema = z.object({
+  resistenciaContatoDisjuntorFechadoA: z.number(),
+  resistenciaContatoDisjuntorFechadoB: z.number(),
+  resistenciaContatoDisjuntorFechadoC: z.number(),
+  resistenciaContatoDisjuntorAbertoA: z.number(),
+  resistenciaContatoDisjuntorAbertoB: z.number(),
+  resistenciaContatoDisjuntorAbertoC: z.number(),
+
+  resistenciaIsolamentoAxMassa: z.number(),
+  resistenciaIsolamentoBxMassa: z.number(),
+  resistenciaIsolamentoCxMassa: z.number(),
+
+  servico1: z.boolean(),
+  servico2: z.boolean(),
+  servico3: z.boolean(),
+  servico4: z.boolean(),
+
+  observacao: z.string(),
+
+  componenteID: z.number(), // foreign key
+  responsavelEnsaioMatricula: z.number(), // matrícula do responsável
+
+  equipamentoUsado: z.array(z.number()).optional(), // array de IDs (relacionamento)
+  foto: z.array(z.number()).optional(), // array de IDs (relacionamento)
+});
+
+const resistorAterramentoSchema = z.object({
+  resistenciaOhmicaMedida: z.number(),
+  resistenciaIsolamento: z.number(),
+  observacao: z.string().optional(),
+});
+
+// Schema por tipo
+export const schemasPorTipo = {
+  TRAFO_POTENCIA: trafoPotenciaSchema,
+  DISJUNTOR: disjuntorSchema,
+  RESISTOR_ATERRAMENTO: resistorAterramentoSchema,
+  TRAFO_CORRENTE: trafoCorrenteSchema,
+  RESISTOR_ATERRAMENTO: resistorAterramentoSchema,
+  // CHAVE_SECCIONADORA: chaveSeccionadoraSchema,
+  // MALHA_ATERRAMENTO: malhaAterramentoSchema,
+  // MEDICAO_CABO_MUFLA: caboMuflaSchema,
+  // FP_TRAFO: fpTrafoSchema,
+  // FP_BUCHA: tpBuchaSchema,
+};
