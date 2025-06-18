@@ -64,11 +64,13 @@ export const homeInfo = async (req, res) => {
       where: filtroOrdens,
       select: {
         id: true,
+        descricaoInicial: true,
         numeroOs: true,
         cliente: true,
         status: true,
         previsaoInicio: true,
         previsaoTermino: true,
+        createdAt: true,
       },
       orderBy: { createdAt: "desc" },
       take: 10, // opcional: limitar a 10 últimas ordens
@@ -1159,8 +1161,18 @@ export const excluirComponenteNaOs = async (req, res) => {
 export const adicionarEnsaioComponente = async (req, res) => {
   const { matricula, numeroOs, subestacaoId, componenteId } =
     req.validatedData.params;
-  const { tipo, data } = req.validatedData.body;
+  const { tipo, data, equipamentoUsado } = req.validatedData.body;
   console.log(data);
+
+  const componenteExist = await prisma.componente.findUnique({
+    where: { id: Number(componenteId) },
+  });
+
+  if (!componenteExist)
+    return res.status(404).json({
+      status: false,
+      message: "Componente não encontrado ou foi excluído.",
+    });
 
   const existeEnsaio = await prisma.ensaio.findFirst({
     where: {
@@ -1175,12 +1187,25 @@ export const adicionarEnsaioComponente = async (req, res) => {
       message: `Já existe um ensaio do tipo '${tipo}' para este componente.`,
     });
 
+  if (
+    !Array.isArray(equipamentoUsado) ||
+    equipamentoUsado.some((id) => typeof id !== "number")
+  ) {
+    return res.status(400).json({
+      status: false,
+      message: "Equipamentos inválidos.",
+    });
+  }
+
   await prisma.ensaio.create({
     data: {
       dados: data,
       componente: { connect: { id: Number(componenteId) } },
       responsavelMatricula: Number(matricula),
       tipo,
+      equipamentoUsado: {
+        connect: equipamentoUsado.map((id) => ({ id })),
+      },
     },
   });
 
