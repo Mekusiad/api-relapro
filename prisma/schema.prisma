@@ -501,8 +501,7 @@ model Equipamento {
   ensaioCorrenteExcitacao   EnsaioCorrenteExcitacao? @relation(fields: [ensaioCorrenteExcitacaoId], references: [id], onDelete: Cascade)
   ensaioCorrenteExcitacaoId Int?
 
-  ensaio   Ensaio? @relation(fields: [ensaioCorrenteExcitacaoId], references: [id], onDelete: Cascade)
-  ensaioId Int?
+  ensaio   Ensaio[] @relation("EquipamentosUsados")
   
 
   foto Foto[]
@@ -545,7 +544,7 @@ model Ensaio {
 
   responsavelMatricula Int
 
-  equipamentoUsado Equipamento[]
+  equipamentoUsado Equipamento[] @relation("EquipamentosUsados")
   fotos       Foto[]
   createdAt   DateTime      @default(now())
   updatedAt   DateTime      @updatedAt
