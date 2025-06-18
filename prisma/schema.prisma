@@ -90,39 +90,8 @@ model Foto {
   funcionario   Funcionario @relation(fields: [funcionarioId], references: [id])
   funcionarioId Int
 
-  ensaioTrafoPotencia   EnsaioTrafoPotencia @relation(fields: [ensaioTrafoPotenciaId], references: [id])
-  ensaioTrafoPotenciaId Int
-
-  ensaioTrafoCorrente   EnsaioTrafoCorrente @relation(fields: [ensaioTrafoCorrenteId], references: [id])
-  ensaioTrafoCorrenteId Int
-
-  ensaioDisjuntor   EnsaioDisjuntor @relation(fields: [ensaioDisjuntorId], references: [id])
-  ensaioDisjuntorId Int
-
-  ensaioResistorAterramento   EnsaioResistorAterramento @relation(fields: [ensaioResistorAterramentoId], references: [id])
-  ensaioResistorAterramentoId Int
-
-  ensaioChaveSeccionadora   EnsaioChaveSeccionadora @relation(fields: [ensaioChaveSeccionadoraId], references: [id])
-  ensaioChaveSeccionadoraId Int
-
-  malhaAterramento   MalhaAterramento @relation(fields: [malhaAterramentoId], references: [id])
-  malhaAterramentoId Int
-
-  medicaoCaboMufla   MedicaoCaboMufla @relation(fields: [medicaoCaboMuflaId], references: [id])
-  medicaoCaboMuflaId Int
-
-  ensaioFPTrafo   EnsaioFPTrafo @relation(fields: [ensaioFPTrafoId], references: [id])
-  ensaioFPTrafoId Int
-
-  ensaioFPBucha   EnsaioFPBucha @relation(fields: [ensaioFPBuchaId], references: [id])
-  ensaioFPBuchaId Int
-
-  ensaioCorrenteExcitacao   EnsaioCorrenteExcitacao @relation(fields: [ensaioCorrenteExcitacaoId], references: [id])
-  ensaioCorrenteExcitacaoId Int
-
   ensaio   Ensaio @relation(fields: [ensaioId], references: [id])
   ensaioId Int
-  
 
   equipamento   Equipamento @relation(fields: [equipamentoId], references: [id])
   equipamentoId Int
@@ -138,11 +107,10 @@ model Subestacao {
   ordem   Ordem  @relation(fields: [ordemOs], references: [numeroOs], onDelete: Cascade)
   ordemOs String
 
-  componentes             Componente[] // Subestação possui vários componentes
-  recomendacao            Recomendacao[]
-  malhaAterramento        MalhaAterramento[]
-  ensaioChaveSeccionadora EnsaioChaveSeccionadora[]
-  foto                    Foto[]
+  componentes  Componente[] // Subestação possui vários componentes
+  recomendacao Recomendacao[]
+
+  foto Foto[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -182,18 +150,8 @@ model Componente {
 
   ensaio Ensaio[]
 
-  // ensaioTrafoAlta EnsaioTrafoAlta[]
-  // ensaioTrafoForca EnsaioTrafoForca[]
-  foto                      Foto[]
-  recomendacao              Recomendacao[]
-  ensaioTrafoPotencia       EnsaioTrafoPotencia?
-  ensaioTrafoCorrente       EnsaioTrafoCorrente?
-  ensaioDisjuntor           EnsaioDisjuntor?
-  ensaioResistorAterramento EnsaioResistorAterramento?
-  medicaoCaboMufla          MedicaoCaboMufla?
-  ensaioFPTrafo             EnsaioFPTrafo?
-  ensaioFPBucha             EnsaioFPBucha?
-  ensaioCorrenteExcitacao   EnsaioCorrenteExcitacao?
+  foto         Foto[]
+  recomendacao Recomendacao[]
 
   @@unique([numeroSerie])
 }
@@ -214,250 +172,6 @@ enum TipoComponente {
   CABOMUFLA
 }
 
-model EnsaioTrafoPotencia {
-  id Int @id @default(autoincrement())
-
-  tapComutadorAt String
-  tapComutadorBt String
-
-  relacaoCalculadaAtBt Float
-  relacaoMedida1       Float
-  relacaoMedida2       Float
-  relacaoMedida3       Float
-
-  resistenciaOhmicaEnrolamentoAt1 Float
-  resistenciaOhmicaEnrolamentoAt2 Float
-  resistenciaOhmicaEnrolamentoAt3 Float
-
-  resistenciaOhmicaEnrolamentoBt1 Float
-  resistenciaOhmicaEnrolamentoBt2 Float
-  resistenciaOhmicaEnrolamentoBt3 Float
-
-  resistenciaIsolamentoAtxBt    Float
-  resistenciaIsolamentoAtxMassa Float
-  resistenciaIsolamentoBtxMassa Float
-
-  observacao String
-
-  protecaoTransformador1          String
-  protecaoTransformador2          String
-  protecaoTransformador3          String
-  protecaoTransformador4          String
-  protecaoTransformador5          String
-  protecaoTransformador6          String
-  protecaoTransformadorObservacao String
-
-  componente   Componente @relation(fields: [componenteID], references: [id], onDelete: Cascade)
-  componenteID Int        @unique
-
-  equipamentoUsado Equipamento[]
-  foto             Foto[]
-
-  responsavelEnsaioMatricula Int
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-}
-
-model EnsaioTrafoCorrente {
-  id Int @id @default(autoincrement())
-
-  relacaoMedida                Float
-  relacaoOhmica                Float
-  resistenciaIsolamentoPxS     Int
-  resistenciaIsolamentoPxMassa Int
-  resistenciaIsolamentoSxMassa Int
-  observacao                   String
-
-  componente   Componente @relation(fields: [componenteID], references: [id], onDelete: Cascade)
-  componenteID Int        @unique
-
-  equipamentoUsado Equipamento[]
-  foto             Foto[]
-
-  responsavelEnsaioMatricula Int
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-}
-
-model EnsaioDisjuntor {
-  id Int @id @default(autoincrement())
-
-  resistenciaContatoDisjuntorFechadoA Float
-  resistenciaContatoDisjuntorFechadoB Float
-  resistenciaContatoDisjuntorFechadoC Float
-  resistenciaContatoDisjuntorAbertoA  Float
-  resistenciaContatoDisjuntorAbertoB  Float
-  resistenciaContatoDisjuntorAbertoC  Float
-  resistenciaIsolamentoAxMassa        Float
-  resistenciaIsolamentoBxMassa        Float
-  resistenciaIsolamentoCxMassa        Float
-
-  servico1 Boolean
-  servico2 Boolean
-  servico3 Boolean
-  servico4 Boolean
-
-  observacao String
-
-  componente                 Componente    @relation(fields: [componenteID], references: [id], onDelete: Cascade)
-  componenteID               Int           @unique
-  responsavelEnsaioMatricula Int
-  equipamentoUsado           Equipamento[]
-  foto                       Foto[]
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-}
-
-model EnsaioResistorAterramento {
-  id Int @id @default(autoincrement())
-
-  resistenciaOhmicaMedida Float
-  resistenciaIsolamento   Float
-  observacao              String
-
-  componente   Componente @relation(fields: [componenteID], references: [id], onDelete: Cascade)
-  componenteID Int        @unique
-
-  equipamentoUsado           Equipamento[]
-  foto                       Foto[]
-  responsavelEnsaioMatricula Int
-  createdAt                  DateTime      @default(now())
-  updatedAt                  DateTime      @updatedAt
-}
-
-model EnsaioChaveSeccionadora {
-  id Int @id @default(autoincrement())
-
-  resistenciaContatoA    Float
-  resistenciaContatoB    Float
-  resistenciaContatoC    Float
-  resistenciaIsolamentoA Float
-  resistenciaIsolamentoB Float
-  resistenciaIsolamentoC Float
-  observacao             String
-
-  equipamentoUsado Equipamento[]
-  foto             Foto[]
-
-  subestacao                 Subestacao @relation(fields: [subestacaoId], references: [id], onDelete: Cascade)
-  subestacaoId               Int
-  responsavelEnsaioMatricula Int
-  createdAt                  DateTime   @default(now())
-  updatedAt                  DateTime   @updatedAt
-}
-
-model MalhaAterramento {
-  id Int @id @default(autoincrement())
-
-  resistenciaMalhaAterramento String?
-  servico1                    String?
-  servico2                    String?
-  servico3                    String?
-  observacao                  String?
-
-  subestacao   Subestacao @relation(fields: [subestacaoId], references: [id], onDelete: Cascade)
-  subestacaoId Int
-
-  equipamentoUsado           Equipamento[]
-  foto                       Foto[]
-  responsavelEnsaioMatricula Int
-  createdAt                  DateTime      @default(now())
-  updatedAt                  DateTime      @updatedAt
-}
-
-model MedicaoCaboMufla {
-  id                             Int @id @default(autoincrement())
-  resistenciaIsolamentoX0xMassa  Int
-  resistenciaIsolamentoX11xMassa Int
-  resistenciaIsolamentoX12xMassa Int
-  resistenciaIsolamentoX21xMassa Int
-  resistenciaIsolamentoX22xMassa Int
-  resistenciaIsolamentoX31xMassa Int
-  resistenciaIsolamentoX32xMassa Int
-
-  servico1 String
-  servico2 String
-  servico3 String
-
-  observacao String
-
-  componente   Componente @relation(fields: [componenteID], references: [id], onDelete: Cascade)
-  componenteID Int        @unique
-
-  equipamento Equipamento[]
-  foto        Foto[]
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-}
-
-model EnsaioFPTrafo {
-  id         Int   @id @default(autoincrement())
-  correnteN1 Float
-  correnteN2 Float
-  correnteN3 Float
-  correnteN4 Float
-  correnteN5 Float
-  correnteN6 Float
-
-  wattsN1 Float
-  wattsN2 Float
-  wattsN3 Float
-  wattsN4 Float
-  wattsN5 Float
-  wattsN6 Float
-
-  fatorPotenciaN1 Float
-  fatorPotenciaN2 Float
-  fatorPotenciaN3 Float
-  fatorPotenciaN4 Float
-  fatorPotenciaN5 Float
-  fatorPotenciaN6 Float
-
-  capacitanciaN1 Float
-  capacitanciaN2 Float
-  capacitanciaN3 Float
-  capacitanciaN4 Float
-  capacitanciaN5 Float
-  capacitanciaN6 Float
-
-  componente   Componente @relation(fields: [componenteID], references: [id], onDelete: Cascade)
-  componenteID Int        @unique
-
-  equipamento Equipamento[]
-  foto        Foto[]
-}
-
-model EnsaioFPBucha {
-  id            Int   @id @default(autoincrement())
-  corrente      Float
-  watts         Float
-  fatorPotencia Float
-  capacitancia  Float
-
-  componente   Componente @relation(fields: [componenteID], references: [id], onDelete: Cascade)
-  componenteID Int        @unique
-
-  equipamento Equipamento[]
-  foto        Foto[]
-}
-
-model EnsaioCorrenteExcitacao {
-  id           Int   @id @default(autoincrement())
-  correnteH1H3 Float
-  correnteH2H1 Float
-  correnteH3H2 Float
-
-  componente   Componente @relation(fields: [componenteID], references: [id], onDelete: Cascade)
-  componenteID Int        @unique
-
-  equipamento Equipamento[]
-  foto        Foto[]
-}
-
 model Equipamento {
   id          Int    @id @default(autoincrement())
   nome        String
@@ -465,44 +179,7 @@ model Equipamento {
   modelo      String
   numeroSerie String @unique
 
-  // ensaioTrafoAlta      EnsaioTrafoAlta @relation(fields: [ensaioTrafoAlta], references: [id])
-  // ensaioTrafoAltaId Int
-
-  ensaioTrafoPotencia   EnsaioTrafoPotencia? @relation(fields: [ensaioTrafoPotenciaId], references: [id], onDelete: Cascade)
-  ensaioTrafoPotenciaId Int?
-
-  // ensaioTrafoForca      EnsaioTrafoForca @relation(fields: [ensaioTrafoForcaId], references: [id])
-  // ensaioTrafoForcaId Int
-
-  ensaioTrafoCorrente   EnsaioTrafoCorrente? @relation(fields: [ensaioTrafoCorrenteId], references: [id], onDelete: Cascade)
-  ensaioTrafoCorrenteId Int?
-
-  ensaioDisjuntor   EnsaioDisjuntor? @relation(fields: [ensaioDisjuntorId], references: [id], onDelete: Cascade)
-  ensaioDisjuntorId Int?
-
-  malhaAterramento      MalhaAterramento? @relation(fields: [malhaAterramentoSerie], references: [id], onDelete: Cascade)
-  malhaAterramentoSerie Int?
-
-  ensaioResistor              EnsaioResistorAterramento? @relation(fields: [EnsaioResistorAterramentoId], references: [id], onDelete: Cascade)
-  EnsaioResistorAterramentoId Int?
-
-  ensaioChaveSeccionadora   EnsaioChaveSeccionadora? @relation(fields: [ensaioChaveSeccionadoraId], references: [id], onDelete: Cascade)
-  ensaioChaveSeccionadoraId Int?
-
-  ensaioFPTrafo   EnsaioFPTrafo? @relation(fields: [EnsaioFPTrafoId], references: [id], onDelete: Cascade)
-  EnsaioFPTrafoId Int?
-
-  medicaoCaboMufla   MedicaoCaboMufla? @relation(fields: [medicaoCaboMuflaId], references: [id], onDelete: Cascade)
-  medicaoCaboMuflaId Int?
-
-  ensaioFPBucha   EnsaioFPBucha? @relation(fields: [EnsaioFPBuchaId], references: [id], onDelete: Cascade)
-  EnsaioFPBuchaId Int?
-
-  ensaioCorrenteExcitacao   EnsaioCorrenteExcitacao? @relation(fields: [ensaioCorrenteExcitacaoId], references: [id], onDelete: Cascade)
-  ensaioCorrenteExcitacaoId Int?
-
-  ensaio   Ensaio[] @relation("EquipamentosUsados")
-  
+  ensaio Ensaio[] @relation("EquipamentosUsados")
 
   foto Foto[]
 
@@ -534,20 +211,19 @@ model Recomendacao {
   updatedAt DateTime @updatedAt
 }
 
-
 model Ensaio {
-  id           Int          @id @default(autoincrement())
+  id           Int            @id @default(autoincrement())
   tipo         TipoComponente
   dados        Json
-  componente   Componente?  @relation(fields: [componenteId], references: [id], onDelete: Cascade)
+  componente   Componente?    @relation(fields: [componenteId], references: [id], onDelete: Cascade)
   componenteId Int?
 
   responsavelMatricula Int
 
   equipamentoUsado Equipamento[] @relation("EquipamentosUsados")
-  fotos       Foto[]
-  createdAt   DateTime      @default(now())
-  updatedAt   DateTime      @updatedAt
+  fotos            Foto[]
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
 
   @@unique([tipo, componenteId])
 }

@@ -429,98 +429,698 @@ export const listarEquipamentosSchema = z.object({
     .strict(),
 });
 
-export const ensaioSchema = z.object({
-  body: z.object({
-    tipo: z.enum([
-      "TRAFO_POTENCIA",
-      "TRAFO_CORRENTE",
-      "DISJUNTOR",
-      "RESISTOR_ATERRAMENTO",
-      "CHAVE_SECCIONADORA",
-      "MALHA_ATERRAMENTO",
-      "MEDICAO_CABO_MUFLA",
-      "FP_TRAFO",
-      "FP_BUCHA",
-      "CORRENTE_EXCITACAO",
-      "OUTRO",
-    ]),
-    data: z.any(),
-    equipamentoUsado: z.array(z.number()),
-    foto: z.array(z.string().url()).optional(),
-  }),
-  params: z.object({
-    matricula: z.string().regex(/^\d+$/), // ou .transform(Number) se preferir
-    numeroOs: z.string(),
-    subestacaoId: z.string().transform(Number),
-    componenteId: z.string().transform(Number),
-  }),
-  query: z.object({}).optional(), // se houver filtros, coloque aqui
-});
-
 // Schemas por tipo de ensaio
-const trafoPotenciaSchema = z.object({
-  tapComutadorAt: z.string(),
-  tapComutadorBt: z.string(),
-  relacaoMedida1: z.number(),
-  resistenciaOhmicaEnrolamentoAt1: z.number(),
-  resistenciaOhmicaEnrolamentoBt1: z.number(),
-  resistenciaIsolamentoAtxBt: z.number().optional(),
-  observacao: z.string().optional(),
-});
-
-export const trafoCorrenteSchema = z
+export const ensaioSchema = z
   .object({
-    relacaoMedida: z.coerce.number(),
-    relacaoOhmica: z.coerce.number(),
-    resistenciaIsolamentoPxS: z.coerce.number(),
-    resistenciaIsolamentoPxMassa: z.coerce.number(),
-    resistenciaIsolamentoSxMassa: z.coerce.number(),
-    observacao: z.string(),
+    body: z.object({
+      tipo: z.enum([
+        "TRAFO_POTENCIA",
+        "TRAFO_CORRENTE",
+        "DISJUNTOR",
+        "RESISTOR_ATERRAMENTO",
+        "CHAVE_SECCIONADORA",
+        "MALHA_ATERRAMENTO",
+        "MEDICAO_CABO_MUFLA",
+        "FP_TRAFO",
+        "FP_BUCHA",
+        "CORRENTE_EXCITACAO",
+        "OUTRO",
+      ]),
+      data: z.any(),
+      equipamentoUsado: z.array(
+        z.coerce
+          .number()
+          .min(1, "OS deve possuir no mínimo 1 dígito.")
+          .max(5, "OS deve possuir no máximo 5 dígitos.")
+      ),
+      foto: z.array(z.string().url()).optional(),
+    }),
+    params: z.object({
+      matricula: z.string().regex(/^\d+$/), // ou .transform(Number) se preferir
+      numeroOs: z
+        .string()
+        .min(1, "OS deve possuir no mínimo 1 dígito.")
+        .max(5, "OS deve possuir no máximo 5 dígitos."),
+      subestacaoId: z.coerce
+        .number()
+        .min(1, "OS deve possuir no mínimo 1 dígito.")
+        .max(50, "OS deve possuir no máximo 50 dígitos."),
+      componenteId: z.coerce
+        .number()
+        .min(1, "OS deve possuir no mínimo 1 dígito.")
+        .max(50, "OS deve possuir no máximo 50 dígitos."),
+    }),
+    query: z.object({}).optional(), // se houver filtros, coloque aqui
   })
   .strict();
+// Schemas por tipo de ensaio
+const trafoPotenciaSchema = z
+  .object({
+    tapComutadorAt: z.coerce
+      .number()
+      .min(1, "Minimo 1 dígito")
+      .max(4, "Máximo 4 dígitos.")
+      .optional(),
+    tapComutadorBt: z.coerce
+      .number()
+      .min(1, "Minimo 1 dígito")
+      .max(4, "Máximo 4 dígitos.")
+      .optional(),
+    tensaoAt: z.coerce
+      .number()
+      .min(1, "Minimo 1 dígito")
+      .max(70000, "Máximo 70000 dígitos.")
+      .optional(),
+    tensaoBt: z.coerce
+      .number()
+      .min(1, "Minimo 1 dígito")
+      .max(14000, "Máximo 14000 dígitos.")
+      .optional(),
+    relacaoCalculadaAtxBt: z.coerce
+      .number()
+      .min(1, "Minimo 1 dígito")
+      .max(100, "Máximo 100 dígitos.")
+      .optional(),
+    relacaoMedida1: z.coerce
+      .number()
+      .min(1, "Minimo 1 dígito")
+      .max(100, "Máximo 100 dígitos.")
+      .optional(),
+    relacaoMedida2: z.coerce
+      .number()
+      .min(1, "Minimo 1 dígito")
+      .max(100, "Máximo 100 dígitos.")
+      .optional(),
+    relacaoMedida3: z.coerce
+      .number()
+      .min(1, "Minimo 1 dígito")
+      .max(100, "Máximo 100 dígitos.")
+      .optional(),
+    resistenciaOhmicaEnrolamentoAt1: z.coerce
+      .number()
+      .min(1, "Minimo 1 dígito")
+      .max(100, "Máximo 100 dígitos.")
+      .optional(),
+    resistenciaOhmicaEnrolamentoAt2: z.coerce
+      .number()
+      .min(1, "Minimo 1 dígito")
+      .max(100, "Máximo 100 dígitos.")
+      .optional(),
+    resistenciaOhmicaEnrolamentoAt3: z.coerce
+      .number()
+      .min(1, "Minimo 1 dígito")
+      .max(100, "Máximo 100 dígitos.")
+      .optional(),
+    resistenciaOhmicaEnrolamentoBt1: z.coerce
+      .number()
+      .min(1, "Minimo 1 dígito")
+      .max(100, "Máximo 100 dígitos.")
+      .optional(),
+    resistenciaOhmicaEnrolamentoBt2: z.coerce
+      .number()
+      .min(1, "Minimo 1 dígito")
+      .max(100, "Máximo 100 dígitos.")
+      .optional(),
+    resistenciaOhmicaEnrolamentoBt3: z.coerce
+      .number()
+      .min(1, "Minimo 1 dígito")
+      .max(100, "Máximo 100 dígitos.")
+      .optional(),
+    resistenciaIsolamentoAtxBt: z.coerce
+      .number()
+      .min(1, "Minimo 1 dígito")
+      .max(5, "Máximo 5 dígitos.")
+      .optional(),
+    resistenciaIsolamentoAtxMassa: z.coerce
+      .number()
+      .min(1, "Minimo 1 dígito")
+      .max(5, "Máximo 5 dígitos.")
+      .optional(),
+    resistenciaIsolamentoBtxMassa: z.coerce
+      .number()
+      .min(1, "Minimo 1 dígito")
+      .max(5, "Máximo 5 dígitos.")
+      .optional(),
+    observacao: z
+      .string()
+      .min(1, "Campo obrigatório")
+      .max(100, "Resuma em no máximo 100 caracteres.")
+      .optional(),
+    protecao1: z
+      .enum(["CONFORME", "NAO_CONFORME", "N/A"], {
+        required_error: "É obrigatório informar se o serviço 1 foi realizado.",
+        invalid_type_error: "Serviço 1 inválido.",
+      })
+      .optional(),
+    protecao2: z
+      .enum(["CONFORME", "NAO_CONFORME", "N/A"], {
+        required_error: "É obrigatório informar se o serviço 2 foi realizado.",
+        invalid_type_error: "Serviço 2 inválido.",
+      })
+      .optional(),
+    protecao3: z
+      .enum(["CONFORME", "NAO_CONFORME", "N/A"], {
+        required_error: "É obrigatório informar se o serviço 3 foi realizado.",
+        invalid_type_error: "Serviço 3 inválido.",
+      })
+      .optional(),
+    protecao4: z
+      .enum(["CONFORME", "NAO_CONFORME", "N/A"], {
+        required_error: "É obrigatório informar se o serviço 4 foi realizado.",
+        invalid_type_error: "Serviço 4 inválido.",
+      })
+      .optional(),
+    protecao5: z
+      .enum(["CONFORME", "NAO_CONFORME", "N/A"], {
+        required_error: "É obrigatório informar se o serviço 5 foi realizado.",
+        invalid_type_error: "Serviço 5 inválido.",
+      })
+      .optional(),
+    protecao6: z
+      .enum(["CONFORME", "NAO_CONFORME", "N/A"], {
+        required_error: "É obrigatório informar se o serviço 6 foi realizado.",
+        invalid_type_error: "Serviço 6 inválido.",
+      })
+      .optional(),
+  })
+  .strict();
+// Feito
+const trafoCorrenteSchema = z
+  .object({
+    correntePrimario: z.coerce
+      .number()
+      .min(1, "Minimo 1 dígito")
+      .max(99999, "Máximo 99999 dígitos.")
+      .optional(),
+    correnteSecundario: z.coerce
+      .number()
+      .min(1, "Minimo 1 dígito")
+      .max(99999, "Máximo 99999 dígitos.")
+      .optional(),
+    relacaoCalculada: z.coerce
+      .number()
+      .min(1, "Minimo 1 dígito")
+      .max(99999, "Máximo 99999 dígitos.")
+      .optional(),
+    relacaoMedida: z.coerce
+      .number()
+      .min(1, "Minimo 1 dígito")
+      .max(99999, "Máximo 99999 dígitos.")
+      .optional(),
+    relacaoOhmica: z.coerce
+      .number()
+      .min(1, "Minimo 1 dígito")
+      .max(99999, "Máximo 99999 dígitos.")
+      .optional(),
+    temperaturaEnsaio: z.coerce
+      .number()
+      .min(1, "Minimo 1 dígito")
+      .max(99999, "Máximo 99999 dígitos.")
+      .optional(),
+    resistenciaIsolamentoPxS: z.coerce
+      .number()
+      .min(1, "Minimo 1 dígito")
+      .max(99999, "Máximo 99999 dígitos.")
+      .optional(),
+    resistenciaIsolamentoPxMassa: z.coerce
+      .number()
+      .min(1, "Minimo 1 dígito")
+      .max(99999, "Máximo 99999 dígitos.")
+      .optional(),
+    resistenciaIsolamentoSxMassa: z.coerce
+      .number()
+      .min(1, "Minimo 1 dígito")
+      .max(99999, "Máximo 99999 dígitos.")
+      .optional(),
+    observacao: z.string().optional(),
+  })
+  .strict();
+const disjuntorSchema = z
+  .object({
+    resistenciaContatoDisjuntorFechadoA: z.coerce
+      .number()
+      .min(1, "Minimo 1 dígito")
+      .max(4, "Máximo 4 dígitos.")
+      .optional(),
+    resistenciaContatoDisjuntorFechadoB: z.coerce
+      .number()
+      .min(1, "Minimo 1 dígito")
+      .max(4, "Máximo 4 dígitos.")
+      .optional(),
+    resistenciaContatoDisjuntorFechadoC: z.coerce
+      .number()
+      .min(1, "Minimo 1 dígito")
+      .max(4, "Máximo 4 dígitos.")
+      .optional(),
 
-const disjuntorSchema = z.object({
-  resistenciaContatoDisjuntorFechadoA: z.number(),
-  resistenciaContatoDisjuntorFechadoB: z.number(),
-  resistenciaContatoDisjuntorFechadoC: z.number(),
-  resistenciaContatoDisjuntorAbertoA: z.number(),
-  resistenciaContatoDisjuntorAbertoB: z.number(),
-  resistenciaContatoDisjuntorAbertoC: z.number(),
+    resistenciaContatoDisjuntorAbertoA: z.coerce
+      .number()
+      .min(1, "Minimo 1 dígito")
+      .max(4, "Máximo 4 dígitos.")
+      .optional(),
+    resistenciaContatoDisjuntorAbertoB: z.coerce
+      .number()
+      .min(1, "Minimo 1 dígito")
+      .max(4, "Máximo 4 dígitos.")
+      .optional(),
+    resistenciaContatoDisjuntorAbertoC: z.coerce
+      .number()
+      .min(1, "Minimo 1 dígito")
+      .max(4, "Máximo 4 dígitos.")
+      .optional(),
 
-  resistenciaIsolamentoAxMassa: z.number(),
-  resistenciaIsolamentoBxMassa: z.number(),
-  resistenciaIsolamentoCxMassa: z.number(),
+    resistenciaIsolamentoAxMassa: z.coerce
+      .number()
+      .min(1, "Minimo 1 dígito")
+      .max(4, "Máximo 4 dígitos.")
+      .optional(),
+    resistenciaIsolamentoBxMassa: z.coerce
+      .number()
+      .min(1, "Minimo 1 dígito")
+      .max(4, "Máximo 4 dígitos.")
+      .optional(),
+    resistenciaIsolamentoCxMassa: z.coerce
+      .number()
+      .min(1, "Minimo 1 dígito")
+      .max(4, "Máximo 4 dígitos.")
+      .optional(),
 
-  servico1: z.boolean(),
-  servico2: z.boolean(),
-  servico3: z.boolean(),
-  servico4: z.boolean(),
+    servico1: z
+      .enum(["SIM", "NAO", "N/A"], {
+        required_error: "É obrigatório informar se o serviço 1 foi realizado.",
+        invalid_type_error: "Serviço 1 inválido.",
+      })
+      .optional(),
+    servico2: z
+      .enum(["SIM", "NAO", "N/A"], {
+        required_error: "É obrigatório informar se o serviço 2 foi realizado.",
+        invalid_type_error: "Serviço 2 inválido.",
+      })
+      .optional(),
+    servico3: z
+      .enum(["SIM", "NAO", "N/A"], {
+        required_error: "É obrigatório informar se o serviço 3 foi realizado.",
+        invalid_type_error: "Serviço 3 inválido.",
+      })
+      .optional(),
+    servico4: z
+      .enum(["SIM", "NAO", "N/A"], {
+        required_error: "É obrigatório informar se o serviço 4 foi realizado.",
+        invalid_type_error: "Serviço 4 inválido.",
+      })
+      .optional(),
 
-  observacao: z.string(),
+    observacao: z
+      .string()
+      .min(1, "Campo obrigatório")
+      .max(100, "Resuma em no máximo 100 caracteres.")
+      .optional(),
+  })
+  .strict();
+// Feito
+const malhaAterramentoSchema = z
+  .object({
+    avalicacao: z.enum(["CONFORME", "NAO_CONFORME"]).optional(),
+    valorResistencia: z
+      .number()
+      .min(1, "Minimo 1 dígito")
+      .max(4, "Máximo 4 dígitos.")
+      .optional(),
+    servico1: z
+      .enum(["SIM", "NAO", "N/A"], {
+        required_error: "É obrigatório informar se o serviço 1 foi realizado.",
+        invalid_type_error: "Serviço 1 inválido.",
+      })
+      .optional(),
+    servico2: z
+      .enum(["SIM", "NAO", "N/A"], {
+        required_error: "É obrigatório informar se o serviço 2 foi realizado.",
+        invalid_type_error: "Serviço 2 inválido.",
+      })
+      .optional(),
+    observacao: z
+      .string()
+      .min(1, "Campo obrigatório")
+      .max(100, "Resuma em no máximo 100 caracteres.")
+      .optional(),
+  })
+  .strict();
+// Feito
+const resistorAterramentoSchema = z
+  .object({
+    resistenciaNominal: z
+      .number()
+      .min(1, "Minimo 1 dígito")
+      .max(4, "Máximo 4 dígitos.")
+      .optional(),
+    resistenciaOhmicaMedida: z
+      .number()
+      .min(1, "Minimo 1 dígito")
+      .max(4, "Máximo 4 dígitos.")
+      .optional(),
+    resistenciaIsolamento: z
+      .number()
+      .min(1, "Minimo 1 dígito")
+      .max(4, "Máximo 4 dígitos.")
+      .optional(),
+    observacao: z
+      .string()
+      .min(1, "Campo obrigatório")
+      .max(100, "Resuma em no máximo 100 caracteres.")
+      .optional(),
+  })
+  .strict();
+// Feito
+const chaveSeccionadoraSchema = z
+  .object({
+    correnteAplicada: z
+      .number()
+      .min(1, "Minimo 1 dígito")
+      .max(4, "Máximo 4 dígitos.")
+      .optional(),
+    tensaoEnsaio: z
+      .number()
+      .min(1, "Minimo 1 dígito")
+      .max(4, "Máximo 4 dígitos.")
+      .optional(),
+    valorReferencia1: z
+      .number()
+      .min(1, "Minimo 1 dígito")
+      .max(4, "Máximo 4 dígitos.")
+      .optional(),
+    valorReferencia2: z
+      .number()
+      .min(1, "Minimo 1 dígito")
+      .max(4, "Máximo 4 dígitos.")
+      .optional(),
+    tempo: z
+      .number()
+      .min(1, "Minimo 1 dígito")
+      .max(4, "Máximo 4 dígitos.")
+      .optional(),
+    resistenciaContatoA: z
+      .number()
+      .min(1, "Minimo 1 dígito")
+      .max(4, "Máximo 4 dígitos.")
+      .optional(),
+    resistenciaContatoB: z
+      .number()
+      .min(1, "Minimo 1 dígito")
+      .max(4, "Máximo 4 dígitos.")
+      .optional(),
+    resistenciaContatoC: z
+      .number()
+      .min(1, "Minimo 1 dígito")
+      .max(4, "Máximo 4 dígitos.")
+      .optional(),
+    resistenciaIsolamentoA: z
+      .number()
+      .min(1, "Minimo 1 dígito")
+      .max(4, "Máximo 4 dígitos.")
+      .optional(),
+    resistenciaIsolamentoB: z
+      .number()
+      .min(1, "Minimo 1 dígito")
+      .max(4, "Máximo 4 dígitos.")
+      .optional(),
+    resistenciaIsolamentoC: z
+      .number()
+      .min(1, "Minimo 1 dígito")
+      .max(4, "Máximo 4 dígitos.")
+      .optional(),
+    observacao: z
+      .string()
+      .min(1, "Campo obrigatório")
+      .max(100, "Resuma em no máximo 100 caracteres.")
+      .optional(),
+  })
+  .strict();
+// Fazendo
+const caboMuflaSchema = z.object({
+  tensaoEnsaio: z
+    .number()
+    .min(1, "Minimo 1 dígito")
+    .max(4, "Máximo 4 dígitos.")
+    .optional(),
+  valorReferencia: z
+    .number()
+    .min(1, "Minimo 1 dígito")
+    .max(4, "Máximo 4 dígitos.")
+    .optional(),
+  tempo: z
+    .number()
+    .min(1, "Minimo 1 dígito")
+    .max(2, "Máximo 2 dígitos.")
+    .optional(),
+  resistenciaIsolamentoX0xMassa: z
+    .number()
+    .min(1, "Minimo 1 dígito")
+    .max(4, "Máximo 4 dígitos.")
+    .optional(),
+  resistenciaIsolamentoX11xMassa: z
+    .number()
+    .min(1, "Minimo 1 dígito")
+    .max(4, "Máximo 4 dígitos.")
+    .optional(),
+  resistenciaIsolamentoX12xMassa: z
+    .number()
+    .min(1, "Minimo 1 dígito")
+    .max(4, "Máximo 4 dígitos.")
+    .optional(),
+  resistenciaIsolamentoX21xMassa: z
+    .number()
+    .min(1, "Minimo 1 dígito")
+    .max(4, "Máximo 4 dígitos.")
+    .optional(),
+  resistenciaIsolamentoX22xMassa: z
+    .number()
+    .min(1, "Minimo 1 dígito")
+    .max(4, "Máximo 4 dígitos.")
+    .optional(),
+  resistenciaIsolamentoX31xMassa: z
+    .number()
+    .min(1, "Minimo 1 dígito")
+    .max(4, "Máximo 4 dígitos.")
+    .optional(),
+  resistenciaIsolamentoX32xMassa: z
+    .number()
+    .min(1, "Minimo 1 dígito")
+    .max(4, "Máximo 4 dígitos.")
+    .optional(),
 
-  componenteID: z.number(), // foreign key
-  responsavelEnsaioMatricula: z.number(), // matrícula do responsável
+  servico1: z
+    .enum(["SIM", "NAO", "N/A"], {
+      required_error: "É obrigatório informar se o serviço 1 foi realizado.",
+      invalid_type_error: "Serviço 1 inválido.",
+    })
+    .optional(),
+  servico2: z
+    .enum(["SIM", "NAO", "N/A"], {
+      required_error: "É obrigatório informar se o serviço 2 foi realizado.",
+      invalid_type_error: "Serviço 2 inválido.",
+    })
+    .optional(),
+  servico3: z
+    .enum(["SIM", "NAO", "N/A"], {
+      required_error: "É obrigatório informar se o serviço 3 foi realizado.",
+      invalid_type_error: "Serviço 3 inválido.",
+    })
+    .optional(),
 
-  equipamentoUsado: z.array(z.number()).optional(), // array de IDs (relacionamento)
-  foto: z.array(z.number()).optional(), // array de IDs (relacionamento)
+  observacao: z
+    .string()
+    .min(1, "Campo obrigatório")
+    .max(100, "Resuma em no máximo 100 caracteres.")
+    .optional(),
 });
+// Feito
+const fpTrafoSchema = z
+  .object({
+    correnteN1: z
+      .number()
+      .min(1, "Minimo 1 dígito")
+      .max(5, "Máximo 5 dígitos.")
+      .optional(),
+    correnteN2: z
+      .number()
+      .min(1, "Minimo 1 dígito")
+      .max(5, "Máximo 5 dígitos.")
+      .optional(),
+    correnteN3: z
+      .number()
+      .min(1, "Minimo 1 dígito")
+      .max(5, "Máximo 5 dígitos.")
+      .optional(),
+    correnteN5: z
+      .number()
+      .min(1, "Minimo 1 dígito")
+      .max(5, "Máximo 5 dígitos.")
+      .optional(),
+    correnteN5: z
+      .number()
+      .min(1, "Minimo 1 dígito")
+      .max(5, "Máximo 5 dígitos.")
+      .optional(),
+    correnteN6: z
+      .number()
+      .min(1, "Minimo 1 dígito")
+      .max(5, "Máximo 5 dígitos.")
+      .optional(),
 
-const resistorAterramentoSchema = z.object({
-  resistenciaOhmicaMedida: z.number(),
-  resistenciaIsolamento: z.number(),
-  observacao: z.string().optional(),
-});
+    wattsN1: z
+      .number()
+      .min(1, "Minimo 1 dígito")
+      .max(4, "Máximo 4 dígitos.")
+      .optional(),
+    wattsN2: z
+      .number()
+      .min(1, "Minimo 1 dígito")
+      .max(4, "Máximo 4 dígitos.")
+      .optional(),
+    wattsN3: z
+      .number()
+      .min(1, "Minimo 1 dígito")
+      .max(4, "Máximo 4 dígitos.")
+      .optional(),
+    wattsN4: z
+      .number()
+      .min(1, "Minimo 1 dígito")
+      .max(4, "Máximo 4 dígitos.")
+      .optional(),
+    wattsN5: z
+      .number()
+      .min(1, "Minimo 1 dígito")
+      .max(4, "Máximo 4 dígitos.")
+      .optional(),
+    wattsN6: z
+      .number()
+      .min(1, "Minimo 1 dígito")
+      .max(4, "Máximo 4 dígitos.")
+      .optional(),
 
+    fatorPotenciaN1: z
+      .number()
+      .min(1, "Minimo 1 dígito")
+      .max(4, "Máximo 4 dígitos.")
+      .optional(),
+    fatorPotenciaN2: z
+      .number()
+      .min(1, "Minimo 1 dígito")
+      .max(4, "Máximo 4 dígitos.")
+      .optional(),
+    fatorPotenciaN3: z
+      .number()
+      .min(1, "Minimo 1 dígito")
+      .max(4, "Máximo 4 dígitos.")
+      .optional(),
+    fatorPotenciaN4: z
+      .number()
+      .min(1, "Minimo 1 dígito")
+      .max(4, "Máximo 4 dígitos.")
+      .optional(),
+    fatorPotenciaN5: z
+      .number()
+      .min(1, "Minimo 1 dígito")
+      .max(4, "Máximo 4 dígitos.")
+      .optional(),
+    fatorPotenciaN6: z
+      .number()
+      .min(1, "Minimo 1 dígito")
+      .max(4, "Máximo 4 dígitos.")
+      .optional(),
+
+    capacitanciaN1: z
+      .number()
+      .min(1, "Minimo 1 dígito")
+      .max(4, "Máximo 4 dígitos.")
+      .optional(),
+    capacitanciaN2: z
+      .number()
+      .min(1, "Minimo 1 dígito")
+      .max(4, "Máximo 4 dígitos.")
+      .optional(),
+    capacitanciaN3: z
+      .number()
+      .min(1, "Minimo 1 dígito")
+      .max(4, "Máximo 4 dígitos.")
+      .optional(),
+    capacitanciaN4: z
+      .number()
+      .min(1, "Minimo 1 dígito")
+      .max(4, "Máximo 4 dígitos.")
+      .optional(),
+    capacitanciaN5: z
+      .number()
+      .min(1, "Minimo 1 dígito")
+      .max(4, "Máximo 4 dígitos.")
+      .optional(),
+    capacitanciaN6: z
+      .number()
+      .min(1, "Minimo 1 dígito")
+      .max(4, "Máximo 4 dígitos.")
+      .optional(),
+  })
+  .strict();
+// Feito
+const tpBuchaSchema = z
+  .object({
+    numeroSerieBucha: z
+      .string()
+      .min(1, "Minimo 1 dígito")
+      .max(5, "Máximo 5 dígitos.")
+      .optional(),
+    corrente: z
+      .number()
+      .min(1, "Minimo 1 dígito")
+      .max(5, "Máximo 5 dígitos.")
+      .optional(),
+    watts: z
+      .number()
+      .min(1, "Minimo 1 dígito")
+      .max(5, "Máximo 5 dígitos.")
+      .optional(),
+    fatorPotencia: z
+      .number()
+      .min(1, "Minimo 1 dígito")
+      .max(5, "Máximo 5 dígitos.")
+      .optional(),
+    capacitancia: z
+      .number()
+      .min(1, "Minimo 1 dígito")
+      .max(5, "Máximo 5 dígitos.")
+      .optional(),
+  })
+  .strict();
+// Feito
+const correnteExcitacao = z
+  .object({
+    correnteH1H3: z
+      .number()
+      .min(1, "Minimo 1 dígito")
+      .max(5, "Máximo 5 dígitos.")
+      .optional(),
+    correnteH2H1: z
+      .number()
+      .min(1, "Minimo 1 dígito")
+      .max(5, "Máximo 5 dígitos.")
+      .optional(),
+    correnteH3H2: z
+      .number()
+      .min(1, "Minimo 1 dígito")
+      .max(5, "Máximo 5 dígitos.")
+      .optional(),
+  })
+  .strict();
 // Schema por tipo
 export const schemasPorTipo = {
   TRAFO_POTENCIA: trafoPotenciaSchema,
+  TRAFO_CORRENTE: trafoCorrenteSchema,
   DISJUNTOR: disjuntorSchema,
   RESISTOR_ATERRAMENTO: resistorAterramentoSchema,
-  TRAFO_CORRENTE: trafoCorrenteSchema,
-  RESISTOR_ATERRAMENTO: resistorAterramentoSchema,
-  // CHAVE_SECCIONADORA: chaveSeccionadoraSchema,
-  // MALHA_ATERRAMENTO: malhaAterramentoSchema,
-  // MEDICAO_CABO_MUFLA: caboMuflaSchema,
-  // FP_TRAFO: fpTrafoSchema,
-  // FP_BUCHA: tpBuchaSchema,
+  CHAVE_SECCIONADORA: chaveSeccionadoraSchema,
+  MALHA_ATERRAMENTO: malhaAterramentoSchema,
+  MEDICAO_CABO_MUFLA: caboMuflaSchema,
+  FP_TRAFO: fpTrafoSchema,
+  FP_BUCHA: tpBuchaSchema,
+  CORRENTE_EXCITACAO: correnteExcitacao,
 };
