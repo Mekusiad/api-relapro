@@ -137,6 +137,7 @@ async function main() {
   const os = await prisma.ordem.create({
     data: {
       numeroOs: "25001",
+      numeroOrcamento: "065-25",
       cliente: "LG",
       nomeResponsavel: "Rafael",
       contato: "92993552808",
@@ -160,6 +161,7 @@ async function main() {
   const os1 = await prisma.ordem.create({
     data: {
       numeroOs: "25002",
+      numeroOrcamento: "064-25",
       cliente: "LG1",
       nomeResponsavel: "Rafael",
       contato: "92993552808",
@@ -183,6 +185,7 @@ async function main() {
   const os2 = await prisma.ordem.create({
     data: {
       numeroOs: "25003",
+      numeroOrcamento: "063-25",
       cliente: "LG2",
       nomeResponsavel: "Rafael",
       contato: "92993552808",

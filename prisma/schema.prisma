@@ -46,6 +46,7 @@ enum NivelAcesso {
 model Ordem {
   id               Int         @id @default(autoincrement())
   numeroOs         String      @unique
+  numeroOrcamento  String      @unique
   cliente          String
   nomeResponsavel  String
   contato          String

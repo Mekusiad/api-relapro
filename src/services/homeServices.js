@@ -367,6 +367,7 @@ export const criarOs = async (req, res) => {
   await prisma.ordem.create({
     data: {
       numeroOs: numberOs,
+      numeroOrcamento: data.numeroOrcamento,
       cliente: data.cliente,
       nomeResponsavel: data.nomeResponsavel,
       contato: data.contato,
