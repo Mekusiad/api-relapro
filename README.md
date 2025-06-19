@@ -1,9 +1,13 @@
 # 📘 API - RELAPRO
 
 [![Node.js](https://img.shields.io/badge/node-%5E18.x-green?style=flat&logo=node.js)](https://nodejs.org/)
+
 [![Express](https://img.shields.io/badge/express.js-%5E4.x-black?style=flat&logo=express)](https://expressjs.com/)
+
 [![Prisma](https://img.shields.io/badge/prisma-ORM-blue?style=flat&logo=prisma)](https://www.prisma.io/)
+
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-db-blue?style=flat&logo=postgresql)](https://www.postgresql.org/)
+
 [![Deploy: Render](https://img.shields.io/badge/deploy-Render-%2300c7b7?style=flat&logo=render)](https://render.com/)
 
 Sistema de gerenciamento de Ordens de Serviço (OS) voltado para inspeções e manutenções em subestações elétricas. A aplicação oferece autenticação, controle de usuários, gestão de OS, subestações, componentes, ensaios e equipamentos.
