@@ -30,8 +30,6 @@ import {
   listarSubestacao,
 } from "../services/homeServices.js";
 
-import { conferirMatriculas } from "../utils/conferirMatriculas.js";
-
 import { handleError } from "../utils/errorHandler.js";
 
 export const homeInfoController = async (req, res) => {
@@ -105,9 +103,6 @@ export const homeExcluirOsController = async (req, res) => {
 export const homeAtualizarOrdemController = async (req, res) => {
   const { matricula } = req.params;
   const data = req.body;
-
-  if (!conferirMatriculas(matricula, req.funcionarioMatricula))
-    return res.status(403).json({ status: false, message: "Acesso negado." });
 
   try {
     switch (data.type) {
