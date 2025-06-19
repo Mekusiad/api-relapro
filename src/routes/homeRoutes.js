@@ -67,14 +67,14 @@ export const homeRoutes = express.Router();
 // Middleware global de autenticação
 homeRoutes.use(verifyToken);
 
-// GET /home -> Página inicial
+// GET -> Página inicial
 homeRoutes.get(
   "/home",
   validateReq(homeInfoSchema, "custom"),
   homeInfoController
 );
 
-// POST /home/:matricula/funcionarios -> Criar funcionário
+// POST -> Cria funcionário
 homeRoutes.post(
   "/home/:matricula/funcionarios",
   conferirMatriculaMiddleware("matricula"),
@@ -83,7 +83,7 @@ homeRoutes.post(
   homeRegistrarFuncionarioController
 );
 
-// PUT /home/:matricula/funcionarios/:outraMatricula -> Atualiza dados de outro funcionário
+// PUT -> Atualiza dados de outro funcionário
 homeRoutes.put(
   "/home/:matricula/funcionarios/:outraMatricula",
   conferirMatriculaMiddleware("matricula"),
@@ -91,44 +91,7 @@ homeRoutes.put(
   validateReq(atualizarDadosFuncionarioSchema, "body"),
   homeAtualizadosDadosFuncionarioController
 );
-
-// POST /home:/matricula/ordens/:numeroOs/subestacoes -> Cria subestação
-homeRoutes.post(
-  "/home/:matricula/ordens/:numeroOs/subestacoes",
-  conferirMatriculaMiddleware("matricula"),
-  conferirNivelAcessoMiddleware("ADMIN"),
-  validateReq(adicionarSubestacaoSchema, "params"),
-  homeadicionarSubestacaoController
-);
-
-// GET /home:/matricula/ordens/:numeroOs/subestacoes -> Listar subestação
-homeRoutes.get(
-  "/home/:matricula/ordens/:numeroOs/subestacoes",
-  conferirMatriculaMiddleware("matricula"),
-  conferirNivelAcessoMiddleware("ADMIN"),
-  validateReq(listarSubestacaoSchema, "params"),
-  homeListarSubestacaoController
-);
-
-// DELETE /home:/matricula/ordens/:numeroOs/subestacoes -> Exclui subestação
-homeRoutes.delete(
-  "/home/:matricula/ordens/:numeroOs/subestacoes/:subestacaoId",
-  conferirMatriculaMiddleware("matricula"),
-  conferirNivelAcessoMiddleware("ADMIN"),
-  validateReq(removerSubestacaoSchema, "params"),
-  homeRemoverSubestacaoController
-);
-
-// PUT /home:/matricula/ordens/:numeroOs/subestacoes -> Atualiza dados subestação
-homeRoutes.put(
-  "/home/:matricula/ordens/:numeroOs/subestacoes/:subestacaoId",
-  conferirMatriculaMiddleware("matricula"),
-  conferirNivelAcessoMiddleware("ADMIN"),
-  validateReq(atualizarDadosSubestacaoSchema, "params"),
-  homeAtualizarDadosSubestaçãoController
-);
-
-// DELETE /home/:matricula/funcionarios/:outraMatricula -> Excluir funcionário
+// DELETE -> Exclui funcionário
 homeRoutes.delete(
   "/home/:matricula/funcionarios/:outraMatricula",
   conferirMatriculaMiddleware("matricula"),
@@ -137,7 +100,7 @@ homeRoutes.delete(
   homeExcluirFuncionarioController
 );
 
-// GET /home/:matricula/funcionarios → lista todos os funcionários (admin/supervisor)
+// GET -> Lista todos os funcionários (admin/supervisor)
 homeRoutes.get(
   "/home/:matricula/funcionarios",
   conferirMatriculaMiddleware("matricula"),
@@ -146,7 +109,7 @@ homeRoutes.get(
   homeListarFuncionarioController
 );
 
-// GET /home/:matricula/funcionarios/:outraMatricula → busca funcionário específico
+// GET -> busca funcionário específico
 homeRoutes.get(
   "/home/:matricula/funcionarios/:outraMatricula",
   conferirMatriculaMiddleware("matricula"),
@@ -155,7 +118,43 @@ homeRoutes.get(
   homeBuscarFuncionarioPorMatriculaController
 );
 
-// POST /home/:matricual/ordens -> Criar OS
+// POST -> Cria subestação
+homeRoutes.post(
+  "/home/:matricula/ordens/:numeroOs/subestacoes",
+  conferirMatriculaMiddleware("matricula"),
+  conferirNivelAcessoMiddleware("ADMIN"),
+  validateReq(adicionarSubestacaoSchema, "params"),
+  homeadicionarSubestacaoController
+);
+
+// GET -> Lista subestação
+homeRoutes.get(
+  "/home/:matricula/ordens/:numeroOs/subestacoes",
+  conferirMatriculaMiddleware("matricula"),
+  conferirNivelAcessoMiddleware("ADMIN"),
+  validateReq(listarSubestacaoSchema, "params"),
+  homeListarSubestacaoController
+);
+
+// DELETE -> Exclui subestação
+homeRoutes.delete(
+  "/home/:matricula/ordens/:numeroOs/subestacoes/:subestacaoId",
+  conferirMatriculaMiddleware("matricula"),
+  conferirNivelAcessoMiddleware("ADMIN"),
+  validateReq(removerSubestacaoSchema, "params"),
+  homeRemoverSubestacaoController
+);
+
+// PUT -> Atualiza dados subestação
+homeRoutes.put(
+  "/home/:matricula/ordens/:numeroOs/subestacoes/:subestacaoId",
+  conferirMatriculaMiddleware("matricula"),
+  conferirNivelAcessoMiddleware("ADMIN"),
+  validateReq(atualizarDadosSubestacaoSchema, "params"),
+  homeAtualizarDadosSubestaçãoController
+);
+
+// POST -> Cria ordem de serviço
 homeRoutes.post(
   "/home/:matricula/ordens",
   conferirMatriculaMiddleware("matricula"),
@@ -164,7 +163,7 @@ homeRoutes.post(
   homeCriarOsController
 );
 
-// DELETE /home/:admin/ordens/:numeroOs -> Excluir OS
+// DELETE -> Exclui ordem de serviço
 homeRoutes.delete(
   "/home/:matricula/ordens/:numeroOs",
   conferirMatriculaMiddleware("matricula"),
@@ -173,21 +172,21 @@ homeRoutes.delete(
   homeExcluirOsController
 );
 
-// PUT /home/:matricula/ordens/:numeroOs -> Atualiza ordem(add/remove técnico, troca supervisor, atualiza status)
+// PUT -> Atualiza ordem(add/remove técnico, troca supervisor, atualiza status)
 homeRoutes.put(
   "/home/:matricula/ordens/:numeroOs",
   conferirMatriculaMiddleware("matricula"),
   homeAtualizarOrdemController
 );
 
-// GET /home/:matricula/ordens → lista todas as ordens da pessoa
+// GET -> Lista todas as ordens do funcionário logado
 homeRoutes.get(
   "/home/:matricula/ordens",
   conferirMatriculaMiddleware("matricula"),
   homeListarOrdensDoFuncionarioController
 );
 
-// GET /home/:matricula/ordens/:numeroOs → detalhes da ordem
+// GET -> Detalhes da ordem
 homeRoutes.get(
   "/home/:matricula/ordens/:numeroOs",
   conferirMatriculaMiddleware("matricula"),
@@ -195,7 +194,7 @@ homeRoutes.get(
   homeDetalharOrdemFuncionarioController
 );
 
-// POST /home/:matricula/ordens/:numeroOs/componentes -> Adiciona um componente na subestação.
+// POST -> Adiciona um componente na subestação.
 homeRoutes.post(
   "/home/:matricula/ordens/:numeroOs/subestacoes/:subestacaoId/componentes",
   conferirMatriculaMiddleware("matricula"),
@@ -204,7 +203,7 @@ homeRoutes.post(
   homeAdicionarComponenteController
 );
 
-// PUT /home/:matricula/ordens/:numeroOs/componentes/:componenteId -> Atualiza dados do componente
+// PUT -> Atualiza dados do componente
 homeRoutes.put(
   "/home/:matricula/ordens/:numeroOs/subestacoes/:subestacaoId/componentes/:componenteId",
   conferirMatriculaMiddleware("matricula"),
@@ -212,7 +211,7 @@ homeRoutes.put(
   homeAtualizarComponenteController
 );
 
-//DELETE /home/:matricula/ordens/:numeroOs/subestacoes/:subestacaoId/componentes/:componenteId -> Exclui componente da OS
+//DELETE -> Exclui componente da subestação
 homeRoutes.delete(
   "/home/:matricula/ordens/:numeroOs/subestacoes/:subestacaoId/componentes/:componenteId",
   conferirMatriculaMiddleware("matricula"),
@@ -221,7 +220,7 @@ homeRoutes.delete(
   homeExcluirComponenteController
 );
 
-// GET /home/:matricula/ordens/:numeroOs/componentes → Consulta componentes da Subestação
+// GET -> Consulta componentes da Subestação
 homeRoutes.get(
   "/home/:matricula/ordens/:numeroOs/subestacoes/:subestacaoId/componentes",
   conferirMatriculaMiddleware("matricula"),
@@ -229,7 +228,7 @@ homeRoutes.get(
   homeListarComponentesDaOrdemController
 );
 
-// POST /home/:matricula/ordens/:numeroOs/componentes/:componenteId/ensaio -> Adiciona ensaio ao componente
+// POST -> Adiciona ensaio ao componente
 homeRoutes.post(
   "/home/:matricula/ordens/:numeroOs/subestacoes/:subestacaoId/componentes/:componenteId/ensaio",
   conferirMatriculaMiddleware("matricula"),
@@ -238,13 +237,13 @@ homeRoutes.post(
   homeAdicionarEnsaioComponenteController
 );
 
-// DELETE /home/:matricula/ordens/:numeroOs/componentes/:componenteId/ensaio/:ensaioId -> Excluir ensaio do componente
+// DELETE -> Exclui ensaio do componente
 homeRoutes.delete(
   "/home/:matricula/ordens/:numeroOs/subestacoes/:subestacaoId/componentes/:componenteId/ensaio/:ensaioId",
   homeExcluirEnsaioComponenteController
 );
 
-// GET /home/:matricula/logs
+// GET -> Lista os logs (exclusão de os, componente, funcionário, subestação, componente, ensaio)
 homeRoutes.get(
   "/home/:matricula/logs",
   conferirMatriculaMiddleware("matricula"),
@@ -252,7 +251,7 @@ homeRoutes.get(
   homeListarLogsController
 );
 
-// POST /home/:matricula/equipamentos -> Cadastrar equipamento
+// POST -> Cadastra equipamento
 homeRoutes.post(
   "/home/:matricula/equipamentos",
   conferirMatriculaMiddleware("matricula"),
@@ -261,7 +260,7 @@ homeRoutes.post(
   homeCadastrarEquipamentoController
 );
 
-// PUT /home/:matricula/equipamentos/:equipamentoId -> Atualizar equipamento
+// PUT -> Atualiza equipamento
 homeRoutes.put(
   "/home/:matricula/equipamentos/:equipamentoId",
   conferirMatriculaMiddleware("matricula"),
@@ -270,7 +269,7 @@ homeRoutes.put(
   homeAtualizarEquipamentoController
 );
 
-// GET /home/:matricula/equipamentos/
+// GET -> Lista todos equipamentos
 homeRoutes.get(
   "/home/:matricula/equipamentos/",
   conferirMatriculaMiddleware("matricula"),
@@ -278,7 +277,7 @@ homeRoutes.get(
   homeListarEquipamentosController
 );
 
-// DELETE /home/:matricula/equipamentos/:equipamentoId
+// DELETE -> Exclui equipamento
 homeRoutes.delete(
   "/home/:matricula/equipamentos/:equipamentoId",
   conferirMatriculaMiddleware("matricula"),
