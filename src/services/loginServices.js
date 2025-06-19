@@ -1,4 +1,5 @@
 import jwt from "jsonwebtoken";
+import bcrypt from "bcrypt";
 
 import { PrismaClient } from "@prisma/client";
 
@@ -11,7 +12,7 @@ export const loginService = async (req, res) => {
   if (!validateLogin.success)
     return res
       .status(400)
-      .json({ status: false, message: "Erro de validação." });
+      .json({ status: false, message: "Erro de validação.", error:validateLogin });
 
   const { usuario, senha } = req.body;
 
@@ -24,7 +25,10 @@ export const loginService = async (req, res) => {
       .status(401)
       .json({ status: false, message: "Usuário ou senha incorreto." });
 
-  if (senha !== funcionarioExiste.senha)
+  // 🔐 Compara senha digitada com hash salvo
+  const senhaCorreta = await bcrypt.compare(senha, funcionarioExiste.senha);
+
+    if (!senhaCorreta)
     return res
       .status(401)
       .json({ status: false, message: "Usuário ou senha incorreto." });

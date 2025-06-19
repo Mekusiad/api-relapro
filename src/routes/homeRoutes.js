@@ -60,6 +60,7 @@ import {
 } from "../validations/schema.js";
 import { conferirMatriculaMiddleware } from "../middlewares/conferirMatriculaMiddleware.js";
 import { conferirNivelAcessoMiddleware } from "../middlewares/conferirNivelAcessoMiddleware.js";
+import { verificarRelacionamentoMiddleware } from "../middlewares/validarRelaciomentoParamsMiddleware.js";
 
 export const homeRoutes = express.Router();
 
@@ -233,6 +234,7 @@ homeRoutes.post(
   "/home/:matricula/ordens/:numeroOs/subestacoes/:subestacaoId/componentes/:componenteId/ensaio",
   conferirMatriculaMiddleware("matricula"),
   validarEnsaioMiddleware(ensaioSchema, schemasPorTipo),
+  verificarRelacionamentoMiddleware,
   homeAdicionarEnsaioComponenteController
 );
 

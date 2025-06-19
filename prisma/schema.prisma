@@ -92,6 +92,7 @@ model Foto {
 
   ensaio   Ensaio @relation(fields: [ensaioId], references: [id])
   ensaioId Int
+  
 
   equipamento   Equipamento @relation(fields: [equipamentoId], references: [id])
   equipamentoId Int
@@ -107,10 +108,9 @@ model Subestacao {
   ordem   Ordem  @relation(fields: [ordemOs], references: [numeroOs], onDelete: Cascade)
   ordemOs String
 
-  componentes  Componente[] // Subestação possui vários componentes
-  recomendacao Recomendacao[]
-
-  foto Foto[]
+  componentes             Componente[] // Subestação possui vários componentes
+  recomendacao            Recomendacao[]
+  foto                    Foto[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -149,9 +149,8 @@ model Componente {
   subestacaoId Int
 
   ensaio Ensaio[]
-
-  foto         Foto[]
-  recomendacao Recomendacao[]
+  foto                      Foto[]
+  recomendacao              Recomendacao[]
 
   @@unique([numeroSerie])
 }
@@ -179,8 +178,8 @@ model Equipamento {
   modelo      String
   numeroSerie String @unique
 
-  ensaio Ensaio[] @relation("EquipamentosUsados")
 
+  ensaio   Ensaio[]
   foto Foto[]
 
   createdAt DateTime @default(now())
@@ -211,19 +210,20 @@ model Recomendacao {
   updatedAt DateTime @updatedAt
 }
 
+
 model Ensaio {
-  id           Int            @id @default(autoincrement())
+  id           Int          @id @default(autoincrement())
   tipo         TipoComponente
   dados        Json
-  componente   Componente?    @relation(fields: [componenteId], references: [id], onDelete: Cascade)
+  componente   Componente?  @relation(fields: [componenteId], references: [id], onDelete: Cascade)
   componenteId Int?
 
   responsavelMatricula Int
 
-  equipamentoUsado Equipamento[] @relation("EquipamentosUsados")
-  fotos            Foto[]
-  createdAt        DateTime      @default(now())
-  updatedAt        DateTime      @updatedAt
+  equipamentoUsado Equipamento[]
+  fotos       Foto[]
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
 
   @@unique([tipo, componenteId])
 }

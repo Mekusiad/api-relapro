@@ -1,3 +1,5 @@
+import bcrypt from "bcrypt";
+
 import { PrismaClient } from "@prisma/client";
 import { conferirMatriculas } from "../utils/conferirMatriculas.js";
 import {
@@ -56,7 +58,8 @@ export const homeInfo = async (req, res) => {
     };
   }
   // Carrega estatísticas baseadas no filtro
-  const [abertas, andamento, finalizadas, ordens] = await Promise.all([
+  const [totalOs, abertas, andamento, finalizadas, ordens] = await Promise.all([
+    prisma.ordem.count(),
     prisma.ordem.count({ where: { ...filtroOrdens, status: "ABERTA" } }),
     prisma.ordem.count({ where: { ...filtroOrdens, status: "EM_ANDAMENTO" } }),
     prisma.ordem.count({ where: { ...filtroOrdens, status: "FINALIZADA" } }),
@@ -64,13 +67,11 @@ export const homeInfo = async (req, res) => {
       where: filtroOrdens,
       select: {
         id: true,
-        descricaoInicial: true,
         numeroOs: true,
         cliente: true,
         status: true,
         previsaoInicio: true,
         previsaoTermino: true,
-        createdAt: true,
       },
       orderBy: { createdAt: "desc" },
       take: 10, // opcional: limitar a 10 últimas ordens
@@ -78,6 +79,7 @@ export const homeInfo = async (req, res) => {
   ]);
 
   estatisticasOS = {
+    totalOs,
     abertas,
     andamento,
     finalizadas,
@@ -93,6 +95,7 @@ export const homeInfo = async (req, res) => {
       nivelAcesso: funcionario.nivelAcesso,
       supervisor: funcionario.supervisor,
       tecnico: funcionario.tecnico,
+      createdAt: funcionario.createdAt,
       estatisticasOS,
       ordens,
     },
@@ -120,6 +123,8 @@ export const registrarFuncionario = async (req, res) => {
       .status(400)
       .json({ status: false, message: "Usuário existente, tente outra." });
 
+  // 🔐 Gera hash da senha
+  const senhaHash = await bcrypt.hash(data.senha, 10); // 10 = salt rounds
   await prisma.funcionario.create({
     data: {
       nome: data.nome,
@@ -127,7 +132,7 @@ export const registrarFuncionario = async (req, res) => {
       matricula: data.matricula,
       cargo: data.cargo,
       admissao: new Date(data.admissao),
-      senha: data.senha,
+      senha: senhaHash,
       nivelAcesso: data.nivelAcesso || "TECNICO",
     },
   });
@@ -837,7 +842,11 @@ export const detalharOrdemFuncionario = async (req, res) => {
 
   const ordem = await prisma.ordem.findUnique({
     where: { numeroOs },
-    include: { tecnico: true, supervisor: true, subestacoes: true },
+    include: {
+      tecnico: { select: { nome: true, matricula: true } },
+      supervisor: { select: { nome: true, matricula: true } },
+      subestacoes: { include: { componentes: { include: { ensaio: true } } } },
+    },
   });
 
   if (!ordem) {
@@ -1159,21 +1168,10 @@ export const excluirComponenteNaOs = async (req, res) => {
 // };
 
 export const adicionarEnsaioComponente = async (req, res) => {
-  const { matricula, numeroOs, subestacaoId, componenteId } =
-    req.validatedData.params;
-  const { tipo, data, equipamentoUsado } = req.validatedData.body;
-  console.log(data);
+  const { matricula, componenteId } = req.validatedData.params;
+  const { tipo, data } = req.validatedData.body;
 
-  const componenteExist = await prisma.componente.findUnique({
-    where: { id: Number(componenteId) },
-  });
-
-  if (!componenteExist)
-    return res.status(404).json({
-      status: false,
-      message: "Componente não encontrado ou foi excluído.",
-    });
-
+  // Verifica se já existe um ensaio do mesmo tipo para o componente
   const existeEnsaio = await prisma.ensaio.findFirst({
     where: {
       tipo,
@@ -1187,25 +1185,31 @@ export const adicionarEnsaioComponente = async (req, res) => {
       message: `Já existe um ensaio do tipo '${tipo}' para este componente.`,
     });
 
-  if (
-    !Array.isArray(equipamentoUsado) ||
-    equipamentoUsado.some((id) => typeof id !== "number")
-  ) {
-    return res.status(400).json({
-      status: false,
-      message: "Equipamentos inválidos.",
-    });
-  }
+  // 3. Verifica se o tipo do ensaio é compatível com o tipo do componente
+  const componente = await prisma.componente.findFirst({
+    where: { id: Number(componenteId) },
+    select: { tipo: true },
+  });
 
+  if (!componente)
+    return res.status(403).json({
+      status: false,
+      message: "Componente não encontrado ou foi excluído.",
+    });
+
+  if (tipo !== componente.tipo)
+    return res.status(409).json({
+      status: false,
+      message: `Tipo de ensaio '${tipo}' não compatível com o componente de tipo '${componente.tipo}'.`,
+    });
+
+  // 4. Cria o ensaio
   await prisma.ensaio.create({
     data: {
       dados: data,
       componente: { connect: { id: Number(componenteId) } },
       responsavelMatricula: Number(matricula),
       tipo,
-      equipamentoUsado: {
-        connect: equipamentoUsado.map((id) => ({ id })),
-      },
     },
   });
 

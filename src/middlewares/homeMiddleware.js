@@ -33,7 +33,7 @@ export const registrarFuncionarioMiddleware = (schema, source = "body") => {
       return res.status(400).json({
         status: false,
         message: "Erro de validação.",
-        errors: result.error.format(),
+        errors: result.error.format()
       });
     }
 

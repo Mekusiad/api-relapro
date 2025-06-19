@@ -437,7 +437,7 @@ export const ensaioSchema = z
         "TRAFO_POTENCIA",
         "TRAFO_CORRENTE",
         "DISJUNTOR",
-        "RESISTOR_ATERRAMENTO",
+        "RESISTOR",
         "CHAVE_SECCIONADORA",
         "MALHA_ATERRAMENTO",
         "MEDICAO_CABO_MUFLA",
@@ -454,7 +454,7 @@ export const ensaioSchema = z
           .max(5, "OS deve possuir no máximo 5 dígitos.")
       ),
       foto: z.array(z.string().url()).optional(),
-    }),
+    }).strict(),
     params: z.object({
       matricula: z.string().regex(/^\d+$/), // ou .transform(Number) se preferir
       numeroOs: z
@@ -771,17 +771,17 @@ const resistorAterramentoSchema = z
     resistenciaNominal: z
       .number()
       .min(1, "Minimo 1 dígito")
-      .max(4, "Máximo 4 dígitos.")
+      .max(50, "Máximo 50 dígitos.")
       .optional(),
     resistenciaOhmicaMedida: z
       .number()
       .min(1, "Minimo 1 dígito")
-      .max(4, "Máximo 4 dígitos.")
+      .max(50, "Máximo 50 dígitos.")
       .optional(),
     resistenciaIsolamento: z
       .number()
       .min(1, "Minimo 1 dígito")
-      .max(4, "Máximo 4 dígitos.")
+      .max(10000, "Máximo 10000 dígitos.")
       .optional(),
     observacao: z
       .string()
@@ -1116,7 +1116,7 @@ export const schemasPorTipo = {
   TRAFO_POTENCIA: trafoPotenciaSchema,
   TRAFO_CORRENTE: trafoCorrenteSchema,
   DISJUNTOR: disjuntorSchema,
-  RESISTOR_ATERRAMENTO: resistorAterramentoSchema,
+  RESISTOR: resistorAterramentoSchema,
   CHAVE_SECCIONADORA: chaveSeccionadoraSchema,
   MALHA_ATERRAMENTO: malhaAterramentoSchema,
   MEDICAO_CABO_MUFLA: caboMuflaSchema,

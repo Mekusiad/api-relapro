@@ -1,11 +1,13 @@
-import { PrismaClient } from "../src/generated/prisma/index.js";
+import bcrypt from "bcrypt";
+
+import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
 async function main() {
-  await prisma.componente.deleteMany();
-  await prisma.ordem.deleteMany();
   await prisma.funcionario.deleteMany();
+  await prisma.ordem.deleteMany();
+  await prisma.componente.deleteMany();
   // Cria Admin
 
   const admin = await prisma.funcionario.create({
@@ -15,7 +17,7 @@ async function main() {
       matricula: 111,
       cargo: "admin",
       admissao: "2025-04-01T00:00:00Z",
-      senha: "admin123",
+      senha: await bcrypt.hash("admin123", 10),
       nivelAcesso: "ADMIN",
     },
   });
@@ -27,7 +29,7 @@ async function main() {
       matricula: 1,
       cargo: "Auxiliar Administrativo",
       admissao: "2025-04-01T00:00:00Z",
-      senha: "mauro123",
+      senha: await bcrypt.hash("mauro123", 10),
       nivelAcesso: "ADMIN",
     },
   });
@@ -39,7 +41,7 @@ async function main() {
       matricula: 2,
       cargo: "Auxiliar Administrativo",
       admissao: "2023-06-28T00:00:00Z",
-      senha: "diego123",
+      senha: await bcrypt.hash("diego123", 10),
       nivelAcesso: "ADMIN",
     },
   });
@@ -52,7 +54,7 @@ async function main() {
       matricula: 333,
       cargo: "tecnico",
       admissao: "2020-04-01T00:00:00Z",
-      senha: "tecnico123",
+      senha: await bcrypt.hash("tecnico123", 10),
       nivelAcesso: "TECNICO",
     },
   });
@@ -64,7 +66,7 @@ async function main() {
       matricula: 3,
       cargo: "Assistente de Serviços Técnicos",
       admissao: "2020-04-01T00:00:00Z",
-      senha: "manuel123",
+      senha: await bcrypt.hash("manuel123", 10),
       nivelAcesso: "TECNICO",
     },
   });
@@ -76,7 +78,7 @@ async function main() {
       matricula: 4,
       cargo: "Assistente de Serviços Técnicos",
       admissao: "2023-04-01T00:00:00Z",
-      senha: "francisco123",
+      senha: await bcrypt.hash("francisco123", 10),
       nivelAcesso: "TECNICO",
     },
   });
@@ -88,7 +90,7 @@ async function main() {
       matricula: 5,
       cargo: "Auxiliar de Serviços Técnicos",
       admissao: "2024-04-01T00:00:00Z",
-      senha: "lucas123",
+      senha: await bcrypt.hash("lucas123", 10),
       nivelAcesso: "TECNICO",
     },
   });
@@ -102,7 +104,7 @@ async function main() {
       matricula: 222,
       cargo: "supervisor",
       admissao: "1995-04-01T00:00:00Z",
-      senha: "supervisor123",
+      senha: await bcrypt.hash("supervisor123", 10),
       nivelAcesso: "SUPERVISOR",
     },
   });
@@ -114,7 +116,7 @@ async function main() {
       matricula: 6,
       cargo: "Analista de Serviços Técnicos III",
       admissao: "1995-04-01T00:00:00Z",
-      senha: "cesar123",
+      senha: await bcrypt.hash("supervisor123", 10),
       nivelAcesso: "SUPERVISOR",
     },
   });
@@ -126,7 +128,7 @@ async function main() {
       matricula: 7,
       cargo: "Assistente de Serviços Técnicos III",
       admissao: "1995-06-02T00:00:00Z",
-      senha: "aluisio123",
+      senha: await bcrypt.hash("aluisio123", 10),
       nivelAcesso: "SUPERVISOR",
     },
   });
@@ -209,7 +211,23 @@ async function main() {
     },
   });
 
-  // Cria um equipamento
+  // Cria componente
+  await prisma.componente.create({
+    data: {
+      nomeEquipamento: "TRANSFORMADOR DE CORRENTE",
+      tipo: "TRAFO_CORRENTE",
+      subestacao: { connect: { id: subestacao1.id } },
+    },
+  });
+
+  await prisma.componente.create({
+    data: {
+      nomeEquipamento: "RESISTOR DE ATERRAMENTO",
+      tipo: "RESISTOR",
+      subestacao: { connect: { id: subestacao1.id } },
+    },
+  });
+
   await prisma.componente.create({
     data: {
       nomeEquipamento: "TRANFORMADOR DE POTÊNCIA",
