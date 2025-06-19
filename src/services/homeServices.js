@@ -1,7 +1,6 @@
 import bcrypt from "bcrypt";
 
 import { PrismaClient } from "@prisma/client";
-import { conferirMatriculas } from "../utils/conferirMatriculas.js";
 import {
   adicionarTecnicoSchema,
   atualizaStatusSchema,
@@ -1222,12 +1221,8 @@ export const listarEnsaioComponente = async (req, res) => {};
 
 // Não fiz ainda
 export const excluirEnsaioComponente = async (req, res) => {
-  const { funcionarioMatricula, funcionarioNivelAcesso } = req;
+  const { funcionarioNivelAcesso } = req;
   const { matricula, subestacaoId, componenteId, ensaioId } = req.params;
-
-  // Se não der certo, redirecionar para o login e deslogar
-  if (!conferirMatriculas(matricula, funcionarioMatricula))
-    return res.status(403).json({ status: false, message: "Acesso negado." });
 
   if (funcionarioNivelAcesso.toString().toUpperCase() !== "ADMIN")
     return res.status(401).json({
