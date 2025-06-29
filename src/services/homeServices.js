@@ -301,7 +301,7 @@ export const atualizarDadosFuncionario = async (req, res) => {
 
   const dadosAtualizados = await prisma.funcionario.update({
     where: { matricula: outraMatricula },
-    ...data,
+    data,
   });
 
   if (!dadosAtualizados)
