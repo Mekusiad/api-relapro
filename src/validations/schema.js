@@ -287,10 +287,11 @@ export const atualizarOrdemSchema = z.object({
         .string()
         .datetime({ message: "Data de início inválida" })
         .optional(),
-      previsaoTermino: z
-        .string()
-        .datetime({ message: "Data de início inválida" })
+      previsaoTermino: z.coerce
+        .date({ message: "Data de término inválida" })
+        .nullable()
         .optional(),
+
       status: z
         .enum(["ABERTA", "EM_ANDAMENTO", "AGUARDANDO_PECAS", "FINALIZADA"])
         .optional(),
