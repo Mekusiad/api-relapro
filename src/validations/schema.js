@@ -37,7 +37,10 @@ export const atualizarDadosFuncionarioSchema = z
   .object({
     nome: z.string().min(3).optional(),
     usuario: z.string().min(3).optional(),
-    matricula: z.string().max(1000, "Máximo de 1000 caracteres.").optional(),
+    matricula: z.coerce
+      .string()
+      .max(1000, "Máximo de 1000 caracteres.")
+      .optional(),
     cargo: z.string().min(2).optional(),
     admissao: z
       .string()
