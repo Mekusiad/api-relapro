@@ -55,7 +55,6 @@ export const validateReq = (schema, source = "body") => {
     }
 
     const result = schema.safeParse(data);
-    console.log(JSON.stringify(result));
     if (!result.success) {
       return res.status(400).json({
         status: false,
@@ -77,7 +76,6 @@ export const validateGenerico = (schema) => {
       params: req.params,
       query: req.query,
     });
-    console.log(JSON.stringify(result));
     if (!result.success) {
       return res.status(400).json({
         status: false,
@@ -93,7 +91,7 @@ export const validateGenerico = (schema) => {
 
 export const validarEnsaioMiddleware = (ensaioSchema, schemasPorTipo) => {
   return (req, res, next) => {
-    console.log("Entrou no conferirMatriculaMiddleware");
+    console.log("Entrou no validarEnsaioMiddleware");
 
     const dadosRequisicao = {
       body: req.body,
@@ -102,6 +100,8 @@ export const validarEnsaioMiddleware = (ensaioSchema, schemasPorTipo) => {
     };
 
     const parsed = ensaioSchema.safeParse(dadosRequisicao);
+
+    console.log(JSON.stringify(parsed));
     if (!parsed.success) {
       return res.status(400).json({
         status: false,

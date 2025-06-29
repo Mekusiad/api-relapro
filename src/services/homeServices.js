@@ -26,6 +26,7 @@ export const atualizarDadosPrincipaisOs = async (req, res) => {
           numeroOrcamento: osDataFromFrontend.numeroOrcamento,
           tipoServico: osDataFromFrontend.tipoServico,
           previsaoInicio: osDataFromFrontend.previsaoInicio,
+          previsaoTermino: osDataFromFrontend.previsaoTermino,
           status: osDataFromFrontend.status,
           descricaoInicial: osDataFromFrontend.descricaoInicial,
           observacoes: osDataFromFrontend.observacoes,
@@ -34,9 +35,9 @@ export const atualizarDadosPrincipaisOs = async (req, res) => {
               matricula,
             })),
           },
-          supervisor: {
-            connect: { matricula: osDataFromFrontend.supervisor },
-          },
+          // supervisor: {
+          //   connect: { matricula: osDataFromFrontend.supervisor },
+          // },
         },
       });
 
@@ -272,6 +273,9 @@ export const registrarFuncionario = async (req, res) => {
       .status(400)
       .json({ status: false, message: "Usuário existente, tente outra." });
 
+  const saltRounds = 10;
+  const hashSenha = await bcrypt.hash(data.senha, saltRounds);
+
   await prisma.funcionario.create({
     data: {
       nome: data.nome,
@@ -279,7 +283,7 @@ export const registrarFuncionario = async (req, res) => {
       matricula: data.matricula,
       cargo: data.cargo,
       admissao: new Date(),
-      senha: data.senha,
+      senha: hashSenha,
       nivelAcesso: data.nivelAcesso || "TECNICO",
     },
   });
@@ -496,16 +500,16 @@ export const criarOs2 = async (req, res) => {
   }
 
   // Valida supervisor
-  const supervisorExiste = await prisma.funcionario.findUnique({
-    where: { matricula: data.supervisor },
-  });
+  // const supervisorExiste = await prisma.funcionario.findUnique({
+  //   where: { matricula: data?.supervisor },
+  // });
 
-  if (!supervisorExiste) {
-    return res.status(404).json({
-      status: false,
-      message: `Supervisor com matrícula ${data.supervisor} não encontrado.`,
-    });
-  }
+  // if (!supervisorExiste) {
+  //   return res.status(404).json({
+  //     status: false,
+  //     message: `Supervisor com matrícula ${data.supervisor} não encontrado.`,
+  //   });
+  // }
 
   // Valida técnicos
   if (data.tecnico && data.tecnico.length > 0) {
@@ -555,9 +559,9 @@ export const criarOs2 = async (req, res) => {
       localServico: data.localServico,
       descricaoInicial: data.descricaoInicial,
       previsaoInicio: previsaoInicioDate,
-      supervisor: {
-        connect: { matricula: String(data.supervisor) },
-      },
+      // supervisor: {
+      //   connect: { matricula: String(data.supervisor) },
+      // },
       ...(data?.tecnico?.length > 0 && {
         tecnico: {
           connect: data.tecnico.map((matricula) => ({
@@ -565,10 +569,10 @@ export const criarOs2 = async (req, res) => {
           })),
         },
       }),
-      status: data.status || "ABERTA",
+      status: data?.status || "ABERTA",
     },
     include: {
-      supervisor: { select: { nome: true, matricula: true } },
+      // supervisor: { select: { nome: true, matricula: true } },
       tecnico: { select: { nome: true, matricula: true } },
     },
   });
@@ -1197,7 +1201,7 @@ export const adicionarEnsaioComponente = async (req, res) => {
     params: { matricula, componenteId },
     body: { tipo, dados, engenheiro, equipamentosUtilizados, foto },
   } = req.validatedData;
-
+  console.log(dados);
   try {
     await prisma.$transaction(async (tx) => {
       const dadosParaSalvar = {

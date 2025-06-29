@@ -7,10 +7,10 @@ export const loginSchema = z.object({
 
 export const homeInfoSchema = z
   .object({
-    funcionarioMatricula: z.preprocess(
-      (val) => String(val).trim(),
-      z.string().regex(/^\d+$/, "A matrícula deve conter apenas números")
-    ),
+    funcionarioMatricula: z
+      .string()
+      .min(1, "Obrigatório enviar matrícula.")
+      .max(100, "Máximo de 100 caracteres."),
   })
   .strict();
 
@@ -66,19 +66,14 @@ export const excluirFuncionarioSchema = z
 
 export const listarFuncionariosSchema = z
   .object({
-    matricula: z
-      .string()
-      .regex(/^\d+$/, "A matrícula deve conter apenas números"),
+    matricula: z.string().max(100, "Máximo de 100 caracteres"),
   })
   .strict();
 
 export const listarOrdensDoFuncionarioSchema = {
   params: z
     .object({
-      matricula: z
-        .string()
-        .regex(/^\d+$/, "A matrícula deve conter apenas números.")
-        .transform(Number),
+      matricula: z.string().max(100, "Máximo de 100 caracteres"),
     })
     .strict(),
 
@@ -138,9 +133,17 @@ export const criarOrdemSchema = z
     descricaoInicial: z
       .string()
       .min(1, "Obrigatório informar a descrição inicial do serviço."),
-    previsaoInicio: z.string().refine((val) => !isNaN(Date.parse(val)), {
-      message: "Data inválida",
-    }),
+    previsaoInicio: z.string().refine(
+      (data) => {
+        const hoje = new Date();
+        hoje.setHours(0, 0, 0, 0);
+        const dataRecebida = new Date(data);
+        return dataRecebida >= hoje;
+      },
+      {
+        message: "A data de início não pode ser anterior ao dia de hoje.",
+      }
+    ),
 
     status: z
       .string()
@@ -151,7 +154,9 @@ export const criarOrdemSchema = z
           message: "Status inválido.",
         }
       ),
-    observacoes: z.string().max(150, "Máximo de 150 caracteres").optional(),
+    conclusao: z.string().max(1000, "Máximo de 1000 caracteres").optional(),
+    recomendacao: z.string().max(1000, "Máximo de 1000 caracteres").optional(),
+    observacoes: z.string().max(10000, "Máximo de 10000 caracteres").optional(),
     subestacoes: z.array(z.any()),
     supervisor: z.string().max(100, "Máximo de 100 caracteres.").optional(),
     tecnico: z.string().max(100, "Máximo de 100 caracteres.").optional(),
@@ -202,7 +207,7 @@ export const criarOrdemComSubestacoesSchema = z
           message: "Status inválido.",
         }
       ),
-    observacoes: z.string().max(150, "Máximo de 150 caracteres").optional(),
+    observacoes: z.string().max(10000, "Máximo de 10000 caracteres").optional(),
 
     subestacoes: z
       .array(
@@ -282,7 +287,13 @@ export const atualizarOrdemSchema = z.object({
         .string()
         .datetime({ message: "Data de início inválida" })
         .optional(),
-      status: z.enum(["ABERTA", "EM_ANDAMENTO", "CONCLUIDA"]).optional(),
+      previsaoTermino: z
+        .string()
+        .datetime({ message: "Data de início inválida" })
+        .optional(),
+      status: z
+        .enum(["ABERTA", "EM_ANDAMENTO", "AGUARDANDO_PECAS", "FINALIZADA"])
+        .optional(),
       descricaoInicial: z
         .string()
         .max(100, "Descrição é obrigatória")
@@ -389,10 +400,7 @@ export const adicionarSubestacaoSchema = z.object({
 
 export const listarSubestacaoSchema = z
   .object({
-    matricula: z
-      .string()
-      .regex(/^\d+$/, "A matrícula deve conter apenas números.")
-      .transform(Number),
+    matricula: z.string().min(1, "Obrigatório informar matrícula."),
     numeroOs: z.string().min(1, "Número da OS é obrigatório."),
   })
   .strict();
@@ -401,7 +409,7 @@ export const removerSubestacaoSchema = z
   .object({
     matricula: z
       .string()
-      .regex(/^\d+$/, "A matrícula deve conter apenas números.")
+      .min(1, "Obrigatório informar matrícula.")
       .transform(Number),
     numeroOs: z.string().min(1, "Número da OS é obrigatório."),
     subestacaoId: z
@@ -415,7 +423,7 @@ export const atualizarDadosSubestacaoSchema = z
   .object({
     matricula: z
       .string()
-      .regex(/^\d+$/, "A matrícula deve conter apenas números.")
+      .min(1, "Obrigatório informar matrícula.")
       .transform(Number),
     numeroOs: z.string().min(1, "Número da OS é obrigatório."),
     subestacaoId: z
@@ -427,20 +435,14 @@ export const atualizarDadosSubestacaoSchema = z
 
 export const detalharOrdemFuncionarioSchema = z
   .object({
-    matricula: z
-      .string()
-      .regex(/^\d+$/, "A matrícula deve conter apenas números.")
-      .transform(Number),
+    matricula: z.string().min(1, "Obrigatório informar matrícula."),
     numeroOs: z.string().min(1, "Número da OS é obrigatório."),
   })
   .strict();
 
 export const listarComponentesDaSubestacaoSchema = z
   .object({
-    matricula: z
-      .string()
-      .regex(/^\d+$/, "A matrícula deve conter apenas números.")
-      .transform(Number),
+    matricula: z.string().min(1, "Obrigatório informar matrícula."),
     numeroOs: z.string().min(1, "Número da OS é obrigatório."),
     subestacaoId: z
       .string()
@@ -562,14 +564,8 @@ export const excluirComponenteSchema = z.object({
 });
 
 export const buscarFuncionarioPorMatriculaSchema = z.object({
-  matricula: z
-    .string()
-    .regex(/^\d+$/, "A matrícula deve conter apenas números.")
-    .transform(Number),
-  outraMatricula: z
-    .string()
-    .regex(/^\d+$/, "A matrícula deve conter apenas números.")
-    .transform(Number),
+  matricula: z.string().max(100, "Máximo de 100 caracteres."),
+  outraMatricula: z.string().max(100, "Máximo de 100 caracteres."),
 });
 
 export const cadastrarEquipamentoSchema = z.object({
@@ -596,10 +592,7 @@ export const atualizarEquipamentoSchema = z.object({
     .strict(),
   params: z
     .object({
-      matricula: z
-        .string()
-        .regex(/^\d+$/, "A matrícula deve conter apenas números.")
-        .transform(Number),
+      matricula: z.string().min(1, "Obrigatório informar matrícula."),
       equipamentoId: z
         .string()
         .regex(/^\d+$/, "Id do equipamento deve conter apenas números.")
@@ -611,10 +604,7 @@ export const atualizarEquipamentoSchema = z.object({
 export const removerEquipamentoSchema = z.object({
   params: z
     .object({
-      matricula: z
-        .string()
-        .regex(/^\d+$/, "A matrícula deve conter apenas números.")
-        .transform(Number),
+      matricula: z.string().min(1, "Obrigatório informar matrícula."),
       equipamentoId: z
         .string()
         .regex(/^\d+$/, "Id do equipamento deve conter apenas números.")
@@ -626,10 +616,7 @@ export const removerEquipamentoSchema = z.object({
 export const listarEquipamentosSchema = z.object({
   params: z
     .object({
-      matricula: z
-        .string()
-        .regex(/^\d+$/, "A matrícula deve conter apenas números.")
-        .transform(Number),
+      matricula: z.string().min(1, "Obrigatório informar matrícula."),
     })
     .strict(),
 });
@@ -678,7 +665,7 @@ export const ensaioSchema = z
       })
       .strict(),
     params: z.object({
-      matricula: z.string().regex(/^\d+$/),
+      matricula: z.string().min(1, "É obrigatório informar matrícula."),
       numeroOs: z
         .string()
         .min(1, "OS deve possuir no mínimo 1 dígito.")
