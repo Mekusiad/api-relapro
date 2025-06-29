@@ -1,7 +1,8 @@
 export const conferirMatriculaMiddleware = (paramsName = "matricula") => {
   return (req, res, next) => {
-    const decodedMatricula = Number(req.funcionarioMatricula);
-    const paramsMatricula = Number(req.params[paramsName]);
+    console.log("Entrou no conferirMatriculaMiddleware");
+    const decodedMatricula = req.funcionarioMatricula;
+    const paramsMatricula = req.params[paramsName];
 
     if (decodedMatricula !== paramsMatricula) {
       return res.status(403).json({

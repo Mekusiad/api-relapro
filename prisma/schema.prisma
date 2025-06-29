@@ -6,26 +6,26 @@
 
 generator client {
   provider = "prisma-client-js"
+}
   // output   = "../src/generated/prisma"
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
 
 // datasource db {
-//   provider = "postgresql"
-//   url      = env("DATABASE_URL")
+//   provider = "sqlite"
+//   url      = "file:./dev.db" // cria o banco local aqui
 // }
-
-datasource db {
-  provider = "sqlite"
-  url      = "file:./dev.db" // cria o banco local aqui
-}
 
 model Funcionario {
   id          Int         @id @default(autoincrement())
   nome        String
-  matricula   Int         @unique
+  matricula   String      @unique
   usuario     String      @unique
   cargo       String
-  admissao    DateTime
+  admissao    DateTime    @default(now())
   senha       String
   nivelAcesso NivelAcesso
   supervisor  Ordem[]     @relation("SupervisorOrdem")
@@ -35,6 +35,7 @@ model Funcionario {
   updatedAt DateTime @updatedAt
 
   foto Foto[]
+  ensaio  Ensaio[]
 }
 
 enum NivelAcesso {
@@ -53,21 +54,34 @@ model Ordem {
   email            String
   localServico     String
   descricaoInicial String
+  tipoServico      TipoServico
   status           StatusOrdem
   previsaoInicio   DateTime
+  observacoes      String?
   previsaoTermino  DateTime?
   createdAt        DateTime    @default(now())
   updatedAt        DateTime    @updatedAt
 
   // Supervisor: apenas um
   supervisor          Funcionario? @relation("SupervisorOrdem", fields: [supervisorMatricula], references: [matricula], onDelete: Cascade)
-  supervisorMatricula Int?
+  supervisorMatricula String?
 
   // Técnicos: vários
   tecnico Funcionario[] @relation("TecnicoOrdem")
 
   subestacoes Subestacao[]
+  foto Foto[]
 }
+
+enum TipoServico {
+ MANUTENCAO_PREVENTIVA
+ MANUTENCAO_CORRETIVA
+ MANUTENCAO_PREDITIVA
+ ENSAIO_EPI
+ INSPECAO
+ INSTALACAO
+ OUTROS
+ }
 
 enum StatusOrdem {
   ABERTA
@@ -81,6 +95,9 @@ model Foto {
   fotoUrl   String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  ordem   Ordem  @relation(fields: [ordemOs], references: [numeroOs], onDelete: Cascade)
+  ordemOs String
 
   componente   Componente @relation(fields: [componenteId], references: [id])
   componenteId Int
@@ -105,9 +122,11 @@ model Foto {
 model Subestacao {
   id   Int    @id @default(autoincrement())
   nome String // Nome ou código da subestação
+  observacoesTecnicasSubestacao   String?
 
   ordem   Ordem  @relation(fields: [ordemOs], references: [numeroOs], onDelete: Cascade)
   ordemOs String
+  observacao String?
 
   componentes             Componente[] // Subestação possui vários componentes
   recomendacao            Recomendacao[]
@@ -122,25 +141,33 @@ model Componente {
   nomeEquipamento    String
   cliente            String?
   tag                String?
+  identificacao      String?
   localizacao        String?
   tipo               TipoComponente
   modelo             String?
   fabricante         String?
   numeroSerie        String?
+  quantidade         Int      @default(1)
   meioIsolante       String?
   anoFabricacao      Int?
   massaTotal         Float?
   potencia           String?
-  tipoTensaoAt       String?
+  correnteNominal    Float?
+  correntePrimario   Float?
+  correnteSecundario Float?
+  tensaoNominal      Float?
+  tipoTensaoAt       TipoTensao?
   tensaoAt           Float?
-  tipoTensaoBt       String?
-  tensaoBt           Float?
+  tipoTensaoBt       TipoTensao?
+  tensaoBt           String?
   volumeOleoIsolante Float?
   temperaturaEnsaio  Float?
+  impedancia         Float?
+  frequencia         Float?
   umidadeRelativaAr  Float?
   exatidao           Float?
   circuito           Float?
-  tipoPressao        String?
+  tipoPressao        TipoPressao?
   pressao            Float?
   bitolaCabo         Float?
   createdAt          DateTime       @default(now())
@@ -153,7 +180,18 @@ model Componente {
   foto                      Foto[]
   recomendacao              Recomendacao[]
 
-  @@unique([numeroSerie])
+  
+}
+
+enum TipoTensao {
+X
+Y
+NA
+}
+
+enum TipoPressao {
+GAS
+OLEO
 }
 
 enum TipoComponente {
@@ -213,18 +251,27 @@ model Recomendacao {
 
 
 model Ensaio {
-  id           Int          @id @default(autoincrement())
-  tipo         TipoComponente
-  dados        Json
-  componente   Componente?  @relation(fields: [componenteId], references: [id], onDelete: Cascade)
-  componenteId Int?
+  id                      Int      @id @default(autoincrement())
+  tipo                    TipoComponente
+  dados                   Json
+  dataEnsaio              DateTime?
+  engenheiroResponsavel   String?
+  equipamentosUtilizados  Json? // Vamos manter este como JSON para simplificar
 
-  responsavelMatricula Int
+  // --- RELAÇÕES CORRIGIDAS ---
+  componente              Componente @relation(fields: [componenteId], references: [id], onDelete: Cascade)
+  componenteId            Int
 
-  equipamentoUsado Equipamento[]
-  fotos       Foto[]
-  createdAt   DateTime      @default(now())
-  updatedAt   DateTime      @updatedAt
+  // Relação correta com Funcionário
+  responsavel             Funcionario? @relation(fields: [responsavelMatricula], references: [matricula])
+  responsavelMatricula    String? // CORRIGIDO: para corresponder ao tipo em Funcionario
+
+
+  equipamento   Equipamento[]
+  fotos                   Foto[] // A sua relação com Foto (já estava correta)
+  
+  createdAt               DateTime  @default(now())
+  updatedAt               DateTime  @updatedAt
 
   @@unique([tipo, componenteId])
 }

@@ -1,18 +1,21 @@
+// Arquivo: src/services/loginServices.js (VERSÃO LIMPA E FINAL)
+
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
-
 import { PrismaClient } from "@prisma/client";
-
 import { loginSchema } from "../validations/schema.js";
 
 const prisma = new PrismaClient();
 
 export const loginService = async (req, res) => {
   const validateLogin = loginSchema.safeParse(req.body);
-  if (!validateLogin.success)
-    return res
-      .status(400)
-      .json({ status: false, message: "Erro de validação.", error:validateLogin });
+  if (!validateLogin.success) {
+    return res.status(400).json({
+      status: false,
+      message: "Erro de validação.",
+      error: validateLogin.error,
+    });
+  }
 
   const { usuario, senha } = req.body;
 
@@ -20,15 +23,16 @@ export const loginService = async (req, res) => {
     where: { usuario },
   });
 
-  if (!funcionarioExiste)
+  if (!funcionarioExiste) {
     return res
       .status(401)
       .json({ status: false, message: "Usuário ou senha incorreto." });
+  }
 
   // 🔐 Compara senha digitada com hash salvo
   const senhaCorreta = await bcrypt.compare(senha, funcionarioExiste.senha);
 
-    if (!senhaCorreta)
+  if (!senhaCorreta)
     return res
       .status(401)
       .json({ status: false, message: "Usuário ou senha incorreto." });
@@ -42,9 +46,16 @@ export const loginService = async (req, res) => {
     { expiresIn: "8h" }
   );
 
-  res.status(200).json({
+ 
+  return res.status(200).json({
     status: true,
     message: "Usuário logado com sucesso",
     token,
+    // user: {
+    //   id: funcionarioExiste.id,
+     //  nome: funcionarioExiste.nome,
+     //  matricula: funcionarioExiste.matricula,
+     //  nivelAcesso: funcionarioExiste.nivelAcesso,
+  //  },
   });
 };

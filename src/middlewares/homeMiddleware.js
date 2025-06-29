@@ -15,7 +15,7 @@ export const homeInfoMiddleware = (schema, source = "body") => {
     if (!result.success) {
       return res.status(400).json({
         status: false,
-        message: "Erro de validação.",
+        message: `Erro de validação .`,
         errors: result.error.format(),
       });
     }
@@ -33,7 +33,7 @@ export const registrarFuncionarioMiddleware = (schema, source = "body") => {
       return res.status(400).json({
         status: false,
         message: "Erro de validação.",
-        errors: result.error.format()
+        errors: result.error.format(),
       });
     }
 
@@ -44,6 +44,8 @@ export const registrarFuncionarioMiddleware = (schema, source = "body") => {
 
 export const validateReq = (schema, source = "body") => {
   return (req, res, next) => {
+    console.log("Entrou no validateReq");
+
     let data;
 
     if (source === "custom") {
@@ -53,7 +55,7 @@ export const validateReq = (schema, source = "body") => {
     }
 
     const result = schema.safeParse(data);
-
+    console.log(JSON.stringify(result));
     if (!result.success) {
       return res.status(400).json({
         status: false,
@@ -68,11 +70,14 @@ export const validateReq = (schema, source = "body") => {
 
 export const validateGenerico = (schema) => {
   return (req, res, next) => {
+    console.log("Entrou no validateGenerico");
+
     const result = schema.safeParse({
       body: req.body,
       params: req.params,
       query: req.query,
     });
+    console.log(JSON.stringify(result));
     if (!result.success) {
       return res.status(400).json({
         status: false,
@@ -88,6 +93,8 @@ export const validateGenerico = (schema) => {
 
 export const validarEnsaioMiddleware = (ensaioSchema, schemasPorTipo) => {
   return (req, res, next) => {
+    console.log("Entrou no conferirMatriculaMiddleware");
+
     const dadosRequisicao = {
       body: req.body,
       params: req.params,
@@ -103,7 +110,7 @@ export const validarEnsaioMiddleware = (ensaioSchema, schemasPorTipo) => {
       });
     }
 
-    const { tipo, data } = parsed.data.body;
+    const { tipo, dados } = parsed.data.body;
     const schemaDoTipo = schemasPorTipo[tipo];
 
     if (!tipo || !schemaDoTipo) {
@@ -113,21 +120,21 @@ export const validarEnsaioMiddleware = (ensaioSchema, schemasPorTipo) => {
       });
     }
 
-    const validDados = schemaDoTipo.safeParse(data);
+    const validDados = schemaDoTipo.safeParse(dados);
 
     if (!validDados.success) {
-      console.log(validDados.error);
       return res.status(400).json({
         status: false,
         message: "Erro na validação dos dados do ensaio",
         error: validDados.error.format(),
       });
     }
+
     req.validatedData = {
-      ...parsed.data, // inclui body, params, query
+      ...parsed.data,
       body: {
         ...parsed.data.body,
-        dados: validDados.data, // dados validados e limpos
+        dados: validDados.data,
       },
     };
 

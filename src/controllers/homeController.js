@@ -1,17 +1,13 @@
 import {
   homeInfo,
-  criarOs,
   listarFuncionarios,
   adicionarComponente,
-  adicionarTecnicoNaOs,
   atualizarComponente,
-  atualizaStatusOs,
+  atualizarComponentesDaSubestacao,
   buscarFuncionarioPorMatricula,
   detalharOrdemFuncionario,
   listarComponentesDaSubestacao,
   listarOrdensDoFuncionario,
-  removerTecnicoNaOs,
-  trocarSupervisorNaOs,
   excluirFuncionario,
   registrarFuncionario,
   atualizarDadosFuncionario,
@@ -27,7 +23,9 @@ import {
   adicionarSubestacao,
   removerSubestacao,
   atualizarDadosSubestação,
+  atualizarDadosPrincipaisOs,
   listarSubestacao,
+  criarOs2,
 } from "../services/homeServices.js";
 
 import { handleError } from "../utils/errorHandler.js";
@@ -86,7 +84,7 @@ export const homeListarOrdensDoFuncionarioController = async (req, res) => {
 
 export const homeCriarOsController = async (req, res) => {
   try {
-    await criarOs(req, res);
+    await criarOs2(req, res);
   } catch (error) {
     return handleError(res, error, error.message);
   }
@@ -97,35 +95,6 @@ export const homeExcluirOsController = async (req, res) => {
     await excluirOs(req, res);
   } catch (error) {
     return handleError(res, error, error.message);
-  }
-};
-
-export const homeAtualizarOrdemController = async (req, res) => {
-  const { matricula } = req.params;
-  const data = req.body;
-
-  try {
-    switch (data.type) {
-      case "add-tecnico":
-        return await adicionarTecnicoNaOs(req, res);
-
-      case "remove-tecnico":
-        return await removerTecnicoNaOs(req, res);
-
-      case "trocar-supervisor":
-        return await trocarSupervisorNaOs(req, res);
-
-      case "atualiza-status":
-        return await atualizaStatusOs(req, res);
-
-      default:
-        return res.status(400).json({
-          status: false,
-          message: `Tipo de operação '${data.type}' não suportado.`,
-        });
-    }
-  } catch (error) {
-    return handleError(res, error, "Erro interno no servidor.");
   }
 };
 
@@ -297,6 +266,29 @@ export const homeExcluirEquipamentoController = async (req, res) => {
       res,
       error,
       "Erro interno no servidor ao excluir equipamento."
+    );
+  }
+};
+
+export const homeAtualizarDadosPrincipaisOsController = async (req, res) => {
+  try {
+    await atualizarDadosPrincipaisOs(req, res);
+  } catch (error) {
+    return handleError(res, error, "Erro ao atualizar dados da OS.");
+  }
+};
+
+export const homeAtualizarComponentesDaSubestacaoController = async (
+  req,
+  res
+) => {
+  try {
+    await atualizarComponentesDaSubestacao(req, res);
+  } catch (error) {
+    return handleError(
+      res,
+      error,
+      "Erro ao atualizar componentes da subestação."
     );
   }
 };

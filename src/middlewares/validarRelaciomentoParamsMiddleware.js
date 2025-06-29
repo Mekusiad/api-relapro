@@ -1,7 +1,9 @@
 import { verificarParamsRelacionamento } from "../utils/verificarParamsRelacionamento.js";
 
 export const verificarRelacionamentoMiddleware = async (req, res, next) => {
-  const { numeroOs, subestacaoId, componenteId } = req.validatedData.params;
+  const {
+    params: { numeroOs, subestacaoId, componenteId },
+  } = req.validatedData;
 
   const valido = await verificarParamsRelacionamento(
     numeroOs,
