@@ -37,9 +37,7 @@ export const atualizarDadosFuncionarioSchema = z
   .object({
     nome: z.string().min(3).optional(),
     usuario: z.string().min(3).optional(),
-    matricula: z
-      .preprocess((val) => Number(val), z.number().int().positive())
-      .optional(),
+    matricula: z.string().max(1000, "Máximo de 1000 caracteres.").optional(),
     cargo: z.string().min(2).optional(),
     admissao: z
       .string()
@@ -1667,13 +1665,12 @@ const chaveSeccionadoraSchema = z.object({
     .max(60, "Máximo 60 dígitos.")
     .optional(),
 
-
   resistenciaContatoA: z.number().min(1).max(1000).nullable().optional(),
   resistenciaContatoB: z.number().min(1).max(1000).nullable().optional(),
   resistenciaContatoC: z.number().min(1).max(1000).nullable().optional(),
   resistenciaIsolamentoA: z.number().min(1).max(5000).nullable().optional(),
-  resistenciaIsolamentoB: z.number().min(1).max(5000).nullable().optional(), 
-  resistenciaIsolamentoC: z.number().min(1).max(5000).nullable().optional(), 
+  resistenciaIsolamentoB: z.number().min(1).max(5000).nullable().optional(),
+  resistenciaIsolamentoC: z.number().min(1).max(5000).nullable().optional(),
 
   servico1: z.enum(["SIM", "NAO", "N/A"]).optional(),
   servico2: z.enum(["SIM", "NAO", "N/A"]).optional(),
