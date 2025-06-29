@@ -1,3 +1,4 @@
+import bcrypt from "bcrypt";
 import { PrismaClient } from "@prisma/client";
 import { conferirMatriculas } from "../utils/conferirMatriculas.js";
 import { listarOrdensDoFuncionarioSchema } from "../validations/schema.js";
@@ -292,9 +293,15 @@ export const atualizarDadosFuncionario = async (req, res) => {
   const outraMatricula = req.params.outraMatricula;
   const data = req.validatedData;
 
+  if (data?.senha) {
+    const saltRounds = 10;
+    const senhaCriptografada = await bcrypt.hash(data.senha, saltRounds);
+    data.senha = senhaCriptografada;
+  }
+
   const dadosAtualizados = await prisma.funcionario.update({
     where: { matricula: outraMatricula },
-    data,
+    ...data,
   });
 
   if (!dadosAtualizados)
