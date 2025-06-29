@@ -293,10 +293,10 @@ export const atualizarDadosFuncionario = async (req, res) => {
   const outraMatricula = req.params.outraMatricula;
   const data = req.validatedData;
 
-  if (data?.senha) {
+  // Criptografa a senha se estiver presente
+  if (data.senha) {
     const saltRounds = 10;
-    const senhaCriptografada = await bcrypt.hash(data.senha, saltRounds);
-    data.senha = senhaCriptografada;
+    data.senha = await bcrypt.hash(data.senha, saltRounds);
   }
 
   const dadosAtualizados = await prisma.funcionario.update({
