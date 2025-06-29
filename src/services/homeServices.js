@@ -292,7 +292,6 @@ export const registrarFuncionario = async (req, res) => {
 export const atualizarDadosFuncionario = async (req, res) => {
   const outraMatricula = req.params.outraMatricula;
   const data = req.validatedData;
-  console.log(data);
   // Criptografa a senha se estiver presente
   if (data.senha) {
     const saltRounds = 10;
