@@ -26,6 +26,8 @@ import {
   atualizarDadosPrincipaisOs,
   listarSubestacao,
   criarOs2,
+  excluirFotoDaOrdem,
+  excluirFotoDoEnsaio,
 } from "../services/homeServices.js";
 
 import { handleError } from "../utils/errorHandler.js";
@@ -289,6 +291,31 @@ export const homeAtualizarComponentesDaSubestacaoController = async (
       res,
       error,
       "Erro ao atualizar componentes da subestação."
+    );
+  }
+};
+
+//  Área de excluir fotos
+export const homeExcluirFotoDaOrdemController = async (req, res) => {
+  try {
+    await excluirFotoDaOrdem(req, res);
+  } catch (error) {
+    return handleError(
+      res,
+      error,
+      "Erro interno no servidor ao excluir ensaio do componente."
+    );
+  }
+};
+
+export const HomeExcluirFotoDoEnsaioController = async (req, res) => {
+  try {
+    await excluirFotoDoEnsaio(req, res);
+  } catch (error) {
+    return handleError(
+      res,
+      error,
+      "Erro interno no servidor ao excluir ensaio do componente."
     );
   }
 };

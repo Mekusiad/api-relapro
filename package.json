@@ -6,6 +6,7 @@
     "start": "node src/index.js",
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "nodemon src/index.js",
+    "dev-test": "node src/index.js",
     "prisma:generate": "npx prisma generate",
     "prisma:migrate": "npx prisma migrate deploy"
   },
@@ -16,11 +17,14 @@
   "dependencies": {
     "@prisma/client": "^6.10.1",
     "bcrypt": "^6.0.0",
+    "cloudinary": "^2.7.0",
     "cors": "^2.8.5",
     "dotenv": "^16.5.0",
     "express": "^5.1.0",
     "jsonwebtoken": "^9.0.2",
     "multer": "^2.0.0",
+    "multer-storage-cloudinary": "^4.0.0",
+    "streamifier": "^0.1.1",
     "zod": "^3.25.42"
   },
   "prisma": {

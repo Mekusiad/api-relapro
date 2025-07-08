@@ -9,15 +9,15 @@ generator client {
 }
   // output   = "../src/generated/prisma"
 
-datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
-}
-
 // datasource db {
-//   provider = "sqlite"
-//   url      = "file:./dev.db" // cria o banco local aqui
+//   provider = "postgresql"
+//   url      = env("DATABASE_URL")
 // }
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db" // cria o banco local aqui
+}
 
 model Funcionario {
   id          Int         @id @default(autoincrement())
@@ -28,6 +28,7 @@ model Funcionario {
   admissao    DateTime    @default(now())
   senha       String
   nivelAcesso NivelAcesso
+  engenheiro  Ordem[]     @relation("EngenheiroOrdem")
   supervisor  Ordem[]     @relation("SupervisorOrdem")
   tecnico     Ordem[]     @relation("TecnicoOrdem")
 
@@ -64,6 +65,10 @@ model Ordem {
   createdAt        DateTime    @default(now())
   updatedAt        DateTime    @updatedAt
 
+ // Engenheiro: apenas um
+  engenheiro Funcionario? @relation("EngenheiroOrdem", fields: [engenheiroMatricula], references: [matricula], onDelete: Cascade)
+  engenheiroMatricula String?
+
   // Supervisor: apenas um
   supervisor          Funcionario? @relation("SupervisorOrdem", fields: [supervisorMatricula], references: [matricula], onDelete: Cascade)
   supervisorMatricula String?
@@ -94,32 +99,33 @@ enum StatusOrdem {
 
 model Foto {
   id        Int      @id @default(autoincrement())
-  descricao String
-  fotoUrl   String
+  descricao String?
+  fotoUrl   String?
+  cloudinaryId            String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  ordem   Ordem  @relation(fields: [ordemOs], references: [numeroOs], onDelete: Cascade)
-  ordemOs String
+  ordem   Ordem?  @relation(fields: [ordemOs], references: [numeroOs], onDelete: Cascade)
+  ordemOs String?
 
-  componente   Componente @relation(fields: [componenteId], references: [id])
-  componenteId Int
+  componente   Componente? @relation(fields: [componenteId], references: [id])
+  componenteId Int?
 
-  subestacao   Subestacao @relation(fields: [subestacaoId], references: [id])
-  subestacaoId Int
+  subestacao   Subestacao? @relation(fields: [subestacaoId], references: [id])
+  subestacaoId Int?
 
-  funcionario   Funcionario @relation(fields: [funcionarioId], references: [id])
-  funcionarioId Int
+  funcionario   Funcionario? @relation(fields: [funcionarioId], references: [id])
+  funcionarioId Int?
 
-  ensaio   Ensaio @relation(fields: [ensaioId], references: [id])
-  ensaioId Int
+  ensaio   Ensaio? @relation(fields: [ensaioId], references: [id])
+  ensaioId Int?
   
 
-  equipamento   Equipamento @relation(fields: [equipamentoId], references: [id])
-  equipamentoId Int
+  equipamento   Equipamento? @relation(fields: [equipamentoId], references: [id])
+  equipamentoId Int?
 
-  recomendacao   Recomendacao @relation(fields: [recomendacaoId], references: [id])
-  recomendacaoId Int
+  recomendacao   Recomendacao? @relation(fields: [recomendacaoId], references: [id])
+  recomendacaoId Int?
 }
 
 model Subestacao {
@@ -168,8 +174,9 @@ model Componente {
   impedancia         Float?
   frequencia         Float?
   umidadeRelativaAr  Float?
-  exatidao           Float?
-  circuito           Float?
+  exatidao           String?
+  curtoCircuito      Float?
+  circuito           String?
   tipoPressao        TipoPressao?
   pressao            Float?
   bitolaCabo         Float?
@@ -209,6 +216,7 @@ enum TipoComponente {
   RESISTOR
   CHAVE_SECCIONADORA
   MALHA
+  PARARAIO
   BUCHA
   CABOMUFLA
 }
@@ -221,7 +229,7 @@ model Equipamento {
   numeroSerie String @unique
 
 
-  ensaio   Ensaio[]
+  ensaio   Ensaio[] @relation("EquipamentoEnsaio")
   foto Foto[]
 
   createdAt DateTime @default(now())
@@ -259,7 +267,6 @@ model Ensaio {
   dados                   Json
   dataEnsaio              DateTime?
   engenheiroResponsavel   String?
-  equipamentosUtilizados  Json? // Vamos manter este como JSON para simplificar
 
   // --- RELAÇÕES CORRIGIDAS ---
   componente              Componente @relation(fields: [componenteId], references: [id], onDelete: Cascade)
@@ -270,7 +277,7 @@ model Ensaio {
   responsavelMatricula    String? // CORRIGIDO: para corresponder ao tipo em Funcionario
 
 
-  equipamento   Equipamento[]
+  equipamento   Equipamento[] @relation("EquipamentoEnsaio")
   fotos                   Foto[] // A sua relação com Foto (já estava correta)
   
   createdAt               DateTime  @default(now())

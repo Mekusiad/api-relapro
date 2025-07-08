@@ -44,8 +44,6 @@ export const registrarFuncionarioMiddleware = (schema, source = "body") => {
 
 export const validateReq = (schema, source = "body") => {
   return (req, res, next) => {
-    console.log("Entrou no validateReq");
-
     let data;
 
     if (source === "custom") {
@@ -69,8 +67,6 @@ export const validateReq = (schema, source = "body") => {
 
 export const validateGenerico = (schema) => {
   return (req, res, next) => {
-    console.log("Entrou no validateGenerico");
-
     const result = schema.safeParse({
       body: req.body,
       params: req.params,
@@ -91,8 +87,7 @@ export const validateGenerico = (schema) => {
 
 export const validarEnsaioMiddleware = (ensaioSchema, schemasPorTipo) => {
   return (req, res, next) => {
-    console.log("Entrou no validarEnsaioMiddleware");
-
+    console.log("Entrou validarEnsaioMiddleware");
     const dadosRequisicao = {
       body: req.body,
       params: req.params,
@@ -101,7 +96,6 @@ export const validarEnsaioMiddleware = (ensaioSchema, schemasPorTipo) => {
 
     const parsed = ensaioSchema.safeParse(dadosRequisicao);
 
-    console.log(JSON.stringify(parsed));
     if (!parsed.success) {
       return res.status(400).json({
         status: false,
@@ -109,7 +103,7 @@ export const validarEnsaioMiddleware = (ensaioSchema, schemasPorTipo) => {
         error: parsed.error.format(),
       });
     }
-
+    console.log("Saiu do parsed");
     const { tipo, dados } = parsed.data.body;
     const schemaDoTipo = schemasPorTipo[tipo];
 
@@ -119,9 +113,8 @@ export const validarEnsaioMiddleware = (ensaioSchema, schemasPorTipo) => {
         message: "Tipo de ensaio desconhecido ou inválido.",
       });
     }
-
     const validDados = schemaDoTipo.safeParse(dados);
-
+    console.log(JSON.stringify(dados));
     if (!validDados.success) {
       return res.status(400).json({
         status: false,
@@ -130,6 +123,7 @@ export const validarEnsaioMiddleware = (ensaioSchema, schemasPorTipo) => {
       });
     }
 
+    console.log("Saiu da validDados");
     req.validatedData = {
       ...parsed.data,
       body: {

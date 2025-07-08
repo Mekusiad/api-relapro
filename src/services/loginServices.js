@@ -43,7 +43,7 @@ export const loginService = async (req, res) => {
       nivelAcesso: funcionarioExiste.nivelAcesso,
     },
     process.env.JWT_SECRET,
-    { expiresIn: "8h" }
+    { expiresIn: "12h" }
   );
 
  

@@ -27,7 +27,9 @@ import {
   homeAtualizarDadosSubestaçãoController,
   homeListarSubestacaoController,
   homeAtualizarDadosPrincipaisOsController,
-  homeAtualizarComponentesDaSubestacaoController, // <-- Importação adicionada
+  homeAtualizarComponentesDaSubestacaoController,
+  homeExcluirFotoDaOrdemController,
+  HomeExcluirFotoDoEnsaioController, // <-- Importação adicionada
 } from "../controllers/homeController.js";
 import {
   validarEnsaioMiddleware,
@@ -60,10 +62,15 @@ import {
   ensaioSchema,
   criarOrdemComSubestacoesSchema,
   atualizarOrdemSchema,
+  excluirFotoDoEnsaioSchema,
+  excluirFotoDaOrdemSchema,
 } from "../validations/schema.js";
 import { conferirMatriculaMiddleware } from "../middlewares/conferirMatriculaMiddleware.js";
 import { conferirNivelAcessoMiddleware } from "../middlewares/conferirNivelAcessoMiddleware.js";
-import { criarSubestacaoComComponente } from "../services/homeServices.js";
+import {
+  criarSubestacaoComComponente,
+  excluirFotoDaOrdem,
+} from "../services/homeServices.js";
 
 export const homeRoutes = express.Router();
 
@@ -119,8 +126,7 @@ homeRoutes.get(
 
 // --- Rotas de Ordens de Serviço (OS) ---
 homeRoutes.post(
-  "/home/:matricula/ordens",
-  conferirMatriculaMiddleware("matricula"),
+  "/home/ordens",
   conferirNivelAcessoMiddleware("ADMIN", "SUPERVISOR"),
   validateReq(criarOrdemComSubestacoesSchema, "body"),
   homeCriarOsController
@@ -137,11 +143,9 @@ homeRoutes.delete(
 homeRoutes.put(
   "/home/:matricula/ordens/:numeroOs/dados-principais",
   conferirMatriculaMiddleware("matricula"),
-  validateGenerico(atualizarOrdemSchema), 
+  validateGenerico(atualizarOrdemSchema),
   homeAtualizarDadosPrincipaisOsController
 );
-
-
 
 homeRoutes.get(
   "/home/:matricula/ordens",
@@ -285,4 +289,19 @@ homeRoutes.delete(
   conferirNivelAcessoMiddleware("ADMIN"),
   validateGenerico(removerEquipamentoSchema),
   homeExcluirEquipamentoController
+);
+
+// --- Rota para excluir fotos
+homeRoutes.delete(
+  "/home/ordens",
+  conferirMatriculaMiddleware("matricula"),
+  validateGenerico(excluirFotoDaOrdemSchema),
+  homeExcluirFotoDaOrdemController
+);
+
+homeRoutes.delete(
+  "/home/ordens/:numeroOs/subestacoes/:subestacaoId/componentes/:componenteId/ensaio/:ensaioId",
+  conferirMatriculaMiddleware("matricula"),
+  validateGenerico(excluirFotoDoEnsaioSchema),
+  HomeExcluirFotoDoEnsaioController
 );
