@@ -28,8 +28,8 @@ import {
   homeListarSubestacaoController,
   homeAtualizarDadosPrincipaisOsController,
   homeAtualizarComponentesDaSubestacaoController,
-  homeExcluirFotoDaOrdemController,
-  HomeExcluirFotoDoEnsaioController, // <-- Importação adicionada
+  homeExcluirFotoPorIdController,
+  homeExcluirFotoEnsaioController, 
 } from "../controllers/homeController.js";
 import {
   validarEnsaioMiddleware,
@@ -62,29 +62,28 @@ import {
   ensaioSchema,
   criarOrdemComSubestacoesSchema,
   atualizarOrdemSchema,
-  excluirFotoDoEnsaioSchema,
-  excluirFotoDaOrdemSchema,
+  excluirfotosDaOrdemSchema,
+  excluirfotosDoEnsaioSchema,
 } from "../validations/schema.js";
 import { conferirMatriculaMiddleware } from "../middlewares/conferirMatriculaMiddleware.js";
 import { conferirNivelAcessoMiddleware } from "../middlewares/conferirNivelAcessoMiddleware.js";
 import {
   criarSubestacaoComComponente,
-  excluirFotoDaOrdem,
 } from "../services/homeServices.js";
 
 export const homeRoutes = express.Router();
 
-// Middleware global de autenticação para todas as rotas abaixo
+
 homeRoutes.use(verifyToken);
 
-// Rota principal do Dashboard
+
 homeRoutes.get(
   "/home",
   validateReq(homeInfoSchema, "custom"),
   homeInfoController
 );
 
-// --- Rotas de Funcionários ---
+
 homeRoutes.post(
   "/home/:matricula/funcionarios",
   conferirMatriculaMiddleware("matricula"),
@@ -124,7 +123,7 @@ homeRoutes.get(
   homeBuscarFuncionarioPorMatriculaController
 );
 
-// --- Rotas de Ordens de Serviço (OS) ---
+
 homeRoutes.post(
   "/home/ordens",
   conferirNivelAcessoMiddleware("ADMIN", "SUPERVISOR"),
@@ -160,12 +159,12 @@ homeRoutes.get(
   homeDetalharOrdemFuncionarioController
 );
 
-// --- Rotas de Subestações ---
+
 homeRoutes.post(
   "/home/:matricula/ordens/:numeroOs/subestacoes",
   conferirMatriculaMiddleware("matricula"),
-  // conferirNivelAcessoMiddleware("ADMIN"),
-  // validateGenerico(adicionarSubestacaoSchema),
+  
+  
   homeadicionarSubestacaoController
 );
 
@@ -173,7 +172,7 @@ homeRoutes.post(
   "/home/:matricula/ordens/:numeroOs/subestacoes",
   conferirMatriculaMiddleware("matricula"),
   conferirNivelAcessoMiddleware("ADMIN"),
-  // validateGenerico(adicionarSubestacaoSchema),
+  
   criarSubestacaoComComponente
 );
 
@@ -197,11 +196,11 @@ homeRoutes.put(
   "/home/:matricula/ordens/:numeroOs/subestacoes/:subestacaoId",
   conferirMatriculaMiddleware("matricula"),
   conferirNivelAcessoMiddleware("ADMIN"),
-  // validateReq(atualizarDadosSubestacaoSchema, "params"),
+  
   homeAtualizarDadosSubestaçãoController
 );
 
-// --- Rotas de Componentes e Ensaios ---
+
 homeRoutes.post(
   "/home/:matricula/ordens/:numeroOs/subestacoes/:subestacaoId/componentes",
   conferirMatriculaMiddleware("matricula"),
@@ -210,7 +209,7 @@ homeRoutes.post(
   homeAdicionarComponenteController
 );
 
-// ROTA ADICIONADA PARA ATUALIZAR TODOS OS COMPONENTES DE UMA SUBESTAÇÃO
+
 homeRoutes.put(
   "/home/:matricula/ordens/:numeroOs/subestacoes/:subestacaoId/componentes",
   conferirMatriculaMiddleware("matricula"),
@@ -252,7 +251,7 @@ homeRoutes.delete(
   homeExcluirEnsaioComponenteController
 );
 
-// --- Rotas de Equipamentos (Gerais) e Logs ---
+
 homeRoutes.get(
   "/home/:matricula/logs",
   conferirMatriculaMiddleware("matricula"),
@@ -291,17 +290,19 @@ homeRoutes.delete(
   homeExcluirEquipamentoController
 );
 
-// --- Rota para excluir fotos
+
 homeRoutes.delete(
-  "/home/ordens",
+  "/home/:matricula/ordens/:numeroOs/fotos/:cloudinaryId", 
   conferirMatriculaMiddleware("matricula"),
-  validateGenerico(excluirFotoDaOrdemSchema),
-  homeExcluirFotoDaOrdemController
+  conferirNivelAcessoMiddleware("ADMIN", "SUPERVISOR", "TECNICO"), 
+  validateReq(excluirfotosDaOrdemSchema, "params"), 
+  homeExcluirFotoPorIdController 
 );
 
 homeRoutes.delete(
-  "/home/ordens/:numeroOs/subestacoes/:subestacaoId/componentes/:componenteId/ensaio/:ensaioId",
+  "/home/:matricula/ensaios/:ensaioId/fotos/:cloudinaryId",
   conferirMatriculaMiddleware("matricula"),
-  validateGenerico(excluirFotoDoEnsaioSchema),
-  HomeExcluirFotoDoEnsaioController
+  conferirNivelAcessoMiddleware("ADMIN", "SUPERVISOR", "TECNICO"),
+  validateReq(excluirfotosDoEnsaioSchema, "params"), 
+  homeExcluirFotoEnsaioController
 );

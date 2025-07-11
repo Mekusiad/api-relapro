@@ -19,15 +19,13 @@ export const registrarFuncionarioSchema = z
     nome: z.coerce
       .string()
       .min(3, "Nome é obrigatório e deve ter pelo menos 3 caracteres"),
-    // usuario: z.coerce.string().min(3, "Usuário é obrigatório"),
+
     matricula: z.coerce
       .string()
       .min(1, "Obrigatório informar matrícula.")
       .max(5000, "Toma."),
     cargo: z.coerce.string().min(2, "Cargo é obrigatório"),
-    // admissao: z.coerce.string().refine((val) => !isNaN(Date.parse(val)), {
-    //   message: "Data de admissão inválida",
-    // }),
+
     senha: z.coerce.string().min(6, "A senha deve ter pelo menos 6 caracteres"),
     nivelAcesso: z.enum(["ADMIN", "SUPERVISOR", "TECNICO"]).optional(),
   })
@@ -195,8 +193,6 @@ export const criarOrdemSchema = z
   })
   .strict();
 
-// Teste ---
-
 export const criarOrdemComSubestacoesSchema = z
   .object({
     cliente: z.coerce.string().min(1, "Cliente é obrigatório"),
@@ -260,6 +256,14 @@ export const criarOrdemComSubestacoesSchema = z
       .string()
       .max(10000, "Máximo de 10000 caracteres")
       .optional(),
+    conclusao: z.coerce
+      .string()
+      .max(10000, "Máximo de 10000 caracteres.")
+      .optional(),
+    recomendacoes: z.coerce
+      .string()
+      .max(10000, "Máximo de 10000 caracteres.")
+      .optional(),
 
     subestacoes: z
       .array(
@@ -277,6 +281,7 @@ export const criarOrdemComSubestacoesSchema = z
                   "TRAFO_MEDIA",
                   "TRAFO_CORRENTE",
                   "TRAFO_POTENCIA",
+                  "TRAFO_POTENCIAL",
                   "TRAFO_FORCA",
                   "DISJUNTOR_ALTA",
                   "DISJUNTOR_MEDIA",
@@ -307,12 +312,24 @@ export const criarOrdemComSubestacoesSchema = z
     tecnico: z
       .array(z.coerce.string().max(100, "Máximo de 100 caracteres."))
       .optional(),
-    foto: z
+    fotos: z
       .array(
         z.object({
           descricao: z.string().max(100, "Máximo de 100 caracteres."),
           url: z.string().url("URL inválida."),
+          isNew: z.boolean(),
           cloudinaryId: z.string().max(100, "Máximo de 100 caracteres."),
+          tipoFoto: z.enum([
+            "INICIAL",
+            "ANTES",
+            "DURANTE",
+            "DEPOIS",
+            "SUBESTACAO",
+            "COMPONENTE",
+            "EQUIPAMENTO",
+            "ENSAIO",
+            "RECOMENDACAO",
+          ]),
         })
       )
       .optional()
@@ -395,10 +412,18 @@ export const atualizarOrdemSchema = z.object({
         .string()
         .max(1000, "Máximo de 1000 caracteres.")
         .optional(),
+      conclusao: z.coerce
+        .string()
+        .max(10000, "Máximo de 10000 caracteres.")
+        .optional(),
+      recomendacoes: z.coerce
+        .string()
+        .max(10000, "Máximo de 10000 caracteres.")
+        .optional(),
       subestacoes: z
         .array(
           z.object({
-            id: z.union([z.number(), z.coerce.string()]), // Pode vir como número ou string temporária
+            id: z.union([z.number(), z.coerce.string()]),
             nome: z.coerce
               .string()
               .max(100, "Nome da subestação é obrigatório"),
@@ -423,12 +448,24 @@ export const atualizarOrdemSchema = z.object({
         )
         .nonempty("Deve haver ao menos uma subestação")
         .optional(),
-      foto: z
+      fotos: z
         .array(
           z.object({
             descricao: z.string().max(100, "Máximo de 100 caracteres."),
             url: z.string().url("URL inválida."),
             cloudinaryId: z.string().max(100, "Máximo de 100 caracteres."),
+            tipoFoto: z.enum([
+              "INICIAL",
+              "ANTES",
+              "DURANTE",
+              "DEPOIS",
+              "SUBESTACAO",
+              "COMPONENTE",
+              "EQUIPAMENTO",
+              "ENSAIO",
+              "RECOMENDACAO",
+            ]),
+            isNew: z.boolean().optional(),
           })
         )
         .optional()
@@ -552,7 +589,7 @@ export const listarComponentesDaSubestacaoSchema = z
       .transform(Number),
   })
   .strict();
-// A partir daqui foi usado o validateGererico - Usar depois nas rotas anteriores.
+
 export const adicionarComponenteSchema = z.object({
   params: z
     .object({
@@ -689,7 +726,27 @@ export const cadastrarEquipamentoSchema = z.object({
         .min(1, "Descrição do equipamento é obrigatório."),
       modelo: z.coerce.string().min(1, "Modelo é obrigatório"),
       numeroSerie: z.coerce.string().min(1, "O número de série é obrigatório."),
-      foto: z.coerce.string().url("URL inválida").optional(),
+      fotos: z
+        .array(
+          z.object({
+            descricao: z.string().max(100, "Máximo de 100 caracteres."),
+            url: z.string().url("URL inválida."),
+            cloudinaryId: z.string().max(100, "Máximo de 100 caracteres."),
+            tipoFoto: z.enum([
+              "INICIAL",
+              "ANTES",
+              "DURANTE",
+              "DEPOIS",
+              "SUBESTACAO",
+              "COMPONENTE",
+              "EQUIPAMENTO",
+              "ENSAIO",
+              "RECOMENDACAO",
+            ]),
+          })
+        )
+        .optional()
+        .nullable(),
     })
     .strict(),
 });
@@ -701,7 +758,27 @@ export const atualizarEquipamentoSchema = z.object({
       descricao: z.coerce.string().optional(),
       modelo: z.coerce.string().optional(),
       numeroSerie: z.coerce.string().optional(),
-      foto: z.coerce.string().url("URL inválida").optional(),
+      fotos: z
+        .array(
+          z.object({
+            descricao: z.string().max(100, "Máximo de 100 caracteres."),
+            url: z.string().url("URL inválida."),
+            cloudinaryId: z.string().max(100, "Máximo de 100 caracteres."),
+            tipoFoto: z.enum([
+              "INICIAL",
+              "ANTES",
+              "DURANTE",
+              "DEPOIS",
+              "SUBESTACAO",
+              "COMPONENTE",
+              "EQUIPAMENTO",
+              "ENSAIO",
+              "RECOMENDACAO",
+            ]),
+          })
+        )
+        .optional()
+        .nullable(),
     })
     .strict(),
   params: z
@@ -735,37 +812,38 @@ export const listarEquipamentosSchema = z.object({
     .strict(),
 });
 
-//  Schema para excluir fotos
-export const excluirFotoDaOrdemSchema = z
+export const excluirfotosDaOrdemSchema = z
   .object({
-    numeroOs: z.preprocess(
-      (val) => String(val).trim(),
-      z.coerce
-        .string()
-        .regex(/^\d+$/, "A ordem de serviço deve conter apenas números")
-    ),
     matricula: z.preprocess(
       (val) => String(val).trim(),
       z.coerce.string().regex(/^\d+$/, "A matrícula deve conter apenas números")
     ),
-    fotoId: z.coerce.string(),
+    numeroOs: z.preprocess(
+      (val) => String(val).trim(),
+      z.coerce.string().min(1, "O número da OS é obrigatório.")
+    ),
+    cloudinaryId: z.coerce.string().min(1, "O ID da foto é obrigatório."),
   })
   .strict();
 
-export const excluirFotoDoEnsaioSchema = z
+export const excluirfotosDoEnsaioSchema = z
   .object({
-    ensaioId: z.coerce.string().max(100, "Máximo de 100 caracteres"),
-    fotoId: z.coerce.string().max(100, "Máximo de 100 caracteres"),
+    matricula: z.preprocess(
+      (val) => String(val).trim(),
+      z.coerce.string().regex(/^\d+$/, "A matrícula deve conter apenas números")
+    ),
+    ensaioId: z.coerce.string().min(1, "O ID do ensaio é obrigatório."),
+    cloudinaryId: z.coerce.string().min(1, "O ID da foto é obrigatório."),
   })
   .strict();
 
-// Schemas por tipo de ensaio
 export const ensaioSchema = z
   .object({
     body: z
       .object({
         tipo: z.enum([
           "TRAFO_ALTA",
+          "TRAFO_POTENCIAL",
           "TRAFO_POTENCIA",
           "TRAFO_MEDIA",
           "TRAFO_CORRENTE",
@@ -791,6 +869,17 @@ export const ensaioSchema = z
               descricao: z.string().max(100, "Máximo de 100 caracteres."),
               url: z.string().url("URL inválida."),
               cloudinaryId: z.string().max(100, "Máximo de 100 caracteres."),
+              tipoFoto: z.enum([
+                "INICIAL",
+                "ANTES",
+                "DURANTE",
+                "DEPOIS",
+                "SUBESTACAO",
+                "COMPONENTE",
+                "EQUIPAMENTO",
+                "ENSAIO",
+                "RECOMENDACAO",
+              ]),
             })
           )
           .optional()
@@ -813,348 +902,9 @@ export const ensaioSchema = z
         .min(1, "OS deve possuir no mínimo 1 dígito.")
         .max(1000, "ID componente deve possuir no máximo 1000 dígitos."),
     }),
-    query: z.object({}).optional(), // se houver filtros, coloque aqui
+    query: z.object({}).optional(),
   })
   .strict();
-// Schemas por tipo de ensaio
-const trafoPotenciaSchema = z.object({
-  tapComutadorAt: z.preprocess(
-    (val) => (val === "" ? undefined : val),
-    z.enum(["1", "2", "3", "4", "5", "-"]).default("-").optional()
-  ),
-  tapComutadorBt: z.preprocess(
-    (val) => (val === "" ? undefined : val),
-    z.enum(["1", "2", "3", "4", "5", "-"]).default("-").optional()
-  ),
-  tensaoTapAt: z.coerce
-    .string()
-    .max(100, "Máximo de 100 caracteres")
-    .nullable()
-    .optional(),
-  tensaoTapBt: z.coerce
-    .string()
-    .max(100, "Máximo de 100 caracteres")
-    .nullable()
-    .optional(),
-  relacaoCalculadaAtxBt: z.coerce
-    .string()
-    .max(100, "Máximo de 100 caracteres")
-    .nullable()
-    .optional(),
-  relacaoMedida1: z.coerce
-    .string()
-    .max(100, "Máximo de 100 caracteres")
-    .nullable()
-    .optional(),
-  relacaoMedida2: z.coerce
-    .string()
-    .max(100, "Máximo de 100 caracteres")
-    .nullable()
-    .optional(),
-  relacaoMedida3: z.coerce
-    .string()
-    .max(100, "Máximo de 100 caracteres")
-    .nullable()
-    .optional(),
-  resistenciaOhmicaEnrolamentoAt1: z.coerce
-    .string()
-    .max(100, "Máximo de 100 caracteres")
-    .nullable()
-    .optional(),
-  resistenciaOhmicaEnrolamentoAt2: z.coerce
-    .string()
-    .max(100, "Máximo de 100 caracteres")
-    .nullable()
-    .optional(),
-  resistenciaOhmicaEnrolamentoAt3: z.coerce
-    .string()
-    .max(100, "Máximo de 100 caracteres")
-    .nullable()
-    .optional(),
-  resistenciaOhmicaEnrolamentoBt1: z.coerce
-    .string()
-    .max(100, "Máximo de 100 caracteres")
-    .nullable()
-    .optional(),
-  resistenciaOhmicaEnrolamentoBt2: z.coerce
-    .string()
-    .max(100, "Máximo de 100 caracteres")
-    .nullable()
-    .optional(),
-  resistenciaOhmicaEnrolamentoBt3: z.coerce
-    .string()
-    .max(100, "Máximo de 100 caracteres")
-    .nullable()
-    .optional(),
-  tensaoEnsaio: z.coerce
-    .string()
-    .max(10, "Máximo de 10 caracteres")
-    .nullable()
-    .optional(),
-  tempoEnsaio: z.coerce
-    .string()
-    .max(10, "Máximo de 10 caracteres")
-    .nullable()
-    .optional(),
-  resistenciaIsolamentoAtxBt: z.coerce
-    .string()
-    .max(100, "Máximo de 100 caracteres")
-    .nullable()
-    .optional(),
-  resistenciaIsolamentoAtxMassa: z.coerce
-    .string()
-    .max(100, "Máximo de 100 caracteres")
-    .nullable()
-    .optional(),
-  resistenciaIsolamentoBtxMassa: z.coerce
-    .string()
-    .max(100, "Máximo de 100 caracteres")
-    .nullable()
-    .optional(),
-  servico1: z.enum(["SIM", "NAO", "N/A"]).optional(),
-  servico2: z.enum(["SIM", "NAO", "N/A"]).optional(),
-  servico3: z.enum(["SIM", "NAO", "N/A"]).optional(),
-  servico4: z.enum(["SIM", "NAO", "N/A"]).optional(),
-  servico5: z.enum(["SIM", "NAO", "N/A"]).optional(),
-  servico6: z.enum(["SIM", "NAO", "N/A"]).optional(),
-  servico7: z.enum(["SIM", "NAO", "N/A"]).optional(),
-  servico8: z.enum(["SIM", "NAO", "N/A"]).optional(),
-  servico9: z.enum(["SIM", "NAO", "N/A"]).optional(),
-  servico10: z.enum(["SIM", "NAO", "N/A"]).optional(),
-  servico11: z.enum(["SIM", "NAO", "N/A"]).optional(),
-  servico12: z.enum(["SIM", "NAO", "N/A"]).optional(),
-  servico13: z.enum(["SIM", "NAO", "N/A"]).optional(),
-  correnteN1: z.coerce
-    .string()
-    .max(100, "Máximo de 100 caracteres")
-    .nullable()
-    .optional(),
-  correnteN2: z.coerce
-    .string()
-    .max(100, "Máximo de 100 caracteres")
-    .nullable()
-    .optional(),
-  correnteN3: z.coerce
-    .string()
-    .max(100, "Máximo de 100 caracteres")
-    .nullable()
-    .optional(),
-  correnteN4: z.coerce
-    .string()
-    .max(100, "Máximo de 100 caracteres")
-    .nullable()
-    .optional(),
-  correnteN5: z.coerce
-    .string()
-    .max(100, "Máximo de 100 caracteres")
-    .nullable()
-    .optional(),
-  correnteN6: z.coerce
-    .string()
-    .max(100, "Máximo de 100 caracteres")
-    .nullable()
-    .optional(),
-  wattsN1: z.coerce
-    .string()
-    .max(100, "Máximo de 100 caracteres")
-    .nullable()
-    .optional(),
-  wattsN2: z.coerce
-    .string()
-    .max(100, "Máximo de 100 caracteres")
-    .nullable()
-    .optional(),
-  wattsN3: z.coerce
-    .string()
-    .max(100, "Máximo de 100 caracteres")
-    .nullable()
-    .optional(),
-  wattsN4: z.coerce
-    .string()
-    .max(100, "Máximo de 100 caracteres")
-    .nullable()
-    .optional(),
-  wattsN5: z.coerce
-    .string()
-    .max(100, "Máximo de 100 caracteres")
-    .nullable()
-    .optional(),
-  wattsN6: z.coerce
-    .string()
-    .max(100, "Máximo de 100 caracteres")
-    .nullable()
-    .optional(),
-  fatorPotenciaN1: z.coerce
-    .string()
-    .max(100, "Máximo de 100 caracteres")
-    .nullable()
-    .optional(),
-  fatorPotenciaN2: z.coerce
-    .string()
-    .max(100, "Máximo de 100 caracteres")
-    .nullable()
-    .optional(),
-  fatorPotenciaN3: z.coerce
-    .string()
-    .max(100, "Máximo de 100 caracteres")
-    .nullable()
-    .optional(),
-  fatorPotenciaN4: z.coerce
-    .string()
-    .max(100, "Máximo de 100 caracteres")
-    .nullable()
-    .optional(),
-  fatorPotenciaN5: z.coerce
-    .string()
-    .max(100, "Máximo de 100 caracteres")
-    .nullable()
-    .optional(),
-  fatorPotenciaN6: z.coerce
-    .string()
-    .max(100, "Máximo de 100 caracteres")
-    .nullable()
-    .optional(),
-  capacitanciaN1: z.coerce
-    .string()
-    .max(100, "Máximo de 100 caracteres")
-    .nullable()
-    .optional(),
-  capacitanciaN2: z.coerce
-    .string()
-    .max(100, "Máximo de 100 caracteres")
-    .nullable()
-    .optional(),
-  capacitanciaN3: z.coerce
-    .string()
-    .max(100, "Máximo de 100 caracteres")
-    .nullable()
-    .optional(),
-  capacitanciaN4: z.coerce
-    .string()
-    .max(100, "Máximo de 100 caracteres")
-    .nullable()
-    .optional(),
-  capacitanciaN5: z.coerce
-    .string()
-    .max(100, "Máximo de 100 caracteres")
-    .nullable()
-    .optional(),
-  capacitanciaN6: z.coerce
-    .string()
-    .max(100, "Máximo de 100 caracteres")
-    .nullable()
-    .optional(),
-  numeroSerieBucha1: z.coerce
-    .string()
-    .max(100, "Máximo de 100 caracteres")
-    .nullable()
-    .optional(),
-  numeroSerieBucha2: z.coerce
-    .string()
-    .max(100, "Máximo de 100 caracteres")
-    .nullable()
-    .optional(),
-  numeroSerieBucha3: z.coerce
-    .string()
-    .max(100, "Máximo de 100 caracteres")
-    .nullable()
-    .optional(),
-  correnteBucha1: z.coerce
-    .string()
-    .max(100, "Máximo de 100 caracteres")
-    .nullable()
-    .optional(),
-  correnteBucha2: z.coerce
-    .string()
-    .max(100, "Máximo de 100 caracteres")
-    .nullable()
-    .optional(),
-  correnteBucha3: z.coerce
-    .string()
-    .max(100, "Máximo de 100 caracteres")
-    .nullable()
-    .optional(),
-  wattsBucha1: z.coerce
-    .string()
-    .max(100, "Máximo de 100 caracteres")
-    .nullable()
-    .optional(),
-  wattsBucha2: z.coerce
-    .string()
-    .max(100, "Máximo de 100 caracteres")
-    .nullable()
-    .optional(),
-  wattsBucha3: z.coerce
-    .string()
-    .max(100, "Máximo de 100 caracteres")
-    .nullable()
-    .optional(),
-  fatorPotenciaCorrente: z.coerce
-    .string()
-    .max(100, "Máximo de 100 caracteres")
-    .nullable()
-    .optional(),
-  fatorPotenciaBucha1: z.coerce
-    .string()
-    .max(100, "Máximo de 100 caracteres")
-    .nullable()
-    .optional(),
-  fatorPotenciaBucha2: z.coerce
-    .string()
-    .max(100, "Máximo de 100 caracteres")
-    .nullable()
-    .optional(),
-  fatorPotenciaBucha3: z.coerce
-    .string()
-    .max(100, "Máximo de 100 caracteres")
-    .nullable()
-    .optional(),
-  capacitanciaBucha1: z.coerce
-    .string()
-    .max(100, "Máximo de 100 caracteres")
-    .nullable()
-    .optional(),
-  capacitanciaBucha2: z.coerce
-    .string()
-    .max(100, "Máximo de 100 caracteres")
-    .nullable()
-    .optional(),
-  capacitanciaBucha3: z.coerce
-    .string()
-    .max(100, "Máximo de 100 caracteres")
-    .nullable()
-    .optional(),
-  correnteH1H3: z.coerce
-    .string()
-    .max(100, "Máximo de 100 caracteres")
-    .nullable()
-    .optional(),
-  correnteH2H1: z.coerce
-    .string()
-    .max(100, "Máximo de 100 caracteres")
-    .nullable()
-    .optional(),
-  correnteH3H2: z.coerce
-    .string()
-    .max(100, "Máximo de 100 caracteres")
-    .nullable()
-    .optional(),
-  avaliacao: z.enum(["CONFORME", "NAO_CONFORME"]).optional(),
-  descricaoAvaliacao: z.coerce
-    .string()
-    .max(500, "Máximo de 100 caracteres")
-    .optional(),
-  observacao: z.coerce
-    .string()
-    .max(1000, "Máximo de 1000 caracteres")
-    .optional(),
-  protecao1: z.enum(["CONFORME", "NAO_CONFORME", "N/A"]).optional(),
-  protecao2: z.enum(["CONFORME", "NAO_CONFORME", "N/A"]).optional(),
-  protecao3: z.enum(["CONFORME", "NAO_CONFORME", "N/A"]).optional(),
-  protecao4: z.enum(["CONFORME", "NAO_CONFORME", "N/A"]).optional(),
-  protecao5: z.enum(["CONFORME", "NAO_CONFORME", "N/A"]).optional(),
-  protecao6: z.enum(["CONFORME", "NAO_CONFORME", "N/A"]).optional(),
-});
 
 const trafoMediaSchema = z.object({
   tapComutadorAt: z.preprocess(
@@ -1377,18 +1127,81 @@ const trafoAltaSchema = z
   })
   .strict();
 
-const trafoCorrenteSchema = z
+const trafoPotencialSchema = z
   .object({
-    correnteNominalAt: z.coerce
-      .string()
-
-      .max(100, "Máximo 100 caracteres.")
+    tensaoAt: z
+      .array(z.coerce.string().max(100, "Máximo 100 caracteres."))
       .nullable()
       .optional(),
-    correnteNominalBt: z.coerce
-      .string()
+    tensaoBt: z
+      .array(z.coerce.string().max(100, "Máximo 100 caracteres."))
+      .nullable()
+      .optional(),
+    terminalMedicao: z
+      .array(z.coerce.string().max(100, "Máximo 100 caracteres."))
+      .nullable()
+      .optional(),
+    relacaoCalculada: z
+      .array(z.coerce.string().max(100, "Máximo 100 caracteres."))
+      .nullable()
+      .optional(),
+    relacaoMedida: z
+      .array(z.coerce.string().max(100, "Máximo 100 caracteres."))
+      .nullable()
+      .optional(),
+    relacaoOhmica: z
+      .array(z.coerce.string().max(100, "Máximo 100 caracteres."))
+      .nullable()
+      .optional(),
+    temperaturaEnsaio: z
+      .array(z.coerce.string().max(100, "Máximo 100 caracteres."))
+      .nullable()
+      .optional(),
+    resistenciaIsolamento: z
+      .array(z.coerce.string().max(100, "Máximo 100 caracteres."))
+      .nullable()
+      .optional(),
 
-      .max(100, "Máximo 100 caracteres.")
+    servicos: z
+      .array(
+        z.object({
+          label: z.string(),
+          valor: z.enum(["SIM", "NAO", "N/A"]),
+        })
+      )
+      .optional(),
+    avaliacao: z.enum(["CONFORME", "NAO_CONFORME"]).optional(),
+    descricaoAvaliacao: z.coerce
+      .string()
+      .max(500, "Máximo 500 caracteres.")
+      .optional(),
+    observacao: z.coerce
+      .string()
+      .max(1000, "Resuma em no máximo 1000 caracteres.")
+      .optional(),
+  })
+  .strict();
+
+const trafoCorrenteSchema = z
+  .object({
+    correnteNominalAt: z
+      .array(
+        z.coerce
+          .string()
+          .max(100, "Máximo 100 caracteres.")
+          .nullable()
+          .optional()
+      )
+      .nullable()
+      .optional(),
+    correnteNominalBt: z
+      .array(
+        z.coerce
+          .string()
+          .max(100, "Máximo 100 caracteres.")
+          .nullable()
+          .optional()
+      )
       .nullable()
       .optional(),
     correntePrimario: z.coerce
@@ -1406,6 +1219,118 @@ const trafoCorrenteSchema = z
     terminalMedicao: z.coerce
       .string()
       .max(100, "Máximo 100 caracteres.")
+      .nullable()
+      .optional(),
+    relacaoCalculada: z
+      .array(
+        z.coerce
+          .string()
+          .max(100, "Máximo 100 caracteres.")
+          .nullable()
+          .optional()
+      )
+      .nullable()
+      .optional(),
+    relacaoMedida: z
+      .array(
+        z.coerce
+          .string()
+          .max(100, "Máximo 100 caracteres.")
+          .nullable()
+          .optional()
+      )
+      .nullable()
+      .optional(),
+    relacaoOhmica: z
+      .array(
+        z.coerce
+          .string()
+          .max(100, "Máximo 100 caracteres.")
+          .nullable()
+          .optional()
+      )
+      .nullable()
+      .optional(),
+    temperaturaEnsaio: z.coerce
+      .string()
+
+      .max(100, "Máximo 100 caracteres.")
+      .nullable()
+      .optional(),
+    resistenciaIsolamentoPxS: z
+      .array(
+        z.coerce
+          .string()
+          .max(100, "Máximo 100 caracteres.")
+          .nullable()
+          .optional()
+      )
+      .nullable()
+      .optional(),
+
+    resistenciaIsolamentoPxMassa: z
+      .array(
+        z.coerce
+          .string()
+          .max(100, "Máximo 100 caracteres.")
+          .nullable()
+          .optional()
+      )
+      .nullable()
+      .optional(),
+
+    resistenciaIsolamentoSxMassa: z
+      .array(
+        z.coerce
+          .string()
+          .max(100, "Máximo 100 caracteres.")
+          .nullable()
+          .optional()
+      )
+      .nullable()
+      .optional(),
+    avaliacao: z.enum(["CONFORME", "NAO_CONFORME"]).optional(),
+    descricaoAvaliacao: z.coerce
+      .string()
+      .max(500, "Máximo 500 caracteres.")
+      .optional(),
+    observacao: z.coerce
+      .string()
+      .max(1000, "Resuma em no máximo 1000 caracteres.")
+      .optional(),
+  })
+  .strict();
+
+const trafoPotenciaSchema = z
+  .object({
+    tensaoNominalAt: z
+      .array(
+        z.coerce
+          .string()
+          .max(100, "Máximo 100 caracteres.")
+          .nullable()
+          .optional()
+      )
+      .nullable()
+      .optional(),
+    tensaoNominalBt: z
+      .array(
+        z.coerce
+          .string()
+          .max(100, "Máximo 100 caracteres.")
+          .nullable()
+          .optional()
+      )
+      .nullable()
+      .optional(),
+    terminalMedicao: z
+      .array(
+        z.coerce
+          .string()
+          .max(100, "Máximo 100 caracteres.")
+          .nullable()
+          .optional()
+      )
       .nullable()
       .optional(),
     relacaoCalculada: z
@@ -1767,7 +1692,6 @@ const disjuntorSchema = z
   .strict();
 
 const malhaAterramentoSchema = z.object({
-  // Corrigido para aceitar um valor maior e ser nulo/opcional
   valorResistencia: z.coerce
     .string()
 
@@ -1790,7 +1714,6 @@ const malhaAterramentoSchema = z.object({
 });
 
 const resistorAterramentoSchema = z.object({
-  // Corrigido para aceitar nulo e ser opcional
   resistenciaNominal: z.coerce
     .number()
 
@@ -1920,88 +1843,72 @@ const pararaioSchema = z.object({
     .max(100, "Máximo de 100 caracteres.")
     .nullable()
     .optional(),
+  avaliacao: z.enum(["CONFORME", "NAO_CONFORME"]).optional(),
+  descricaoAvaliacao: z.coerce
+    .string()
+    .max(500, "Máximo 500 caracteres.")
+    .optional(),
+  observacao: z.coerce
+    .string()
+    .max(1000, "Resuma em no máximo 1000 caracteres.")
+    .optional(),
 });
 
-// Fazendo
 const caboMuflaSchema = z.object({
-  tensaoEnsaio: z.coerce
-    .string()
-
-    .max(100, "Máximo 100 caracteres.")
-    .nullable()
-    .optional(),
-  valorReferencia: z.coerce
-    .string()
-
-    .max(100, "Máximo 100 caracteres.")
-    .nullable()
-    .optional(),
-  tempoEnsaio: z.coerce
-    .string()
-
-    .max(100, "Máximo 100 caracteres.")
-    .nullable()
-    .optional(),
-  resistenciaIsolamentoX0xMassa: z.coerce
-    .string()
-
-    .max(100, "Máximo 100 caracteres.")
-    .nullable()
-    .optional(),
-  resistenciaIsolamentoX11xMassa: z.coerce
-    .string()
-
-    .max(100, "Máximo 100 caracteres.")
-    .nullable()
-    .optional(),
-  resistenciaIsolamentoX12xMassa: z.coerce
-    .string()
-
-    .max(100, "Máximo 100 caracteres.")
-    .nullable()
-    .optional(),
-  resistenciaIsolamentoX21xMassa: z.coerce
-    .string()
-
-    .max(100, "Máximo 100 caracteres.")
-    .nullable()
-    .optional(),
-  resistenciaIsolamentoX22xMassa: z.coerce
-    .string()
-
-    .max(100, "Máximo 100 caracteres.")
-    .nullable()
-    .optional(),
-  resistenciaIsolamentoX31xMassa: z.coerce
-    .string()
-
-    .max(100, "Máximo 100 caracteres.")
-    .nullable()
-    .optional(),
-  resistenciaIsolamentoX32xMassa: z.coerce
-    .string()
-
-    .max(100, "Máximo 100 caracteres.")
-    .nullable()
+  fase: z
+    .array(
+      z.string().max(50, "Cada valor de fase deve ter no máximo 50 caracteres.")
+    )
     .optional(),
 
-  servico1: z
-    .enum(["SIM", "NAO", "N/A"], {
-      required_error: "É obrigatório informar se o serviço 1 foi realizado.",
-      invalid_type_error: "Serviço 1 inválido.",
-    })
+  condicao: z
+    .array(
+      z.string().max(100, "Cada condição deve ter no máximo 100 caracteres.")
+    )
     .optional(),
-  servico2: z
-    .enum(["SIM", "NAO", "N/A"], {
-      required_error: "É obrigatório informar se o serviço 2 foi realizado.",
-      invalid_type_error: "Serviço 2 inválido.",
-    })
+
+  tensaoEnsaio: z
+    .array(
+      z.coerce
+        .string()
+        .max(100, "Cada tensão deve ter no máximo 100 caracteres.")
+        .nullable()
+    )
     .optional(),
-  servico3: z
-    .enum(["SIM", "NAO", "N/A"], {
-      required_error: "É obrigatório informar se o serviço 3 foi realizado.",
-      invalid_type_error: "Serviço 3 inválido.",
-    })
+
+  valorMedido: z
+    .array(
+      z.coerce
+        .string()
+        .max(100, "Cada valor medido deve ter no máximo 100 caracteres.")
+        .nullable()
+    )
+    .optional(),
+
+  valorReferencia: z
+    .array(
+      z.coerce
+        .string()
+        .max(100, "Cada valor de referência deve ter no máximo 100 caracteres.")
+        .nullable()
+    )
+    .optional(),
+
+  tempoEnsaio: z
+    .array(
+      z.coerce
+        .string()
+        .max(100, "Cada tempo deve ter no máximo 100 caracteres.")
+        .nullable()
+    )
+    .optional(),
+  servicos: z
+    .array(
+      z.object({
+        label: z.string(),
+        valor: z.enum(["SIM", "NAO", "N/A"]),
+      })
+    )
     .optional(),
 
   avaliacao: z.enum(["CONFORME", "NAO_CONFORME"]).optional(),
@@ -2015,7 +1922,7 @@ const caboMuflaSchema = z.object({
     .max(1000, "Resuma em no máximo 1000 caracteres.")
     .optional(),
 });
-// Feito
+
 const tpBuchaSchema = z
   .object({
     numeroSerieBucha: z.coerce
@@ -2045,7 +1952,7 @@ const tpBuchaSchema = z
       .optional(),
   })
   .strict();
-// Feito
+
 const correnteExcitacao = z
   .object({
     correnteH1H3: z
@@ -2068,7 +1975,8 @@ const correnteExcitacao = z
 
 export const schemasPorTipo = {
   TRAFO_ALTA: trafoAltaSchema,
-  TRAFO_POTENCIA: trafoCorrenteSchema,
+  TRAFO_POTENCIAL: trafoPotencialSchema,
+  TRAFO_POTENCIA: trafoPotenciaSchema,
   TRAFO_FORCA: trafoAltaSchema,
   TRAFO_MEDIA: trafoMediaSchema,
   TRAFO_CORRENTE: trafoCorrenteSchema,

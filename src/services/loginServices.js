@@ -1,4 +1,4 @@
-// Arquivo: src/services/loginServices.js (VERSÃO LIMPA E FINAL)
+
 
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
@@ -29,7 +29,7 @@ export const loginService = async (req, res) => {
       .json({ status: false, message: "Usuário ou senha incorreto." });
   }
 
-  // 🔐 Compara senha digitada com hash salvo
+  
   const senhaCorreta = await bcrypt.compare(senha, funcionarioExiste.senha);
 
   if (!senhaCorreta)
@@ -51,11 +51,6 @@ export const loginService = async (req, res) => {
     status: true,
     message: "Usuário logado com sucesso",
     token,
-    // user: {
-    //   id: funcionarioExiste.id,
-     //  nome: funcionarioExiste.nome,
-     //  matricula: funcionarioExiste.matricula,
-     //  nivelAcesso: funcionarioExiste.nivelAcesso,
-  //  },
+  
   });
 };

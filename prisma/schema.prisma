@@ -60,24 +60,21 @@ model Ordem {
   previsaoInicio   DateTime
   observacoes      String?
   conclusao        String?
-  recomendacao     String?
+  recomendacoes    String?
   previsaoTermino  DateTime?
   createdAt        DateTime    @default(now())
   updatedAt        DateTime    @updatedAt
 
- // Engenheiro: apenas um
   engenheiro Funcionario? @relation("EngenheiroOrdem", fields: [engenheiroMatricula], references: [matricula], onDelete: Cascade)
   engenheiroMatricula String?
 
-  // Supervisor: apenas um
-  supervisor          Funcionario? @relation("SupervisorOrdem", fields: [supervisorMatricula], references: [matricula], onDelete: Cascade)
+  supervisor Funcionario? @relation("SupervisorOrdem", fields: [supervisorMatricula], references: [matricula], onDelete: Cascade)
   supervisorMatricula String?
 
-  // Técnicos: vários
   tecnico Funcionario[] @relation("TecnicoOrdem")
 
   subestacoes Subestacao[]
-  foto Foto[]
+  fotos       Foto[]        // <-- Agora todas as fotos vêm por esse campo
 }
 
 enum TipoServico {
@@ -98,34 +95,47 @@ enum StatusOrdem {
 }
 
 model Foto {
-  id        Int      @id @default(autoincrement())
-  descricao String?
-  fotoUrl   String?
-  cloudinaryId            String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id            Int           @id @default(autoincrement())
+  descricao     String?
+  fotoUrl       String?      @unique
+  cloudinaryId  String?      @unique
+  tipoFoto      TipoFoto
 
-  ordem   Ordem?  @relation(fields: [ordemOs], references: [numeroOs], onDelete: Cascade)
-  ordemOs String?
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
 
-  componente   Componente? @relation(fields: [componenteId], references: [id])
-  componenteId Int?
+  ordem         Ordem?        @relation(fields: [ordemOs], references: [numeroOs], onDelete: Cascade)
+  ordemOs       String?          // Relacionamento ÚNICO com Ordem (mantendo como estava se já estava funcionando)
 
-  subestacao   Subestacao? @relation(fields: [subestacaoId], references: [id])
-  subestacaoId Int?
+  componenteId  Int?
+  componente    Componente?   @relation(fields: [componenteId], references: [id])
 
-  funcionario   Funcionario? @relation(fields: [funcionarioId], references: [id])
+  subestacaoId  Int?
+  subestacao    Subestacao?   @relation(fields: [subestacaoId], references: [id])
+
   funcionarioId Int?
+  funcionario   Funcionario?  @relation(fields: [funcionarioId], references: [id])
 
-  ensaio   Ensaio? @relation(fields: [ensaioId], references: [id])
-  ensaioId Int?
-  
+  ensaioId      Int?
+  ensaio        Ensaio?       @relation(fields: [ensaioId], references: [id])
 
-  equipamento   Equipamento? @relation(fields: [equipamentoId], references: [id])
-  equipamentoId Int?
-
-  recomendacao   Recomendacao? @relation(fields: [recomendacaoId], references: [id])
   recomendacaoId Int?
+  recomendacao  Recomendacao? @relation(fields: [recomendacaoId], references: [id])
+
+  euqipamentoId Int?
+  equipamento   Equipamento?  @relation(fields: [euqipamentoId], references: [id])
+}
+
+enum TipoFoto {
+  INICIAL
+  ANTES       // Adicionado
+  DURANTE     // Adicionado
+  DEPOIS      // Adicionado
+  SUBESTACAO
+  COMPONENTE
+  EQUIPAMENTO
+  ENSAIO
+  RECOMENDACAO
 }
 
 model Subestacao {
@@ -209,6 +219,7 @@ enum TipoComponente {
   TRAFO_MEDIA
   TRAFO_CORRENTE
   TRAFO_POTENCIA
+  TRAFO_POTENCIAL
   TRAFO_FORCA
   DISJUNTOR_ALTA
   DISJUNTOR_MEDIA

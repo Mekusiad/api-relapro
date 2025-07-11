@@ -1,7 +1,7 @@
 export const gerarUsuarioAutomatico = (nomeCompleto) => {
   if (!nomeCompleto) return "";
 
-  const partes = nomeCompleto.trim().split(/\s+/); // divide por espaços
+  const partes = nomeCompleto.trim().split(/\s+/); 
   const primeiroNome = partes[0].toLowerCase();
   const ultimoNome = partes[partes.length - 1].toLowerCase();
 

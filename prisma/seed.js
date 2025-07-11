@@ -4,7 +4,7 @@ import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
-// # Seed para quando subir o projeto, cria o primeiro ADM.
+
 
 async function main() {
   const {
@@ -47,6 +47,128 @@ async function main() {
       senha: senhaCriptografada,
       cargo: ADMIN_CARGO,
       nivelAcesso: "ADMIN",
+    },
+  });
+
+    await prisma.funcionario.create({
+    data: {
+      nome: "DIEGO SOUZA DE SOUSA",
+      matricula: "1819",
+      usuario: "diego.souza",
+      senha: await bcrypt.hash("123123", 10),
+      cargo: 'Auxiliar Administrativo',
+      nivelAcesso: "ADMIN",
+    },
+  });
+
+      await prisma.funcionario.create({
+    data: {
+      nome: "WESLLEY VINICIUS NEVES ALVES",
+      matricula: "1525",
+      usuario: "weslley.alves",
+      senha: await bcrypt.hash("123123", 10),
+      cargo: 'ENGENHEIRO ELETRICISTA',
+      nivelAcesso: "ADMIN",
+    },
+  });
+
+        await prisma.funcionario.create({
+    data: {
+      nome: "LUIS HENRIQUE LOBATO DA SILVA",
+      matricula: "1398",
+      usuario: "luis.silva",
+      senha: await bcrypt.hash("123123", 10),
+      cargo: 'TÉCNICO ELETROMECANICO',
+      nivelAcesso: "SUPERVISOR",
+    },
+  });
+
+          await prisma.funcionario.create({
+    data: {
+      nome: "CESAR AUGUSTO DE LIMA GOMES",
+      matricula: "700",
+      usuario: "cesar.gomes",
+      senha: await bcrypt.hash("123123", 10),
+      cargo: 'ANALISTA DE SERVICOS TECNICOS II',
+      nivelAcesso: "SUPERVISOR",
+    },
+  });
+
+            await prisma.funcionario.create({
+    data: {
+      nome: "FRANCISCO DE ASSIS DE SOUSA PIMENTEL",
+      matricula: "1647",
+      usuario: "francisco.assis",
+      senha: await bcrypt.hash("123123", 10),
+      cargo: 'AUXILIAR DE SERVIÇOS TÉCNICOS',
+      nivelAcesso: "TECNICO",
+    },
+  });
+
+    await prisma.funcionario.create({
+    data: {
+      nome: "LUCAS PAES DE SOUZA",
+      matricula: "1868",
+      usuario: "lucas.paes",
+      senha: await bcrypt.hash("123123", 10),
+      cargo: 'AUXILIAR DE SERVIÇOS TÉCNICOS',
+      nivelAcesso: "TECNICO",
+    },
+  });
+
+    await prisma.funcionario.create({
+    data: {
+      nome: "MATHEUS BRITO BRAGA",
+      matricula: "1386",
+      usuario: "matheus.braga",
+      senha: await bcrypt.hash("123123", 10),
+      cargo: 'AUXILIAR DE SERVIÇOS TÉCNICOS',
+      nivelAcesso: "TECNICO",
+    },
+  });
+
+      await prisma.equipamento.create({
+    data: {
+      nome: "A",
+      descricao: "A",
+      modelo: "A",
+      numeroSerie: "A",
+    },
+  });
+
+        await prisma.equipamento.create({
+    data: {
+      nome: "B",
+      descricao: "B",
+      modelo: "B",
+      numeroSerie: "B",
+    },
+  });
+
+          await prisma.equipamento.create({
+    data: {
+      nome: "C",
+      descricao: "C",
+      modelo: "C",
+      numeroSerie: "C",
+    },
+  });
+
+            await prisma.equipamento.create({
+    data: {
+      nome: "D",
+      descricao: "D",
+      modelo: "D",
+      numeroSerie: "D",
+    },
+  });
+
+            await prisma.equipamento.create({
+    data: {
+      nome: "E",
+      descricao: "E",
+      modelo: "E",
+      numeroSerie: "E",
     },
   });
 

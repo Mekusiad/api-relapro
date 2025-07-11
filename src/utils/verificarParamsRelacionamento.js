@@ -1,13 +1,11 @@
 import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
-/**
- * Valida se o componente pertence à subestação e esta pertence à ordem.
- */
+
 export const verificarParamsRelacionamento = async (
   numeroOs,
   subestacaoId,
-  componenteId = null // valor padrão caso não venha
+  componenteId = null 
 ) => {
   const where = {
     numeroOs,

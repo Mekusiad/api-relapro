@@ -25,12 +25,37 @@ import {
   atualizarDadosSubestação,
   atualizarDadosPrincipaisOs,
   listarSubestacao,
+  excluirFotoPorId,
+  excluirFotoEnsaio, 
   criarOs2,
-  excluirFotoDaOrdem,
-  excluirFotoDoEnsaio,
 } from "../services/homeServices.js";
 
 import { handleError } from "../utils/errorHandler.js";
+
+export const homeExcluirFotoPorIdController = async (req, res) => {
+  try {
+    await excluirFotoPorId(req, res);
+  } catch (error) {
+    return handleError(
+      res,
+      error,
+      "Erro interno no servidor ao excluir a foto."
+    );
+  }
+};
+
+
+export const homeExcluirFotoEnsaioController = async (req, res) => {
+  try {
+    await excluirFotoEnsaio(req, res); 
+  } catch (error) {
+    return handleError(
+      res,
+      error,
+      "Erro interno no servidor ao excluir a foto do ensaio."
+    );
+  }
+};
 
 export const homeInfoController = async (req, res) => {
   try {
@@ -295,27 +320,3 @@ export const homeAtualizarComponentesDaSubestacaoController = async (
   }
 };
 
-//  Área de excluir fotos
-export const homeExcluirFotoDaOrdemController = async (req, res) => {
-  try {
-    await excluirFotoDaOrdem(req, res);
-  } catch (error) {
-    return handleError(
-      res,
-      error,
-      "Erro interno no servidor ao excluir ensaio do componente."
-    );
-  }
-};
-
-export const HomeExcluirFotoDoEnsaioController = async (req, res) => {
-  try {
-    await excluirFotoDoEnsaio(req, res);
-  } catch (error) {
-    return handleError(
-      res,
-      error,
-      "Erro interno no servidor ao excluir ensaio do componente."
-    );
-  }
-};

@@ -5,13 +5,14 @@ export const uploadImage = async (req, res) => {
 
   const urls = [];
 
-  // Percorre todos os campos (fotosIniciaisInput, fotosMedicaoInput, etc.)
+  
   for (const [campo, arquivos] of Object.entries(req.files)) {
     arquivos.forEach((file, index) => {
+      console.log(file.filename.split("/")[1])
       urls.push({
         descricao: `${campo} ${index + 1}`,
-        url: file.path, // URL pública do Cloudinary
-        cloudinaryId: file.filename,
+        url: file.path, 
+        cloudinaryId: file.filename.split("/")[1],
       });
     });
   }
