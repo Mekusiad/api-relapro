@@ -3,7 +3,7 @@ import { PrismaClient } from "@prisma/client";
 import { conferirMatriculas } from "../utils/conferirMatriculas.js";
 import { listarOrdensDoFuncionarioSchema } from "../validations/schema.js";
 import { gerarUsuarioAutomatico } from "../utils/utils.js";
-import cloudinary from "../utils/cloudinary.js"; 
+import cloudinary from "../utils/cloudinary.js";
 
 const prisma = new PrismaClient();
 
@@ -15,7 +15,6 @@ export const atualizarDadosPrincipaisOs = async (req, res) => {
   console.log("osDataFromFrontend para atualização:", osDataFromFrontend);
 
   await prisma.$transaction(async (tx) => {
-    
     const fotosAtuaisNoDB = await tx.foto.findMany({
       where: {
         ordemOs: numeroOs,
@@ -23,24 +22,20 @@ export const atualizarDadosPrincipaisOs = async (req, res) => {
       select: {
         id: true,
         cloudinaryId: true,
-        tipoFoto: true, 
+        tipoFoto: true,
       },
     });
 
-    
-    
-    
     const fotosNoFrontendCloudinaryIds = new Set(
       osDataFromFrontend.fotos
-        .filter(f => !f.isNew) 
-        .map(f => f.cloudinaryId)
+        .filter((f) => !f.isNew)
+        .map((f) => f.cloudinaryId)
     );
 
-    
     const fotosParaDeletar = fotosAtuaisNoDB.filter(
-      fotoDB => !fotosNoFrontendCloudinaryIds.has(fotoDB.cloudinaryId)
+      (fotoDB) => !fotosNoFrontendCloudinaryIds.has(fotoDB.cloudinaryId)
     );
-    
+
     for (const foto of fotosParaDeletar) {
       if (foto.cloudinaryId) {
         try {
@@ -58,10 +53,8 @@ export const atualizarDadosPrincipaisOs = async (req, res) => {
       console.log(`Foto ID ${foto.id} excluída do DB.`);
     }
 
-    
     for (const f of osDataFromFrontend.fotos) {
       if (f.isNew) {
-        
         await tx.foto.create({
           data: {
             descricao: f.descricao || null,
@@ -73,27 +66,28 @@ export const atualizarDadosPrincipaisOs = async (req, res) => {
         });
         console.log(`Nova foto ${f.cloudinaryId} adicionada.`);
       } else {
-        
-        
         const existingFotoInDb = await tx.foto.findFirst({
-            where: { cloudinaryId: f.cloudinaryId, ordemOs: numeroOs },
+          where: { cloudinaryId: f.cloudinaryId, ordemOs: numeroOs },
         });
 
         if (existingFotoInDb) {
-            await tx.foto.update({
-                where: { id: existingFotoInDb.id },
-                data: {
-                    descricao: f.descricao || null, 
-                },
-            });
-            console.log(`Foto existente ${f.cloudinaryId} atualizada com descrição.`);
+          await tx.foto.update({
+            where: { id: existingFotoInDb.id },
+            data: {
+              descricao: f.descricao || null,
+            },
+          });
+          console.log(
+            `Foto existente ${f.cloudinaryId} atualizada com descrição.`
+          );
         } else {
-            console.warn(`Foto existente ${f.cloudinaryId} do frontend não encontrada no DB para a OS ${numeroOs} para atualização de descrição. Pode ter sido excluída ou há inconsistência.`);
+          console.warn(
+            `Foto existente ${f.cloudinaryId} do frontend não encontrada no DB para a OS ${numeroOs} para atualização de descrição. Pode ter sido excluída ou há inconsistência.`
+          );
         }
       }
     }
 
-    
     await tx.ordem.update({
       where: { numeroOs: numeroOs },
       data: {
@@ -123,9 +117,6 @@ export const atualizarDadosPrincipaisOs = async (req, res) => {
       },
     });
 
-    
-
-    
     const idsDoFrontend = osDataFromFrontend.subestacoes
       .map((s) => s.id)
       .filter((id) => !String(id).startsWith("temp_"))
@@ -138,9 +129,7 @@ export const atualizarDadosPrincipaisOs = async (req, res) => {
       },
     });
 
-    
     for (const subFromFrontend of osDataFromFrontend.subestacoes) {
-      
       const componentesParaCriar = (subFromFrontend.componentes || []).flatMap(
         (comp) =>
           Array.from({ length: comp.quantidade }).map(() => ({
@@ -236,13 +225,11 @@ export const atualizarDadosPrincipaisOs = async (req, res) => {
 };
 
 export const excluirFotoPorId = async (req, res) => {
-
- 
-  const { numeroOs, cloudinaryId } = req.validatedData; 
-  console.log(req.params)
+  const { numeroOs, cloudinaryId } = req.validatedData;
+  console.log(req.params);
 
   const foto = await prisma.foto.findFirst({
-    where: { cloudinaryId: cloudinaryId}
+    where: { cloudinaryId: `os-fotos/${cloudinaryId}` },
   });
 
   if (!foto) {
@@ -252,7 +239,6 @@ export const excluirFotoPorId = async (req, res) => {
     });
   }
 
-
   if (foto.cloudinaryId) {
     try {
       await cloudinary.uploader.destroy(foto.cloudinaryId);
@@ -261,7 +247,6 @@ export const excluirFotoPorId = async (req, res) => {
       console.warn("Erro ao excluir do Cloudinary:", err.message);
     }
   }
-
 
   await prisma.foto.delete({
     where: { id: foto.id },
@@ -280,8 +265,8 @@ export const excluirFotoEnsaio = async (req, res) => {
   const foto = await prisma.foto.findFirst({
     where: {
       ensaioId: Number(ensaioId),
-      cloudinaryId: cloudinaryId
-    }
+      cloudinaryId: `os-fotos/${cloudinaryId}`,
+    },
   });
 
   if (!foto) {
@@ -325,14 +310,11 @@ export const homeInfo = async (req, res) => {
 
   let estatisticasOS = null;
 
-  
   let filtroOrdens = {};
 
   if (funcionario.nivelAcesso === "ADMIN") {
-    
     filtroOrdens = {};
   } else if (funcionario.nivelAcesso === "SUPERVISOR") {
-    
     filtroOrdens = {
       OR: [
         {
@@ -348,7 +330,6 @@ export const homeInfo = async (req, res) => {
       ],
     };
   } else if (funcionario.nivelAcesso === "TECNICO") {
-    
     filtroOrdens = {
       tecnico: {
         some: {
@@ -357,7 +338,7 @@ export const homeInfo = async (req, res) => {
       },
     };
   }
-  
+
   const [totalOs, abertas, andamento, finalizadas, ordens] = await Promise.all([
     prisma.ordem.count(),
     prisma.ordem.count({ where: { ...filtroOrdens, status: "ABERTA" } }),
@@ -374,7 +355,7 @@ export const homeInfo = async (req, res) => {
         previsaoTermino: true,
       },
       orderBy: { createdAt: "desc" },
-      take: 10, 
+      take: 10,
     }),
   ]);
 
@@ -402,7 +383,7 @@ export const homeInfo = async (req, res) => {
 };
 
 export const registrarFuncionario = async (req, res) => {
-  const data = req.validatedData; 
+  const data = req.validatedData;
 
   const matriculaExist = await prisma.funcionario.findFirst({
     where: { matricula: data.matricula },
@@ -456,7 +437,6 @@ export const atualizarDadosFuncionario = async (req, res) => {
     });
   }
 
-  
   if (data.senha) {
     const saltRounds = 10;
     data.senha = await bcrypt.hash(data.senha, saltRounds);
@@ -483,7 +463,6 @@ export const excluirFuncionario = async (req, res) => {
       message: "Acesso negado, não é permitido excluir a si mesmo.",
     });
 
-  
   const funcionarioExcluido = await prisma.funcionario.findUnique({
     where: { matricula: outraMatricula },
   });
@@ -497,7 +476,6 @@ export const excluirFuncionario = async (req, res) => {
     where: { matricula: outraMatricula },
   });
 
-  
   await prisma.logAtividade.create({
     data: {
       acao: "EXCLUIR",
@@ -618,7 +596,6 @@ export const listarOrdensDoFuncionario = async (req, res) => {
 export const criarOs2 = async (req, res) => {
   const data = req.validatedData;
 
-  
   const previsaoInicioDate = new Date(data.previsaoInicio);
 
   const ordemExist = await prisma.ordem.findFirst({
@@ -636,7 +613,6 @@ export const criarOs2 = async (req, res) => {
     });
   }
 
-  
   const numeroOrcamentoExist = await prisma.ordem.findFirst({
     where: {
       numeroOrcamento: data.numeroOrcamento,
@@ -650,7 +626,6 @@ export const criarOs2 = async (req, res) => {
     });
   }
 
-  
   const supervisorExiste = await prisma.funcionario.findUnique({
     where: { matricula: data?.supervisor },
   });
@@ -662,7 +637,6 @@ export const criarOs2 = async (req, res) => {
     });
   }
 
-  
   if (data.tecnico && data.tecnico.length > 0) {
     const tecnicos = await prisma.funcionario.findMany({
       where: { matricula: { in: data.tecnico.map(String) } },
@@ -681,7 +655,6 @@ export const criarOs2 = async (req, res) => {
     }
   }
 
-  
   const now = new Date();
   const ano = now.getFullYear();
   const countAno = await prisma.ordem.count({
@@ -696,7 +669,6 @@ export const criarOs2 = async (req, res) => {
   const numeroSequencial = String(countAno + 1).padStart(3, "0");
   const numeroOs = `${ano}${numeroSequencial}`;
 
-  
   const novaOrdem = await prisma.ordem.create({
     data: {
       numeroOs,
@@ -727,14 +699,11 @@ export const criarOs2 = async (req, res) => {
       status: data?.status || "ABERTA",
     },
     include: {
-      
       tecnico: { select: { nome: true, matricula: true } },
       supervisor: { select: { nome: true, matricula: true } },
       engenheiro: { select: { nome: true, matricula: true } },
     },
   });
-
-  
 
   const subestacoesCriadas = await Promise.all(
     (data.subestacoes || []).map(async (sub) => {
@@ -766,7 +735,6 @@ export const criarOs2 = async (req, res) => {
     },
   });
 };
-
 
 export const criarOs = async (req, res) => {
   const data = req.validatedData;
@@ -879,7 +847,6 @@ export const criarOs = async (req, res) => {
 export const excluirOs = async (req, res) => {
   const { matricula, numeroOs } = req.validatedData;
 
-  
   const ordemExcluida = await prisma.ordem.findUnique({
     where: { numeroOs },
   });
@@ -890,13 +857,11 @@ export const excluirOs = async (req, res) => {
       message: "OS não encontrada ou já foi excluída.",
     });
 
-  
   const fotosDiretas = await prisma.foto.findMany({
     where: { ordemOs: numeroOs },
     select: { cloudinaryId: true },
   });
 
-  
   const fotosViaEnsaio = await prisma.foto.findMany({
     where: {
       ensaio: {
@@ -910,10 +875,8 @@ export const excluirOs = async (req, res) => {
     select: { cloudinaryId: true },
   });
 
-  
   const todasAsFotos = [...fotosDiretas, ...fotosViaEnsaio];
 
-  
   for (const foto of todasAsFotos) {
     if (foto.cloudinaryId) {
       try {
@@ -934,7 +897,6 @@ export const excluirOs = async (req, res) => {
     },
   });
 
-  
   await prisma.logAtividade.create({
     data: {
       acao: "EXCLUIR",
@@ -991,7 +953,7 @@ export const criarSubestacaoComComponente = async (req, res) => {
       data: {
         ordemOs,
         componentes: {
-          create: componentes, 
+          create: componentes,
         },
       },
     });
@@ -1044,7 +1006,6 @@ export const removerSubestacao = async (req, res) => {
       message: `Não foi localizada subestação vinculada na OS ${numeroOs}`,
     });
 
-  
   await prisma.logAtividade.create({
     data: {
       acao: "EXCLUIR",
@@ -1085,7 +1046,6 @@ export const atualizarDadosSubestação = async (req, res) => {
     const quantidadeAtual = componentesDoTipo.length;
     const quantidadeDesejada = comp.quantidade;
 
-    
     if (quantidadeAtual < quantidadeDesejada) {
       const toCreate = Array.from(
         { length: quantidadeDesejada - quantidadeAtual },
@@ -1104,7 +1064,6 @@ export const atualizarDadosSubestação = async (req, res) => {
       );
     }
 
-    
     if (quantidadeAtual > quantidadeDesejada) {
       const toDelete = componentesDoTipo
         .sort((a, b) => b.id - a.id)
@@ -1121,7 +1080,6 @@ export const atualizarDadosSubestação = async (req, res) => {
     }
   }
 
-  
   const tiposEntrada = data.map((c) => `${c.nomeEquipamento}|${c.tipo}`);
 
   const componentesParaRemover = subestacaoExist.componentes.filter(
@@ -1148,11 +1106,6 @@ export const atualizarDadosSubestação = async (req, res) => {
       .status(404)
       .json({ status: false, message: "Subestação não encontrada." });
   }
-
-  
-  
-  
-  
 
   return res.status(200).json({
     status: true,
@@ -1207,7 +1160,6 @@ export const detalharOrdemFuncionario = async (req, res) => {
         .json({ status: false, message: "Acesso negado à ordem." });
     }
 
-    
     const ordemComponentes = [
       "MALHA",
       "RESISTOR",
@@ -1215,38 +1167,33 @@ export const detalharOrdemFuncionario = async (req, res) => {
       "CABOMUFLA",
       "CHAVE_SECCIONADORA",
       "DISJUNTOR_ALTA",
-      "DISJUNTOR_MEDIA", 
-      "TRAFO_ALTA", 
-      "TRAFO_POTENCIAL", 
-      "TRAFO_POTENCIA", 
-      "TRAFO_CORRENTE", 
-      "TRAFO_MEDIA", 
+      "DISJUNTOR_MEDIA",
+      "TRAFO_ALTA",
+      "TRAFO_POTENCIAL",
+      "TRAFO_POTENCIA",
+      "TRAFO_CORRENTE",
+      "TRAFO_MEDIA",
     ];
 
-    
     const ordemMap = new Map(
       ordemComponentes.map((nome, index) => [nome, index])
     );
 
-    
     const ordemComComponentesOrdenados = {
       ...ordem,
       subestacoes: ordem.subestacoes.map((subestacao) => ({
         ...subestacao,
         componentes: subestacao.componentes.sort((a, b) => {
-          
-          
           const tipoA = a.tipo;
           const tipoB = b.tipo;
 
           const indexA = tipoA !== undefined ? ordemMap.get(tipoA) : Infinity;
           const indexB = tipoB !== undefined ? ordemMap.get(tipoB) : Infinity;
 
-          
           if (indexA === undefined && indexB === undefined) {
-            return 0; 
+            return 0;
           }
-          
+
           if (indexA === undefined) return 1;
           if (indexB === undefined) return -1;
 
@@ -1254,7 +1201,6 @@ export const detalharOrdemFuncionario = async (req, res) => {
         }),
       })),
     };
-    
 
     return res
       .status(200)
@@ -1553,12 +1499,10 @@ export const adicionarEnsaioComponente = async (req, res) => {
 
 export const listarEnsaioComponente = async (req, res) => {};
 
-
 export const excluirEnsaioComponente = async (req, res) => {
   const { funcionarioMatricula, funcionarioNivelAcesso } = req;
   const { matricula, subestacaoId, componenteId, ensaioId } = req.params;
 
-  
   if (!conferirMatriculas(matricula, funcionarioMatricula))
     return res.status(403).json({ status: false, message: "Acesso negado." });
 
@@ -1591,7 +1535,6 @@ export const excluirEnsaioComponente = async (req, res) => {
 
   await prisma.ensaio.delete({ where: { id: Number(ensaioId) } });
 
-  
   await prisma.logAtividade.create({
     data: {
       acao: "EXCLUIR",
@@ -1668,7 +1611,9 @@ export const atualizarEquipamento = async (req, res) => {
 };
 
 export const listarEquipamentos = async (req, res) => {
-  const equipamentoExiste = await prisma.equipamento.findMany({orderBy:{nome:"asc"}});
+  const equipamentoExiste = await prisma.equipamento.findMany({
+    orderBy: { nome: "asc" },
+  });
 
   if (!equipamentoExiste)
     return res.status(401).json({
@@ -1703,7 +1648,6 @@ export const excluirEquipamento = async (req, res) => {
 
   await prisma.equipamento.delete({ where: { id: Number(equipamentoId) } });
 
-  
   await prisma.logAtividade.create({
     data: {
       acao: "EXCLUIR",
@@ -1731,13 +1675,11 @@ export const atualizarComponentesDaSubestacao = async (req, res) => {
 
   try {
     await prisma.$transaction(async (tx) => {
-      
       const componentesAtuais = await tx.componente.findMany({
         where: { subestacaoId: Number(subestacaoId) },
-        include: { _count: { select: { ensaio: true } } }, 
+        include: { _count: { select: { ensaio: true } } },
       });
 
-      
       for (const compInfo of componentesDoForm) {
         const nomeEquipamento = compInfo.nomeEquipamento;
         const tipoEquipamento = compInfo.tipo;
@@ -1749,7 +1691,6 @@ export const atualizarComponentesDaSubestacao = async (req, res) => {
         const qtdAtual = compsAtuaisDoTipo.length;
 
         if (qtdDesejada > qtdAtual) {
-          
           const aAdicionar = qtdDesejada - qtdAtual;
           for (let i = 0; i < aAdicionar; i++) {
             await tx.componente.create({
@@ -1763,12 +1704,11 @@ export const atualizarComponentesDaSubestacao = async (req, res) => {
             });
           }
         } else if (qtdDesejada < qtdAtual) {
-          
           const aDeletar = qtdAtual - qtdDesejada;
 
           const idsParaDeletar = compsAtuaisDoTipo
-            .sort((a, b) => a._count.ensaio - b._count.ensaio) 
-            .slice(0, aDeletar) 
+            .sort((a, b) => a._count.ensaio - b._count.ensaio)
+            .slice(0, aDeletar)
             .map((c) => c.id);
 
           if (idsParaDeletar.length > 0) {
@@ -1779,7 +1719,6 @@ export const atualizarComponentesDaSubestacao = async (req, res) => {
         }
       }
 
-      
       const nomesNoForm = componentesDoForm.map((c) => c.nomeEquipamento);
       const componentesParaRemoverTotalmente = componentesAtuais
         .filter((c) => !nomesNoForm.includes(c.nomeEquipamento))

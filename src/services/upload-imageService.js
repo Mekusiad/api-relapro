@@ -5,14 +5,12 @@ export const uploadImage = async (req, res) => {
 
   const urls = [];
 
-  
   for (const [campo, arquivos] of Object.entries(req.files)) {
     arquivos.forEach((file, index) => {
-      console.log(file.filename.split("/")[1])
       urls.push({
         descricao: `${campo} ${index + 1}`,
-        url: file.path, 
-        cloudinaryId: file.filename.split("/")[1],
+        url: file.path,
+        cloudinaryId: file.filename,
       });
     });
   }
