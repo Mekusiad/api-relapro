@@ -1432,76 +1432,64 @@ const disjuntorSchema = z
       .optional(),
     correnteAplicada: z.coerce
       .string()
-
       .max(100, "Máximo 100 caracteres.")
       .nullable()
       .optional(),
     resistenciaContatoFechadoA: z.coerce
       .string()
-
       .max(100, "Máximo 100 caracteres.")
       .nullable()
       .optional(),
     resistenciaContatoFechadoB: z.coerce
       .string()
-
       .max(100, "Máximo 100 caracteres.")
       .nullable()
       .optional(),
     resistenciaContatoFechadoC: z.coerce
       .string()
-
       .max(100, "Máximo 100 caracteres.")
       .nullable()
       .optional(),
 
     resistenciaContatoAbertoA: z.coerce
       .string()
-
       .max(100, "Máximo 100 caracteres.")
       .nullable()
       .optional(),
     resistenciaContatoAbertoB: z.coerce
       .string()
-
       .max(100, "Máximo 100 caracteres.")
       .nullable()
       .optional(),
     resistenciaContatoAbertoC: z.coerce
       .string()
-
       .max(100, "Máximo 100 caracteres.")
       .nullable()
       .optional(),
 
     resistenciaIsolamentoAbertoA: z.coerce
       .string()
-
       .max(100, "Máximo 100 caracteres.")
       .nullable()
       .optional(),
     resistenciaIsolamentoAbertoB: z.coerce
       .string()
-
       .max(100, "Máximo 100 caracteres.")
       .nullable()
       .optional(),
     resistenciaIsolamentoAbertoC: z.coerce
       .string()
-
       .max(100, "Máximo 100 caracteres.")
       .nullable()
       .optional(),
 
     resistenciaIsolamentoAxMassa: z.coerce
       .string()
-
       .max(100, "Máximo 100 caracteres.")
       .nullable()
       .optional(),
     resistenciaIsolamentoBxMassa: z.coerce
       .string()
-
       .max(100, "Máximo 100 caracteres.")
       .nullable()
       .optional(),
@@ -1512,145 +1500,121 @@ const disjuntorSchema = z
       .optional(),
     correntePoloAbertoA: z.coerce
       .string()
-
       .max(100, "Máximo 100 caracteres.")
       .nullable()
       .optional(),
     correntePoloAbertoB: z.coerce
       .string()
-
       .max(100, "Máximo 100 caracteres.")
       .nullable()
       .optional(),
     correntePoloAbertoC: z.coerce
       .string()
-
       .max(100, "Máximo 100 caracteres.")
       .nullable()
       .optional(),
     wattsPoloAbertoA: z.coerce
       .string()
-
       .max(100, "Máximo 100 caracteres.")
       .nullable()
       .optional(),
     wattsPoloAbertoB: z.coerce
       .string()
-
       .max(100, "Máximo 100 caracteres.")
       .nullable()
       .optional(),
     wattsPoloAbertoC: z.coerce
       .string()
-
       .max(100, "Máximo 100 caracteres.")
       .nullable()
       .optional(),
     fatorPotenciaPoloAbertoA: z.coerce
       .string()
-
       .max(100, "Máximo 100 caracteres.")
       .nullable()
       .optional(),
     fatorPotenciaPoloAbertoB: z.coerce
       .string()
-
       .max(100, "Máximo 100 caracteres.")
       .nullable()
       .optional(),
     fatorPotenciaPoloAbertoC: z.coerce
       .string()
-
       .max(100, "Máximo 100 caracteres.")
       .nullable()
       .optional(),
-    capacitanciaPoloAbertoA: z
-      .number()
-      .min(1, "Minimo 1 dígito")
+    capacitanciaPoloAbertoA: z.coerce
+      .string()
+      .max(10000, "Máximo 10000 caracteres.")
+      .nullable()
+      .optional(),
+    capacitanciaPoloAbertoB: z.coerce
+      .string()
       .max(10000, "Máximo 10000 dígitos.")
       .nullable()
       .optional(),
-    capacitanciaPoloAbertoB: z
-      .number()
-      .min(1, "Minimo 1 dígito")
-      .max(10000, "Máximo 10000 dígitos.")
-      .nullable()
-      .optional(),
-    capacitanciaPoloAbertoC: z
-      .number()
-      .min(1, "Minimo 1 dígito")
+    capacitanciaPoloAbertoC: z.coerce
+      .string()
       .max(10000, "Máximo 10000 dígitos.")
       .nullable()
       .optional(),
     correntePoloFechadoA: z.coerce
       .string()
-
       .max(100, "Máximo 100 caracteres.")
       .nullable()
       .optional(),
     correntePoloFechadoB: z.coerce
       .string()
-
       .max(100, "Máximo 100 caracteres.")
       .nullable()
       .optional(),
     correntePoloFechadoC: z.coerce
       .string()
-
       .max(100, "Máximo 100 caracteres.")
       .nullable()
       .optional(),
     wattsPoloFechadoA: z.coerce
       .string()
-
       .max(100, "Máximo 100 caracteres.")
       .nullable()
       .optional(),
     wattsPoloFechadoB: z.coerce
       .string()
-
       .max(100, "Máximo 100 caracteres.")
       .nullable()
       .optional(),
     wattsPoloFechadoC: z.coerce
       .string()
-
       .max(100, "Máximo 100 caracteres.")
       .nullable()
       .optional(),
     fatorPotenciaPoloFechadoA: z.coerce
       .string()
-
       .max(100, "Máximo 100 caracteres.")
       .nullable()
       .optional(),
     fatorPotenciaPoloFechadoB: z.coerce
       .string()
-
       .max(100, "Máximo 100 caracteres.")
       .nullable()
       .optional(),
     fatorPotenciaPoloFechadoC: z.coerce
       .string()
-
       .max(100, "Máximo 100 caracteres.")
       .nullable()
       .optional(),
-    capacitanciaPoloFechadoA: z
-      .number()
-      .min(1, "Minimo 1 dígito")
+    capacitanciaPoloFechadoA: z.coerce
+      .string()
       .max(10000, "Máximo 10000 dígitos.")
       .nullable()
       .optional(),
-    capacitanciaPoloFechadoB: z
-      .number()
-      .min(1, "Minimo 1 dígito")
+    capacitanciaPoloFechadoB: z.coerce
+      .string()
       .max(10000, "Máximo 10000 dígitos.")
       .nullable()
       .optional(),
-    capacitanciaPoloFechadoC: z
-      .number()
-      .min(1, "Minimo 1 dígito")
+    capacitanciaPoloFechadoC: z.coerce
+      .string()
       .max(10000, "Máximo 10000 dígitos.")
       .nullable()
       .optional(),
@@ -1709,8 +1673,8 @@ const malhaAterramentoSchema = z.object({
     .string()
     .max(500, "Máximo 500 caracteres.")
     .optional(),
-  servico1: z.enum(["SIM", "NAO", "N/A"]).optional(),
-  servico2: z.enum(["SIM", "NAO", "N/A"]).optional(),
+  servico1: z.enum(["SIM", "NAO", "N/A"]).nullable().optional(),
+  servico2: z.enum(["SIM", "NAO", "N/A"]).nullable().optional(),
 });
 
 const resistorAterramentoSchema = z.object({

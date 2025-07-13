@@ -501,7 +501,7 @@ export const excluirFuncionario = async (req, res) => {
   await prisma.logAtividade.create({
     data: {
       acao: "EXCLUIR",
-      entidade: "funcionario",
+      entidade: "FUNCIONARIO",
       dadosAfetados: funcionarioExcluido,
       feitoPor: funcionarioMatricula,
     },
@@ -709,7 +709,7 @@ export const criarOs2 = async (req, res) => {
       observacoes: data.observacoes,
       localServico: data.localServico,
       descricaoInicial: data.descricaoInicial,
-      previsaoInicio: previsaoInicioDate,
+      previsaoInicio: previsaoInicioDate.toLocaleDateString("pt-BR"),
       recomendacoes: data.recomendacoes,
       supervisor: {
         connect: { matricula: String(data.supervisor) },
@@ -766,7 +766,6 @@ export const criarOs2 = async (req, res) => {
     },
   });
 };
-
 
 
 export const criarOs = async (req, res) => {
@@ -939,7 +938,7 @@ export const excluirOs = async (req, res) => {
   await prisma.logAtividade.create({
     data: {
       acao: "EXCLUIR",
-      entidade: "ordem",
+      entidade: "ORDEM",
       dadosAfetados: ordemExcluida,
       feitoPor: matricula,
     },
@@ -1049,7 +1048,7 @@ export const removerSubestacao = async (req, res) => {
   await prisma.logAtividade.create({
     data: {
       acao: "EXCLUIR",
-      entidade: "subestação",
+      entidade: "SUBESTAÇÃO",
       dadosAfetados: subestacaoExist,
       feitoPor: matricula,
     },
@@ -1218,6 +1217,7 @@ export const detalharOrdemFuncionario = async (req, res) => {
       "DISJUNTOR_ALTA",
       "DISJUNTOR_MEDIA", 
       "TRAFO_ALTA", 
+      "TRAFO_POTENCIAL", 
       "TRAFO_POTENCIA", 
       "TRAFO_CORRENTE", 
       "TRAFO_MEDIA", 
@@ -1433,7 +1433,7 @@ export const excluirComponenteNaOs = async (req, res) => {
   await prisma.logAtividade.create({
     data: {
       acao: "EXCLUIR",
-      entidade: "componente",
+      entidade: "COMPONENTE",
       dadosAfetados: componenteExist,
       feitoPor: matricula,
     },
@@ -1507,7 +1507,7 @@ export const adicionarEnsaioComponente = async (req, res) => {
             }
           }
 
-          await tx.foto.deleteMany({
+          const ensaiosDeletados = await tx.foto.deleteMany({
             where: { ensaioId: ensaioExistente.id },
           });
         }
@@ -1568,11 +1568,11 @@ export const excluirEnsaioComponente = async (req, res) => {
       message: "Acesso negado, técnico não vinculado à OS ou não autorizado.",
     });
 
-  const ensaioFeito = await prisma.ensaioTrafoCorrente.findUnique({
+  const ensaioFeito = await prisma.ensaio.findUnique({
     where: { id: Number(ensaioId) },
   });
 
-  if (!ensaioFeito || ensaioFeito.componenteID !== Number(componenteId))
+  if (!ensaioFeito || ensaioFeito.componenteId !== Number(componenteId))
     return res.status(400).json({
       status: false,
       message: "Ensaio não está vinculado no componente ou foi excluído.",
@@ -1589,13 +1589,13 @@ export const excluirEnsaioComponente = async (req, res) => {
       message: "Componente não está vinculado na OS ou foi excluído.",
     });
 
-  await prisma.ensaioTrafoCorrente.delete({ where: { id: Number(ensaioId) } });
+  await prisma.ensaio.delete({ where: { id: Number(ensaioId) } });
 
   
   await prisma.logAtividade.create({
     data: {
       acao: "EXCLUIR",
-      entidade: "ensaioTrafoCorrente",
+      entidade: "ensaio",
       dadosAfetados: ensaioFeito,
       feitoPor: matricula,
     },
@@ -1668,7 +1668,7 @@ export const atualizarEquipamento = async (req, res) => {
 };
 
 export const listarEquipamentos = async (req, res) => {
-  const equipamentoExiste = await prisma.equipamento.findMany({});
+  const equipamentoExiste = await prisma.equipamento.findMany({orderBy:{nome:"asc"}});
 
   if (!equipamentoExiste)
     return res.status(401).json({
