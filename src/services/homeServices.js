@@ -15,43 +15,43 @@ export const atualizarDadosPrincipaisOs = async (req, res) => {
   console.log("osDataFromFrontend para atualização:", osDataFromFrontend);
 
   await prisma.$transaction(async (tx) => {
-    const fotosAtuaisNoDB = await tx.foto.findMany({
-      where: {
-        ordemOs: numeroOs,
-      },
-      select: {
-        id: true,
-        cloudinaryId: true,
-        tipoFoto: true,
-      },
-    });
+    // const fotosAtuaisNoDB = await tx.foto.findMany({
+    //   where: {
+    //     ordemOs: numeroOs,
+    //   },
+    //   select: {
+    //     id: true,
+    //     cloudinaryId: true,
+    //     tipoFoto: true,
+    //   },
+    // });
 
-    const fotosNoFrontendCloudinaryIds = new Set(
-      osDataFromFrontend.fotos
-        .filter((f) => !f.isNew)
-        .map((f) => f.cloudinaryId)
-    );
+    // const fotosNoFrontendCloudinaryIds = new Set(
+    //   osDataFromFrontend.fotos
+    //     .filter((f) => !f.isNew)
+    //     .map((f) => f.cloudinaryId)
+    // );
 
-    const fotosParaDeletar = fotosAtuaisNoDB.filter(
-      (fotoDB) => !fotosNoFrontendCloudinaryIds.has(fotoDB.cloudinaryId)
-    );
+    // const fotosParaDeletar = fotosAtuaisNoDB.filter(
+    //   (fotoDB) => !fotosNoFrontendCloudinaryIds.has(fotoDB.cloudinaryId)
+    // );
 
-    for (const foto of fotosParaDeletar) {
-      if (foto.cloudinaryId) {
-        try {
-          await cloudinary.uploader.destroy(foto.cloudinaryId);
-          console.log(`Foto ${foto.cloudinaryId} excluída do Cloudinary.`);
-        } catch (error) {
-          console.warn(
-            "Erro ao excluir foto do Cloudinary durante atualização (pode já ter sido removida ou ID inválido):",
-            foto.cloudinaryId,
-            error.message
-          );
-        }
-      }
-      await tx.foto.delete({ where: { id: foto.id } });
-      console.log(`Foto ID ${foto.id} excluída do DB.`);
-    }
+    // for (const foto of fotosParaDeletar) {
+    //   if (foto.cloudinaryId) {
+    //     try {
+    //       await cloudinary.uploader.destroy(foto.cloudinaryId);
+    //       console.log(`Foto ${foto.cloudinaryId} excluída do Cloudinary.`);
+    //     } catch (error) {
+    //       console.warn(
+    //         "Erro ao excluir foto do Cloudinary durante atualização (pode já ter sido removida ou ID inválido):",
+    //         foto.cloudinaryId,
+    //         error.message
+    //       );
+    //     }
+    //   }
+    //   await tx.foto.delete({ where: { id: foto.id } });
+    //   console.log(`Foto ID ${foto.id} excluída do DB.`);
+    // }
 
     for (const f of osDataFromFrontend.fotos) {
       if (f.isNew) {
@@ -596,13 +596,12 @@ export const listarOrdensDoFuncionario = async (req, res) => {
 export const criarOs2 = async (req, res) => {
   const data = req.validatedData;
 
-  const previsaoInicioDate = new Date(data.previsaoInicio);
 
   const ordemExist = await prisma.ordem.findFirst({
     where: {
       cliente: data.cliente,
       localServico: data.localServico,
-      previsaoInicio: previsaoInicioDate,
+      previsaoInicio: data.previsaoInicio,
     },
   });
 
@@ -681,7 +680,7 @@ export const criarOs2 = async (req, res) => {
       observacoes: data.observacoes,
       localServico: data.localServico,
       descricaoInicial: data.descricaoInicial,
-      previsaoInicio: previsaoInicioDate.toLocaleDateString("pt-BR"),
+      previsaoInicio: data.previsaoInicio,
       recomendacoes: data.recomendacoes,
       supervisor: {
         connect: { matricula: String(data.supervisor) },
@@ -738,13 +737,13 @@ export const criarOs2 = async (req, res) => {
 
 export const criarOs = async (req, res) => {
   const data = req.validatedData;
-  const previsaoInicioDate = new Date(data.previsaoInicio);
+
 
   const ordemExist = await prisma.ordem.findFirst({
     where: {
       cliente: data.cliente,
       localServico: data.localServico,
-      previsaoInicio: previsaoInicioDate,
+      previsaoInicio: data.previsaoInicio,
     },
   });
 
@@ -819,7 +818,7 @@ export const criarOs = async (req, res) => {
       observacoes: data.observacoes,
       localServico: data.localServico,
       descricaoInicial: data.descricaoInicial,
-      previsaoInicio: previsaoInicioDate,
+      previsaoInicio: data.previsaoInicio,
       supervisor: {
         connect: { matricula: String(data.supervisorMatricula) },
       },

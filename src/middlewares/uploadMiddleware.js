@@ -16,9 +16,9 @@ export const upload = multer({ storage });
 
 
 export const uploadFields = upload.fields([
-  { name: "fotosIniciaisInput", maxCount: 10 },   
-  { name: "fotosAntesInput", maxCount: 10 },       
-  { name: "fotosDuranteInput", maxCount: 10 },     
-  { name: "fotosDepoisInput", maxCount: 10 },      
-  { name: "fotosMedicaoInput", maxCount: 10 },     
+  { name: "fotosIniciaisInput", maxCount: 5 },   
+  { name: "fotosAntesInput", maxCount: 5 },       
+  { name: "fotosDuranteInput", maxCount: 5 },     
+  { name: "fotosDepoisInput", maxCount: 5 },      
+  { name: "fotosMedicaoInput", maxCount: 5 },     
 ]);
