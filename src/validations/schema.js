@@ -1479,103 +1479,133 @@ const disjuntorSchema = z
 
     correntePoloAberto: z
       .array(
-        z.coerce
-          .string()
-          .regex(/^\d+(?:[.,]\d+)?$/, "Apenas números decimais válidos")
-          .max(100, "Máximo de 100 caracteres.")
-      )
-      .nullable()
-      .optional(),
+  z
+    .string()
+    .trim()
+    .refine(
+      (val) => val === "" || /^\d+(?:[.,]\d+)?$/.test(val),
+      "Apenas números decimais válidos ou campos vazios"
+    )
+)
+.nullable()
+.optional(),
 
     wattsPoloAberto: z
       .array(
-        z.coerce
-          .string()
-          .regex(/^\d+(?:[.,]\d+)?$/, "Apenas números decimais válidos")
-          .max(100, "Máximo de 100 caracteres.")
-      )
-      .nullable()
-      .optional(),
+  z
+    .string()
+    .trim()
+    .refine(
+      (val) => val === "" || /^\d+(?:[.,]\d+)?$/.test(val),
+      "Apenas números decimais válidos ou campos vazios"
+    )
+)
+.nullable()
+.optional(),
 
     fatorPotenciaPoloAberto: z
       .array(
-        z.coerce
-          .string()
-          .regex(/^\d+(?:[.,]\d+)?$/, "Apenas números decimais válidos")
-          .max(100, "Máximo de 100 caracteres.")
-      )
-      .nullable()
-      .optional(),
+  z
+    .string()
+    .trim()
+    .refine(
+      (val) => val === "" || /^\d+(?:[.,]\d+)?$/.test(val),
+      "Apenas números decimais válidos ou campos vazios"
+    )
+)
+.nullable()
+.optional(),
 
     temperaturaPoloAberto: z
       .array(
-        z.coerce
-          .string()
-          .regex(/^\d+(?:[.,]\d+)?$/, "Apenas números decimais válidos")
-          .max(100, "Máximo de 100 caracteres.")
-      )
-      .nullable()
-      .optional(),
+  z
+    .string()
+    .trim()
+    .refine(
+      (val) => val === "" || /^\d+(?:[.,]\d+)?$/.test(val),
+      "Apenas números decimais válidos ou campos vazios"
+    )
+)
+.nullable()
+.optional(),
 
     capacitanciaPoloAberto: z
       .array(
-        z.coerce
-          .string()
-          .regex(/^\d+(?:[.,]\d+)?$/, "Apenas números decimais válidos")
-          .max(100, "Máximo de 100 caracteres.")
-      )
-      .nullable()
-      .optional(),
+  z
+    .string()
+    .trim()
+    .refine(
+      (val) => val === "" || /^\d+(?:[.,]\d+)?$/.test(val),
+      "Apenas números decimais válidos ou campos vazios"
+    )
+)
+.nullable()
+.optional(),
 
     correntePoloFechado: z
       .array(
-        z.coerce
-          .string()
-          .regex(/^\d+(?:[.,]\d+)?$/, "Apenas números decimais válidos")
-          .max(100, "Máximo de 100 caracteres.")
-      )
-      .nullable()
-      .optional(),
+  z
+    .string()
+    .trim()
+    .refine(
+      (val) => val === "" || /^\d+(?:[.,]\d+)?$/.test(val),
+      "Apenas números decimais válidos ou campos vazios"
+    )
+)
+.nullable()
+.optional(),
 
     wattsPoloFechado: z
       .array(
-        z.coerce
-          .string()
-          .regex(/^\d+(?:[.,]\d+)?$/, "Apenas números decimais válidos")
-          .max(100, "Máximo de 100 caracteres.")
-      )
-      .nullable()
-      .optional(),
+  z
+    .string()
+    .trim()
+    .refine(
+      (val) => val === "" || /^\d+(?:[.,]\d+)?$/.test(val),
+      "Apenas números decimais válidos ou campos vazios"
+    )
+)
+.nullable()
+.optional(),
 
     fatorPotenciaPoloFechado: z
       .array(
-        z.coerce
-          .string()
-          .regex(/^\d+(?:[.,]\d+)?$/, "Apenas números decimais válidos")
-          .max(100, "Máximo de 100 caracteres.")
-      )
-      .nullable()
-      .optional(),
+  z
+    .string()
+    .trim()
+    .refine(
+      (val) => val === "" || /^\d+(?:[.,]\d+)?$/.test(val),
+      "Apenas números decimais válidos ou campos vazios"
+    )
+)
+.nullable()
+.optional(),
 
     temperaturaPoloFechado: z
       .array(
-        z.coerce
-          .string()
-          .regex(/^\d+(?:[.,]\d+)?$/, "Apenas números decimais válidos")
-          .max(100, "Máximo de 100 caracteres.")
-      )
-      .nullable()
-      .optional(),
+  z
+    .string()
+    .trim()
+    .refine(
+      (val) => val === "" || /^\d+(?:[.,]\d+)?$/.test(val),
+      "Apenas números decimais válidos ou campos vazios"
+    )
+)
+.nullable()
+.optional(),
 
     capacitanciaPoloFechado: z
       .array(
-        z.coerce
-          .string()
-          .regex(/^\d+(?:[.,]\d+)?$/, "Apenas números decimais válidos")
-          .max(100, "Máximo de 100 caracteres.")
-      )
-      .nullable()
-      .optional(),
+  z
+    .string()
+    .trim()
+    .refine(
+      (val) => val === "" || /^\d+(?:[.,]\d+)?$/.test(val),
+      "Apenas números decimais válidos ou campos vazios"
+    )
+)
+.nullable()
+.optional(),
 
     servico: z.array(
       z
