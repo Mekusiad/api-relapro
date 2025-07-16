@@ -265,7 +265,8 @@ export const excluirFotoEnsaio = async (req, res) => {
   const foto = await prisma.foto.findFirst({
     where: {
       ensaioId: Number(ensaioId),
-      cloudinaryId: `os-fotos/${cloudinaryId}`,
+      // cloudinaryId: `os-fotos/${cloudinaryId}`,
+      cloudinaryId: `${cloudinaryId}`,
     },
   });
 
@@ -596,7 +597,6 @@ export const listarOrdensDoFuncionario = async (req, res) => {
 export const criarOs2 = async (req, res) => {
   const data = req.validatedData;
 
-
   const ordemExist = await prisma.ordem.findFirst({
     where: {
       cliente: data.cliente,
@@ -737,7 +737,6 @@ export const criarOs2 = async (req, res) => {
 
 export const criarOs = async (req, res) => {
   const data = req.validatedData;
-
 
   const ordemExist = await prisma.ordem.findFirst({
     where: {
@@ -1400,6 +1399,8 @@ export const adicionarEnsaioComponente = async (req, res) => {
       equipamento,
     },
   } = req.validatedData;
+
+  console.log(JSON.stringify(fotos));
 
   try {
     await prisma.$transaction(async (tx) => {
