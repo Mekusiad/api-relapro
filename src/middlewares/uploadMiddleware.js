@@ -20,5 +20,6 @@ export const uploadFields = upload.fields([
   { name: "fotosAntesInput", maxCount: 5 },       
   { name: "fotosDuranteInput", maxCount: 5 },     
   { name: "fotosDepoisInput", maxCount: 5 },      
+  { name: "fotosPontoAtencaoInput", maxCount: 5 },     
   { name: "fotosMedicaoInput", maxCount: 5 },     
 ]);
