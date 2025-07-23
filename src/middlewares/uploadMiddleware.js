@@ -19,6 +19,7 @@ const storage = new CloudinaryStorage({
 export const upload = multer({ storage });
 
 
+<<<<<<< HEAD
 export const uploadFields = upload.any();
 
 // export const uploadFields = upload.fields([
@@ -29,3 +30,13 @@ export const uploadFields = upload.any();
 //   { name: "fotosPontoAtencaoInput", maxCount: 5 },     
 //   { name: "fotosMedicaoInput", maxCount: 5 },     
 // ]);
+=======
+export const uploadFields = upload.fields([
+  { name: "fotosIniciaisInput", maxCount: 5 },   
+  { name: "fotosAntesInput", maxCount: 5 },       
+  { name: "fotosDuranteInput", maxCount: 5 },     
+  { name: "fotosDepoisInput", maxCount: 5 },      
+  { name: "fotosPontoAtencaoInput", maxCount: 5 },     
+  { name: "fotosMedicaoInput", maxCount: 5 },     
+]);
+>>>>>>> d39829cdebfec5c0140ef13b09d84eb7dd6a7ae4
