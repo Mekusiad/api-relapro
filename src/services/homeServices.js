@@ -12,46 +12,9 @@ export const atualizarDadosPrincipaisOs = async (req, res) => {
     params: { numeroOs },
     body: osDataFromFrontend,
   } = req.validatedData;
-  console.log("osDataFromFrontend para atualização:", osDataFromFrontend);
 
   await prisma.$transaction(async (tx) => {
-    // const fotosAtuaisNoDB = await tx.foto.findMany({
-    //   where: {
-    //     ordemOs: numeroOs,
-    //   },
-    //   select: {
-    //     id: true,
-    //     cloudinaryId: true,
-    //     tipoFoto: true,
-    //   },
-    // });
-
-    // const fotosNoFrontendCloudinaryIds = new Set(
-    //   osDataFromFrontend.fotos
-    //     .filter((f) => !f.isNew)
-    //     .map((f) => f.cloudinaryId)
-    // );
-
-    // const fotosParaDeletar = fotosAtuaisNoDB.filter(
-    //   (fotoDB) => !fotosNoFrontendCloudinaryIds.has(fotoDB.cloudinaryId)
-    // );
-
-    // for (const foto of fotosParaDeletar) {
-    //   if (foto.cloudinaryId) {
-    //     try {
-    //       await cloudinary.uploader.destroy(foto.cloudinaryId);
-    //       console.log(`Foto ${foto.cloudinaryId} excluída do Cloudinary.`);
-    //     } catch (error) {
-    //       console.warn(
-    //         "Erro ao excluir foto do Cloudinary durante atualização (pode já ter sido removida ou ID inválido):",
-    //         foto.cloudinaryId,
-    //         error.message
-    //       );
-    //     }
-    //   }
-    //   await tx.foto.delete({ where: { id: foto.id } });
-    //   console.log(`Foto ID ${foto.id} excluída do DB.`);
-    // }
+   
 
     for (const f of osDataFromFrontend.fotos) {
       if (f.isNew) {
@@ -64,7 +27,7 @@ export const atualizarDadosPrincipaisOs = async (req, res) => {
             ordemOs: numeroOs,
           },
         });
-        console.log(`Nova foto ${f.cloudinaryId} adicionada.`);
+        // console.log(`Nova foto ${f.cloudinaryId} adicionada.`);
       } else {
         const existingFotoInDb = await tx.foto.findFirst({
           where: { cloudinaryId: f.cloudinaryId, ordemOs: numeroOs },
@@ -226,10 +189,9 @@ export const atualizarDadosPrincipaisOs = async (req, res) => {
 
 export const excluirFotoPorId = async (req, res) => {
   const { numeroOs, cloudinaryId } = req.validatedData;
-  console.log(req.params);
 
   const foto = await prisma.foto.findFirst({
-    where: { cloudinaryId: `os-fotos/${cloudinaryId}` },
+    where: { cloudinaryId: cloudinaryId },
   });
 
   if (!foto) {
@@ -265,7 +227,6 @@ export const excluirFotoEnsaio = async (req, res) => {
   const foto = await prisma.foto.findFirst({
     where: {
       ensaioId: Number(ensaioId),
-      // cloudinaryId: `os-fotos/${cloudinaryId}`,
       cloudinaryId: `${cloudinaryId}`,
     },
   });
@@ -606,7 +567,7 @@ export const criarOs2 = async (req, res) => {
   });
 
   if (ordemExist) {
-    return res.status(403).json({
+    return res.status(409).json({
       status: false,
       message: `Serviço já existe e está vinculada à OS ${ordemExist.numeroOs}`,
     });
@@ -619,7 +580,7 @@ export const criarOs2 = async (req, res) => {
   });
 
   if (numeroOrcamentoExist) {
-    return res.status(403).json({
+    return res.status(409).json({
       status: false,
       message: `Número de orçamento já existe e está vinculado à OS ${numeroOrcamentoExist.numeroOs}`,
     });
@@ -746,9 +707,8 @@ export const criarOs = async (req, res) => {
     },
   });
 
-  console.log("->", ordemExist);
   if (ordemExist)
-    return res.status(403).json({
+    return res.status(409).json({
       status: false,
       message: `Serviço já existe e está vinculada à OS ${ordemExist.numeroOs}`,
     });
@@ -760,7 +720,7 @@ export const criarOs = async (req, res) => {
   });
 
   if (numeroOrcamentoExist)
-    return res.status(403).json({
+    return res.status(409).json({
       status: false,
       message: `Número de orçamento já existe e está vinculada à OS ${numeroOrcamentoExist.numeroOs}`,
     });
@@ -922,7 +882,7 @@ export const adicionarSubestacao = async (req, res) => {
   });
 
   if (subestacaoExist) {
-    return res.status(403).json({
+    return res.status(409).json({
       status: false,
       message: `Subestação com nome '${nome}' já está vinculada na OS ${numeroOs}`,
     });
@@ -973,7 +933,7 @@ export const listarSubestacao = async (req, res) => {
   });
 
   if (!subestacaoExist)
-    return res.status(403).json({
+    return res.status(409).json({
       status: false,
       message: `No momento não possui subestação vinculada na OS ${numeroOs}`,
     });
@@ -999,7 +959,7 @@ export const removerSubestacao = async (req, res) => {
   });
 
   if (!subestacaoExist)
-    return res.status(403).json({
+    return res.status(404).json({
       status: false,
       message: `Não foi localizada subestação vinculada na OS ${numeroOs}`,
     });
@@ -1237,7 +1197,7 @@ export const listarComponentesDaSubestacao = async (req, res) => {
     include: { componentes: { include: { ensaio: true } } },
   });
   if (!subestacaoExiste)
-    return res.status(403).json({
+    return res.status(404).json({
       status: false,
       message: "Subestação não existe ou não vinculada à OS.",
     });
@@ -1392,7 +1352,6 @@ export const adicionarEnsaioComponente = async (req, res) => {
     params: { matricula, componenteId },
     body: {
       tipo,
-      responsavelEnsaio,
       engenheiroResponsavel,
       fotos,
       dados,
@@ -1400,22 +1359,8 @@ export const adicionarEnsaioComponente = async (req, res) => {
     },
   } = req.validatedData;
 
-  console.log(JSON.stringify(fotos));
-
   try {
     await prisma.$transaction(async (tx) => {
-      const fotoUpdate = {};
-      if (Array.isArray(fotos) && fotos.length > 0) {
-        fotoUpdate.fotos = {
-          create: fotos.map((f) => ({
-            descricao: f.descricao,
-            fotoUrl: f.url,
-            cloudinaryId: f.cloudinaryId,
-            tipoFoto: f.tipoFoto,
-          })),
-        };
-      }
-
       const dadosComunsEnsaio = {
         dados: dados,
         tipo: tipo,
@@ -1430,35 +1375,80 @@ export const adicionarEnsaioComponente = async (req, res) => {
           tipo: tipo,
           componenteId: Number(componenteId),
         },
+        include: {
+          fotos: {
+            select: { id: true, cloudinaryId: true, fotoUrl: true },
+          },
+        },
       });
 
       if (ensaioExistente) {
-        if (fotos !== undefined) {
-          const fotosAntigas = await tx.foto.findMany({
-            where: { ensaioId: ensaioExistente.id },
-            select: { cloudinaryId: true },
-          });
+        const fotosNoFrontend = Array.isArray(fotos) ? fotos : [];
+        const fotosAtuaisNoDB = ensaioExistente.fotos;
 
-          for (const foto of fotosAntigas) {
-            if (foto.cloudinaryId) {
-              try {
-                await cloudinary.uploader.destroy(foto.cloudinaryId);
-              } catch (error) {
-                console.warn(
-                  "Erro ao excluir do Cloudinary (pode já ter sido removida):",
-                  foto.cloudinaryId,
-                  error.message
-                );
-              }
+        const fotosFrontendCloudinaryIds = new Set(
+          fotosNoFrontend.map((f) => f.cloudinaryId)
+        );
+
+        // Fotos no DB que NÃO estão mais no frontend (precisam ser deletadas)
+        const fotosParaDeletarDoDBeCloudinary = fotosAtuaisNoDB.filter(
+          (fotoDB) => !fotosFrontendCloudinaryIds.has(fotoDB.cloudinaryId)
+        );
+
+        for (const foto of fotosParaDeletarDoDBeCloudinary) {
+          if (foto.cloudinaryId) {
+            try {
+              await cloudinary.uploader.destroy(foto.cloudinaryId);
+              console.log(`Cloudinary: Foto ${foto.cloudinaryId} deletada.`);
+            } catch (error) {
+              console.warn(
+                `Cloudinary: Erro ao excluir ${foto.cloudinaryId} (pode já ter sido removida ou ID inválido):`,
+                error.message
+              );
             }
           }
-
-          const ensaiosDeletados = await tx.foto.deleteMany({
-            where: { ensaioId: ensaioExistente.id },
-          });
+          await tx.foto.delete({ where: { id: foto.id } });
+          console.log(`DB: Registro da foto ${foto.id} deletado.`);
         }
 
-        await tx.ensaio.update({
+        // --- Início da Lógica Corrigida para Novas Fotos ---
+
+        // 1. Obtenha todos os Cloudinary IDs que já existem em QUALQUER lugar na tabela Foto
+        const todosCloudinaryIdsExistentesNoDB = new Set(
+          (
+            await tx.foto.findMany({
+              select: { cloudinaryId: true },
+            })
+          ).map((f) => f.cloudinaryId)
+        );
+
+        // 2. Filtre as fotos do frontend para encontrar aquelas que são *realmente novas*
+        // (i.e., seu cloudinaryId não existe em nenhuma foto já salva no DB)
+        const novasFotosParaCriar = fotosNoFrontend.filter(
+          (fotoFrontend) =>
+            !todosCloudinaryIdsExistentesNoDB.has(fotoFrontend.cloudinaryId)
+        );
+
+        const fotosCriarData = novasFotosParaCriar.map((f) => ({
+          descricao: f.descricao,
+          fotoUrl: f.url,
+          cloudinaryId: f.cloudinaryId,
+          tipoFoto: f.tipoFoto,
+          ensaioId: ensaioExistente.id,
+        }));
+
+        if (fotosCriarData.length > 0) {
+          await tx.foto.createMany({
+            data: fotosCriarData,
+            // A linha skipDuplicates foi removida na correção anterior,
+            // e a lógica de filtragem acima garante a unicidade.
+          });
+          console.log(`DB: ${fotosCriarData.length} novas fotos criadas.`);
+        }
+
+        // --- Fim da Lógica Corrigida para Novas Fotos ---
+
+        const ensaioAtualizado =await tx.ensaio.update({
           where: { id: ensaioExistente.id },
           data: {
             ...dadosComunsEnsaio,
@@ -1466,11 +1456,26 @@ export const adicionarEnsaioComponente = async (req, res) => {
               equipamento && equipamento.length > 0
                 ? { set: equipamento.map((id) => ({ id })) }
                 : { set: [] },
-            ...fotoUpdate,
           },
         });
+
+
+        return res.status(201).json({status:true, message:"Ensaio atualizado com sucesso.",data: ensaioAtualizado})
       } else {
-        await tx.ensaio.create({
+        // Lógica para Criar Novo Ensaio (sem mudanças aqui)
+        const fotoUpdate = {};
+        if (Array.isArray(fotos) && fotos.length > 0) {
+          fotoUpdate.fotos = {
+            create: fotos.map((f) => ({
+              descricao: f.descricao,
+              fotoUrl: f.url,
+              cloudinaryId: f.cloudinaryId,
+              tipoFoto: f.tipoFoto,
+            })),
+          };
+        }
+
+        const novoEnsaio = await tx.ensaio.create({
           data: {
             ...dadosComunsEnsaio,
             componente: { connect: { id: Number(componenteId) } },
@@ -1481,12 +1486,13 @@ export const adicionarEnsaioComponente = async (req, res) => {
             ...fotoUpdate,
           },
         });
+        return res
+      .status(200)
+      .json({ status: true, message: "Ensaio salvo com sucesso.", data:novoEnsaio });
       }
     });
 
-    return res
-      .status(200)
-      .json({ status: true, message: "Ensaio salvo com sucesso." });
+    
   } catch (error) {
     console.error("### ERRO DETALHADO AO SALVAR ENSAIO ###", error);
     return res.status(500).json({
