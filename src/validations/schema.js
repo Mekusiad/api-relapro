@@ -855,6 +855,7 @@ export const ensaioSchema = z
           "MALHA",
           "CABOMUFLA",
           "BUCHA",
+          "BATERIA",
           "OUTRO",
         ]),
         responsavel: z
@@ -1656,20 +1657,17 @@ const malhaAterramentoSchema = z.object({
 const resistorAterramentoSchema = z.object({
   resistenciaNominal: z.coerce
     .number()
-
-    .max(100, "Máximo 100 caracteres.")
+    .max(999999, "Máximo 999999 números.")
     .nullable()
     .optional(),
   resistenciaOhmicaMedida: z.coerce
     .number()
-
-    .max(100, "Máximo 100 caracteres.")
+    .max(999999, "Máximo 999999 números.")
     .nullable()
     .optional(),
   resistenciaIsolamento: z.coerce
     .number()
-
-    .max(100, "Máximo 100 caracteres.")
+    .max(999999, "Máximo 999999 números.")
     .nullable()
     .optional(),
   observacao: z.coerce
@@ -1861,6 +1859,37 @@ const caboMuflaSchema = z.object({
     .optional(),
 });
 
+const bateriaSchema = z
+  .object({
+    // Dados da medição do ensaio de tensão das baterias
+    tensao: z
+      .array(z.coerce.number().optional().nullable())
+      .max(20, "Máximo 20 baterias por ensaio.") // Defina um limite razoável
+      .optional(),
+    
+    // Serviços de Inspeção Visual
+    servicos: z
+      .array(
+        z.object({
+          label: z.string(),
+          valor: z.enum(["SIM", "NAO", "N/A"]),
+        })
+      )
+      .optional(),
+
+    // Observações e avaliação
+    avaliacao: z.enum(["CONFORME", "NAO_CONFORME"]).optional(),
+    descricaoAvaliacao: z.coerce
+      .string()
+      .max(500, "Máximo 500 caracteres.")
+      .optional(),
+    observacao: z.coerce
+      .string()
+      .max(1000, "Resuma em no máximo 1000 caracteres.")
+      .optional(),
+  })
+  .strict();
+
 const tpBuchaSchema = z
   .object({
     numeroSerieBucha: z.coerce
@@ -1929,4 +1958,5 @@ export const schemasPorTipo = {
   CABOMUFLA: caboMuflaSchema,
   PARARAIO: pararaioSchema,
   BUCHA: tpBuchaSchema,
+  BATERIA: bateriaSchema,
 };
