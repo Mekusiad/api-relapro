@@ -14,8 +14,6 @@ export const atualizarDadosPrincipaisOs = async (req, res) => {
   } = req.validatedData;
 
   await prisma.$transaction(async (tx) => {
-   
-
     for (const f of osDataFromFrontend.fotos) {
       if (f.isNew) {
         await tx.foto.create({
@@ -1083,20 +1081,21 @@ export const detalharOrdemFuncionario = async (req, res) => {
         supervisor: { select: { matricula: true, nome: true } },
         engenheiro: { select: { matricula: true, nome: true } },
         fotos: {
-          orderBy: { id: 'asc' } // Order photos by ID
+          orderBy: { id: "asc" }, // Order photos by ID
         },
         subestacoes: {
-          orderBy: { id: 'asc' }, // Order subestacoes by ID
+          orderBy: { id: "asc" }, // Order subestacoes by ID
           include: {
             componentes: {
-              orderBy: { id: 'asc' }, // Order componentes by ID
+              orderBy: { id: "asc" }, // Order componentes by ID
               include: {
-                ensaio: { // Assuming 'ensaios' is the correct relation name for 'ensaio' if it's a list
-                  orderBy: { id: 'asc' }, // Order ensaios by ID
+                ensaio: {
+                  // Assuming 'ensaios' is the correct relation name for 'ensaio' if it's a list
+                  orderBy: { id: "asc" }, // Order ensaios by ID
                   include: {
                     equipamento: true,
                     fotos: {
-                      orderBy: { id: 'asc' } // Order ensaio photos by ID
+                      orderBy: { id: "asc" }, // Order ensaio photos by ID
                     },
                     responsavel: { select: { nome: true } },
                   },
@@ -1357,13 +1356,7 @@ export const excluirComponenteNaOs = async (req, res) => {
 export const adicionarEnsaioComponente = async (req, res) => {
   const {
     params: { matricula, componenteId },
-    body: {
-      tipo,
-      engenheiroResponsavel,
-      fotos,
-      dados,
-      equipamento,
-    },
+    body: { tipo, engenheiroResponsavel, fotos, dados, equipamento },
   } = req.validatedData;
 
   try {
@@ -1455,7 +1448,7 @@ export const adicionarEnsaioComponente = async (req, res) => {
 
         // --- Fim da Lógica Corrigida para Novas Fotos ---
 
-        const ensaioAtualizado =await tx.ensaio.update({
+        const ensaioAtualizado = await tx.ensaio.update({
           where: { id: ensaioExistente.id },
           data: {
             ...dadosComunsEnsaio,
@@ -1466,8 +1459,13 @@ export const adicionarEnsaioComponente = async (req, res) => {
           },
         });
 
-
-        return res.status(201).json({status:true, message:"Ensaio atualizado com sucesso.",data: ensaioAtualizado})
+        return res
+          .status(201)
+          .json({
+            status: true,
+            message: "Ensaio atualizado com sucesso.",
+            data: ensaioAtualizado,
+          });
       } else {
         // Lógica para Criar Novo Ensaio (sem mudanças aqui)
         const fotoUpdate = {};
@@ -1494,12 +1492,14 @@ export const adicionarEnsaioComponente = async (req, res) => {
           },
         });
         return res
-      .status(200)
-      .json({ status: true, message: "Ensaio salvo com sucesso.", data:novoEnsaio });
+          .status(200)
+          .json({
+            status: true,
+            message: "Ensaio salvo com sucesso.",
+            data: novoEnsaio,
+          });
       }
     });
-
-    
   } catch (error) {
     console.error("### ERRO DETALHADO AO SALVAR ENSAIO ###", error);
     return res.status(500).json({

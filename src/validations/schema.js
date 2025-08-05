@@ -1480,133 +1480,133 @@ const disjuntorSchema = z
 
     correntePoloAberto: z
       .array(
-  z
-    .string()
-    .trim()
-    .refine(
-      (val) => val === "" || /^\d+(?:[.,]\d+)?$/.test(val),
-      "Apenas números decimais válidos ou campos vazios"
-    )
-)
-.nullable()
-.optional(),
+        z
+          .string()
+          .trim()
+          .refine(
+            (val) => val === "" || /^\d+(?:[.,]\d+)?$/.test(val),
+            "Apenas números decimais válidos ou campos vazios"
+          )
+      )
+      .nullable()
+      .optional(),
 
     wattsPoloAberto: z
       .array(
-  z
-    .string()
-    .trim()
-    .refine(
-      (val) => val === "" || /^\d+(?:[.,]\d+)?$/.test(val),
-      "Apenas números decimais válidos ou campos vazios"
-    )
-)
-.nullable()
-.optional(),
+        z
+          .string()
+          .trim()
+          .refine(
+            (val) => val === "" || /^\d+(?:[.,]\d+)?$/.test(val),
+            "Apenas números decimais válidos ou campos vazios"
+          )
+      )
+      .nullable()
+      .optional(),
 
     fatorPotenciaPoloAberto: z
       .array(
-  z
-    .string()
-    .trim()
-    .refine(
-      (val) => val === "" || /^\d+(?:[.,]\d+)?$/.test(val),
-      "Apenas números decimais válidos ou campos vazios"
-    )
-)
-.nullable()
-.optional(),
+        z
+          .string()
+          .trim()
+          .refine(
+            (val) => val === "" || /^\d+(?:[.,]\d+)?$/.test(val),
+            "Apenas números decimais válidos ou campos vazios"
+          )
+      )
+      .nullable()
+      .optional(),
 
     temperaturaPoloAberto: z
       .array(
-  z
-    .string()
-    .trim()
-    .refine(
-      (val) => val === "" || /^\d+(?:[.,]\d+)?$/.test(val),
-      "Apenas números decimais válidos ou campos vazios"
-    )
-)
-.nullable()
-.optional(),
+        z
+          .string()
+          .trim()
+          .refine(
+            (val) => val === "" || /^\d+(?:[.,]\d+)?$/.test(val),
+            "Apenas números decimais válidos ou campos vazios"
+          )
+      )
+      .nullable()
+      .optional(),
 
     capacitanciaPoloAberto: z
       .array(
-  z
-    .string()
-    .trim()
-    .refine(
-      (val) => val === "" || /^\d+(?:[.,]\d+)?$/.test(val),
-      "Apenas números decimais válidos ou campos vazios"
-    )
-)
-.nullable()
-.optional(),
+        z
+          .string()
+          .trim()
+          .refine(
+            (val) => val === "" || /^\d+(?:[.,]\d+)?$/.test(val),
+            "Apenas números decimais válidos ou campos vazios"
+          )
+      )
+      .nullable()
+      .optional(),
 
     correntePoloFechado: z
       .array(
-  z
-    .string()
-    .trim()
-    .refine(
-      (val) => val === "" || /^\d+(?:[.,]\d+)?$/.test(val),
-      "Apenas números decimais válidos ou campos vazios"
-    )
-)
-.nullable()
-.optional(),
+        z
+          .string()
+          .trim()
+          .refine(
+            (val) => val === "" || /^\d+(?:[.,]\d+)?$/.test(val),
+            "Apenas números decimais válidos ou campos vazios"
+          )
+      )
+      .nullable()
+      .optional(),
 
     wattsPoloFechado: z
       .array(
-  z
-    .string()
-    .trim()
-    .refine(
-      (val) => val === "" || /^\d+(?:[.,]\d+)?$/.test(val),
-      "Apenas números decimais válidos ou campos vazios"
-    )
-)
-.nullable()
-.optional(),
+        z
+          .string()
+          .trim()
+          .refine(
+            (val) => val === "" || /^\d+(?:[.,]\d+)?$/.test(val),
+            "Apenas números decimais válidos ou campos vazios"
+          )
+      )
+      .nullable()
+      .optional(),
 
     fatorPotenciaPoloFechado: z
       .array(
-  z
-    .string()
-    .trim()
-    .refine(
-      (val) => val === "" || /^\d+(?:[.,]\d+)?$/.test(val),
-      "Apenas números decimais válidos ou campos vazios"
-    )
-)
-.nullable()
-.optional(),
+        z
+          .string()
+          .trim()
+          .refine(
+            (val) => val === "" || /^\d+(?:[.,]\d+)?$/.test(val),
+            "Apenas números decimais válidos ou campos vazios"
+          )
+      )
+      .nullable()
+      .optional(),
 
     temperaturaPoloFechado: z
       .array(
-  z
-    .string()
-    .trim()
-    .refine(
-      (val) => val === "" || /^\d+(?:[.,]\d+)?$/.test(val),
-      "Apenas números decimais válidos ou campos vazios"
-    )
-)
-.nullable()
-.optional(),
+        z
+          .string()
+          .trim()
+          .refine(
+            (val) => val === "" || /^\d+(?:[.,]\d+)?$/.test(val),
+            "Apenas números decimais válidos ou campos vazios"
+          )
+      )
+      .nullable()
+      .optional(),
 
     capacitanciaPoloFechado: z
       .array(
-  z
-    .string()
-    .trim()
-    .refine(
-      (val) => val === "" || /^\d+(?:[.,]\d+)?$/.test(val),
-      "Apenas números decimais válidos ou campos vazios"
-    )
-)
-.nullable()
-.optional(),
+        z
+          .string()
+          .trim()
+          .refine(
+            (val) => val === "" || /^\d+(?:[.,]\d+)?$/.test(val),
+            "Apenas números decimais válidos ou campos vazios"
+          )
+      )
+      .nullable()
+      .optional(),
 
     servico: z.array(
       z
@@ -1866,7 +1866,7 @@ const bateriaSchema = z
       .array(z.coerce.number().optional().nullable())
       .max(20, "Máximo 20 baterias por ensaio.") // Defina um limite razoável
       .optional(),
-    
+
     // Serviços de Inspeção Visual
     servicos: z
       .array(

@@ -28,8 +28,6 @@ export const uploadImage = async (req, res) => {
   });
 };
 
-
-
 // export const uploadImage = async (req, res) => {
 //   if (!req.files || Object.keys(req.files).length === 0) {
 //     return res.status(400).json({ error: "Nenhum arquivo enviado" });
