@@ -230,6 +230,7 @@ enum TipoComponente {
   PARARAIO
   BUCHA
   CABOMUFLA
+  BATERIA
 }
 
 model Equipamento {
