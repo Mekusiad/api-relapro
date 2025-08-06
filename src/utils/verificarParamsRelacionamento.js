@@ -5,7 +5,7 @@ const prisma = new PrismaClient();
 export const verificarParamsRelacionamento = async (
   numeroOs,
   subestacaoId,
-  componenteId = null 
+  componenteId = null
 ) => {
   const where = {
     numeroOs,

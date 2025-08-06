@@ -1,14 +1,14 @@
 export const gerarUsuarioAutomatico = (nomeCompleto) => {
   if (!nomeCompleto) return "";
 
-  const partes = nomeCompleto.trim().split(/\s+/); 
+  const partes = nomeCompleto.trim().split(/\s+/);
   const primeiroNome = partes[0].toLowerCase();
   const ultimoNome = partes[partes.length - 1].toLowerCase();
 
   return `${primeiroNome}.${ultimoNome}`;
 };
 
-export const formatPrimeiroEUltimoNome =(nomeCompleto)=> {
+export const formatPrimeiroEUltimoNome = (nomeCompleto) => {
   if (!nomeCompleto) return "";
 
   const partes = nomeCompleto.trim().split(/\s+/);
@@ -23,4 +23,4 @@ export const formatPrimeiroEUltimoNome =(nomeCompleto)=> {
     str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
 
   return `${capitalize(primeiro)} ${capitalize(ultimo)}`;
-}
+};

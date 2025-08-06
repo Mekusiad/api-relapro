@@ -1,8 +1,5 @@
 export const conferirMatriculaMiddleware = (paramsName = "matricula") => {
   return (req, res, next) => {
-
-    
-
     const decodedMatricula = req.funcionarioMatricula;
     const paramsMatricula = req.params[paramsName];
 

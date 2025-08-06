@@ -19,5 +19,5 @@ export const verificarRelacionamentoMiddleware = async (req, res, next) => {
     });
   }
 
-  next(); 
+  next();
 };

@@ -29,7 +29,7 @@ import {
   homeAtualizarDadosPrincipaisOsController,
   homeAtualizarComponentesDaSubestacaoController,
   homeExcluirFotoPorIdController,
-  homeExcluirFotoEnsaioController, 
+  homeExcluirFotoEnsaioController,
 } from "../controllers/homeController.js";
 import {
   validarEnsaioMiddleware,
@@ -67,22 +67,17 @@ import {
 } from "../validations/schema.js";
 import { conferirMatriculaMiddleware } from "../middlewares/conferirMatriculaMiddleware.js";
 import { conferirNivelAcessoMiddleware } from "../middlewares/conferirNivelAcessoMiddleware.js";
-import {
-  criarSubestacaoComComponente,
-} from "../services/homeServices.js";
+import { criarSubestacaoComComponente } from "../services/homeServices.js";
 
 export const homeRoutes = express.Router();
 
-
 homeRoutes.use(verifyToken);
-
 
 homeRoutes.get(
   "/home",
   validateReq(homeInfoSchema, "custom"),
   homeInfoController
 );
-
 
 homeRoutes.post(
   "/home/:matricula/funcionarios",
@@ -123,7 +118,6 @@ homeRoutes.get(
   homeBuscarFuncionarioPorMatriculaController
 );
 
-
 homeRoutes.post(
   "/home/ordens",
   conferirNivelAcessoMiddleware("ADMIN", "SUPERVISOR"),
@@ -159,12 +153,10 @@ homeRoutes.get(
   homeDetalharOrdemFuncionarioController
 );
 
-
 homeRoutes.post(
   "/home/:matricula/ordens/:numeroOs/subestacoes",
   conferirMatriculaMiddleware("matricula"),
-  
-  
+
   homeadicionarSubestacaoController
 );
 
@@ -172,7 +164,7 @@ homeRoutes.post(
   "/home/:matricula/ordens/:numeroOs/subestacoes",
   conferirMatriculaMiddleware("matricula"),
   conferirNivelAcessoMiddleware("ADMIN"),
-  
+
   criarSubestacaoComComponente
 );
 
@@ -196,10 +188,9 @@ homeRoutes.put(
   "/home/:matricula/ordens/:numeroOs/subestacoes/:subestacaoId",
   conferirMatriculaMiddleware("matricula"),
   conferirNivelAcessoMiddleware("ADMIN"),
-  
+
   homeAtualizarDadosSubestaçãoController
 );
-
 
 homeRoutes.post(
   "/home/:matricula/ordens/:numeroOs/subestacoes/:subestacaoId/componentes",
@@ -208,7 +199,6 @@ homeRoutes.post(
   validateGenerico(adicionarComponenteSchema),
   homeAdicionarComponenteController
 );
-
 
 homeRoutes.put(
   "/home/:matricula/ordens/:numeroOs/subestacoes/:subestacaoId/componentes",
@@ -251,7 +241,6 @@ homeRoutes.delete(
   homeExcluirEnsaioComponenteController
 );
 
-
 homeRoutes.get(
   "/home/:matricula/logs",
   conferirMatriculaMiddleware("matricula"),
@@ -290,19 +279,18 @@ homeRoutes.delete(
   homeExcluirEquipamentoController
 );
 
-
 homeRoutes.delete(
-  "/home/:matricula/ordens/:numeroOs/fotos/:cloudinaryId", 
+  "/home/:matricula/ordens/:numeroOs/fotos/:cloudinaryId",
   conferirMatriculaMiddleware("matricula"),
-  conferirNivelAcessoMiddleware("ADMIN", "SUPERVISOR", "TECNICO"), 
-  validateReq(excluirfotosDaOrdemSchema, "params"), 
-  homeExcluirFotoPorIdController 
+  conferirNivelAcessoMiddleware("ADMIN", "SUPERVISOR", "TECNICO"),
+  validateReq(excluirfotosDaOrdemSchema, "params"),
+  homeExcluirFotoPorIdController
 );
 
 homeRoutes.delete(
   "/home/:matricula/ensaios/:ensaioId/fotos/:cloudinaryId",
   conferirMatriculaMiddleware("matricula"),
   conferirNivelAcessoMiddleware("ADMIN", "SUPERVISOR", "TECNICO"),
-  validateReq(excluirfotosDoEnsaioSchema, "params"), 
+  validateReq(excluirfotosDoEnsaioSchema, "params"),
   homeExcluirFotoEnsaioController
 );

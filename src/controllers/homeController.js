@@ -26,7 +26,7 @@ import {
   atualizarDadosPrincipaisOs,
   listarSubestacao,
   excluirFotoPorId,
-  excluirFotoEnsaio, 
+  excluirFotoEnsaio,
   criarOs2,
 } from "../services/homeServices.js";
 
@@ -44,10 +44,9 @@ export const homeExcluirFotoPorIdController = async (req, res) => {
   }
 };
 
-
 export const homeExcluirFotoEnsaioController = async (req, res) => {
   try {
-    await excluirFotoEnsaio(req, res); 
+    await excluirFotoEnsaio(req, res);
   } catch (error) {
     return handleError(
       res,
@@ -319,4 +318,3 @@ export const homeAtualizarComponentesDaSubestacaoController = async (
     );
   }
 };
-

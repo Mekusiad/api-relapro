@@ -1,5 +1,3 @@
-
-
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 import { PrismaClient } from "@prisma/client";
@@ -29,7 +27,6 @@ export const loginService = async (req, res) => {
       .json({ status: false, message: "Usuário ou senha incorreto." });
   }
 
-  
   const senhaCorreta = await bcrypt.compare(senha, funcionarioExiste.senha);
 
   if (!senhaCorreta)
@@ -46,11 +43,9 @@ export const loginService = async (req, res) => {
     { expiresIn: "12h" }
   );
 
- 
   return res.status(200).json({
     status: true,
     message: "Usuário logado com sucesso",
     token,
-  
   });
 };
