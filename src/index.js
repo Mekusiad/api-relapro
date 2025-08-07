@@ -15,7 +15,13 @@ const __dirname = path.dirname(__filename);
 dotenv.config();
 const app = express();
 
-app.use(cors());
+// Configuração CORS explícita para o frontend
+const corsOptions = {
+  origin: "https://relapro.vercel.app",
+  optionsSuccessStatus: 200, // Respostas preflight para navegadores mais antigos
+};
+
+app.use(cors(corsOptions));
 app.use(express.json());
 
 app.use(express.static(path.join(__dirname, "..", "..", "frontend")));
