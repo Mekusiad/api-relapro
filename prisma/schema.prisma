@@ -7,7 +7,8 @@
 generator client {
   provider = "prisma-client-js"
 }
-  // output   = "../src/generated/prisma"
+
+// output   = "../src/generated/prisma"
 
 datasource db {
   provider = "postgresql"
@@ -35,8 +36,8 @@ model Funcionario {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  foto Foto[]
-  ensaio  Ensaio[]
+  foto   Foto[]
+  ensaio Ensaio[]
 }
 
 enum NivelAcesso {
@@ -65,27 +66,27 @@ model Ordem {
   createdAt        DateTime    @default(now())
   updatedAt        DateTime    @updatedAt
 
-  engenheiro Funcionario? @relation("EngenheiroOrdem", fields: [engenheiroMatricula], references: [matricula], onDelete: Cascade)
+  engenheiro          Funcionario? @relation("EngenheiroOrdem", fields: [engenheiroMatricula], references: [matricula], onDelete: Cascade)
   engenheiroMatricula String?
 
-  supervisor Funcionario? @relation("SupervisorOrdem", fields: [supervisorMatricula], references: [matricula], onDelete: Cascade)
+  supervisor          Funcionario? @relation("SupervisorOrdem", fields: [supervisorMatricula], references: [matricula], onDelete: Cascade)
   supervisorMatricula String?
 
   tecnico Funcionario[] @relation("TecnicoOrdem")
 
   subestacoes Subestacao[]
-  fotos       Foto[]        // <-- Agora todas as fotos vêm por esse campo
+  fotos       Foto[] // <-- Agora todas as fotos vêm por esse campo
 }
 
 enum TipoServico {
- MANUTENCAO_PREVENTIVA
- MANUTENCAO_CORRETIVA
- MANUTENCAO_PREDITIVA
- ENSAIO_EPI
- INSPECAO
- INSTALACAO
- OUTROS
- }
+  MANUTENCAO_PREVENTIVA
+  MANUTENCAO_CORRETIVA
+  MANUTENCAO_PREDITIVA
+  ENSAIO_EPI
+  INSPECAO
+  INSTALACAO
+  OUTROS
+}
 
 enum StatusOrdem {
   ABERTA
@@ -95,42 +96,42 @@ enum StatusOrdem {
 }
 
 model Foto {
-  id            Int           @id @default(autoincrement())
-  descricao     String?
-  fotoUrl       String?      @unique
-  cloudinaryId  String?      @unique
-  tipoFoto      TipoFoto
+  id           Int      @id @default(autoincrement())
+  descricao    String?
+  fotoUrl      String?  @unique
+  cloudinaryId String?  @unique
+  tipoFoto     TipoFoto
 
-  createdAt     DateTime      @default(now())
-  updatedAt     DateTime      @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-  ordem         Ordem?        @relation(fields: [ordemOs], references: [numeroOs], onDelete: Cascade)
-  ordemOs       String?          // Relacionamento ÚNICO com Ordem (mantendo como estava se já estava funcionando)
+  ordem   Ordem?  @relation(fields: [ordemOs], references: [numeroOs], onDelete: Cascade)
+  ordemOs String? // Relacionamento ÚNICO com Ordem (mantendo como estava se já estava funcionando)
 
-  componenteId  Int?
-  componente    Componente?   @relation(fields: [componenteId], references: [id])
+  componenteId Int?
+  componente   Componente? @relation(fields: [componenteId], references: [id])
 
-  subestacaoId  Int?
-  subestacao    Subestacao?   @relation(fields: [subestacaoId], references: [id])
+  subestacaoId Int?
+  subestacao   Subestacao? @relation(fields: [subestacaoId], references: [id])
 
   funcionarioId Int?
-  funcionario   Funcionario?  @relation(fields: [funcionarioId], references: [id])
+  funcionario   Funcionario? @relation(fields: [funcionarioId], references: [id])
 
-  ensaioId      Int?
-  ensaio        Ensaio?       @relation(fields: [ensaioId], references: [id])
+  ensaioId Int?
+  ensaio   Ensaio? @relation(fields: [ensaioId], references: [id])
 
   recomendacaoId Int?
-  recomendacao  Recomendacao? @relation(fields: [recomendacaoId], references: [id])
+  recomendacao   Recomendacao? @relation(fields: [recomendacaoId], references: [id])
 
   euqipamentoId Int?
-  equipamento   Equipamento?  @relation(fields: [euqipamentoId], references: [id])
+  equipamento   Equipamento? @relation(fields: [euqipamentoId], references: [id])
 }
 
 enum TipoFoto {
   INICIAL
-  ANTES       // Adicionado
-  DURANTE     // Adicionado
-  DEPOIS      // Adicionado
+  ANTES
+  DURANTE
+  DEPOIS
   SUBESTACAO
   COMPONENTE
   EQUIPAMENTO
@@ -139,17 +140,17 @@ enum TipoFoto {
 }
 
 model Subestacao {
-  id   Int    @id @default(autoincrement())
-  nome String // Nome ou código da subestação
-  observacoesTecnicasSubestacao   String?
+  id                            Int     @id @default(autoincrement())
+  nome                          String // Nome ou código da subestação
+  observacoesTecnicasSubestacao String?
 
-  ordem   Ordem  @relation(fields: [ordemOs], references: [numeroOs], onDelete: Cascade)
-  ordemOs String
+  ordem      Ordem   @relation(fields: [ordemOs], references: [numeroOs], onDelete: Cascade)
+  ordemOs    String
   observacao String?
 
-  componentes             Componente[] // Subestação possui vários componentes
-  recomendacao            Recomendacao[]
-  foto                    Foto[]
+  componentes  Componente[] // Subestação possui vários componentes
+  recomendacao Recomendacao[]
+  foto         Foto[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -166,7 +167,7 @@ model Componente {
   modelo             String?
   fabricante         String?
   numeroSerie        String?
-  quantidade         Int      @default(1)
+  quantidade         Int            @default(1)
   meioIsolante       String?
   anoFabricacao      Int?
   massaTotal         Float?
@@ -196,40 +197,41 @@ model Componente {
   subestacao   Subestacao @relation(fields: [subestacaoId], references: [id], onDelete: Cascade)
   subestacaoId Int
 
-  ensaio Ensaio[]
-  foto                      Foto[]
-  recomendacao              Recomendacao[]
-
-  
+  ensaio       Ensaio[]
+  foto         Foto[]
+  recomendacao Recomendacao[]
 }
 
 enum TipoTensao {
-X
-Y
-NA
+  X
+  Y
+  NA
 }
 
 enum TipoPressao {
-GAS
-OLEO
+  GAS
+  OLEO
 }
 
 enum TipoComponente {
+  MALHA
+  RESISTOR
+  PARARAIO
+  CABOMUFLA
+  CHAVE_SECCIONADORA
+  DISJUNTOR_ALTA
+  DISJUNTOR_MEDIA
+  DISJUNTOR_BAIXA
   TRAFO_ALTA
-  TRAFO_MEDIA
   TRAFO_CORRENTE
   TRAFO_POTENCIA
   TRAFO_POTENCIAL
   TRAFO_FORCA
-  DISJUNTOR_ALTA
-  DISJUNTOR_MEDIA
-  DISJUNTOR_BAIXA
-  RESISTOR
-  CHAVE_SECCIONADORA
-  MALHA
-  PARARAIO
+  TRAFO_MEDIA
+  BATERIA
+  CAPACITOR
   BUCHA
-  CABOMUFLA
+  RELE
 }
 
 model Equipamento {
@@ -239,9 +241,8 @@ model Equipamento {
   modelo      String
   numeroSerie String @unique
 
-
-  ensaio   Ensaio[] @relation("EquipamentoEnsaio")
-  foto Foto[]
+  ensaio Ensaio[] @relation("EquipamentoEnsaio")
+  foto   Foto[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -271,28 +272,26 @@ model Recomendacao {
   updatedAt DateTime @updatedAt
 }
 
-
 model Ensaio {
-  id                      Int      @id @default(autoincrement())
-  tipo                    TipoComponente
-  dados                   Json
-  dataEnsaio              DateTime?
-  engenheiroResponsavel   String?
+  id                    Int            @id @default(autoincrement())
+  tipo                  TipoComponente
+  dados                 Json
+  dataEnsaio            DateTime?
+  engenheiroResponsavel String?
 
   // --- RELAÇÕES CORRIGIDAS ---
-  componente              Componente @relation(fields: [componenteId], references: [id], onDelete: Cascade)
-  componenteId            Int
+  componente   Componente @relation(fields: [componenteId], references: [id], onDelete: Cascade)
+  componenteId Int
 
   // Relação correta com Funcionário
-  responsavel             Funcionario? @relation(fields: [responsavelMatricula], references: [matricula])
-  responsavelMatricula    String? // CORRIGIDO: para corresponder ao tipo em Funcionario
+  responsavel          Funcionario? @relation(fields: [responsavelMatricula], references: [matricula])
+  responsavelMatricula String? // CORRIGIDO: para corresponder ao tipo em Funcionario
 
+  equipamento Equipamento[] @relation("EquipamentoEnsaio")
+  fotos       Foto[] // A sua relação com Foto (já estava correta)
 
-  equipamento   Equipamento[] @relation("EquipamentoEnsaio")
-  fotos                   Foto[] // A sua relação com Foto (já estava correta)
-  
-  createdAt               DateTime  @default(now())
-  updatedAt               DateTime  @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@unique([tipo, componenteId])
 }
