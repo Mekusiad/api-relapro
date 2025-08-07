@@ -291,6 +291,8 @@ export const criarOrdemComSubestacoesSchema = z
                   "MALHA",
                   "PARARAIO",
                   "CABOMUFLA",
+                  "BATERIA",
+                  "CAPACITOR",
                 ]),
                 numeroSerie: z.coerce.string().optional().nullable(),
                 quantidade: z.number().int().positive().optional(),
