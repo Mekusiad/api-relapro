@@ -1761,7 +1761,7 @@ const chaveSeccionadoraSchema = z.object({
 });
 
 const pararaioSchema = z.object({
-  numeroSerie: z
+  numeroSerieRI: z
     .array(z.coerce.string().max(100, "Máximo de 100 caracteres."))
     .nullable()
     .optional(),
@@ -1782,6 +1782,10 @@ const pararaioSchema = z.object({
     .nullable()
     .optional(),
   tempoEnsaioRI: z
+    .array(z.coerce.string().max(100, "Máximo de 100 caracteres."))
+    .nullable()
+    .optional(),
+  numeroSerieCF: z
     .array(z.coerce.string().max(100, "Máximo de 100 caracteres."))
     .nullable()
     .optional(),
