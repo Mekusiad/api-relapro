@@ -13,171 +13,177 @@ export const atualizarDadosPrincipaisOs = async (req, res) => {
     body: osDataFromFrontend,
   } = req.validatedData;
 
-  await prisma.$transaction(async (tx) => {
-    for (const f of osDataFromFrontend.fotos) {
-      if (f.isNew) {
-        await tx.foto.create({
-          data: {
-            descricao: f.descricao || null,
-            fotoUrl: f.url,
-            cloudinaryId: f.cloudinaryId,
-            tipoFoto: f.tipoFoto,
-            ordemOs: numeroOs,
-          },
-        });
-        // console.log(`Nova foto ${f.cloudinaryId} adicionada.`);
-      } else {
-        const existingFotoInDb = await tx.foto.findFirst({
-          where: { cloudinaryId: f.cloudinaryId, ordemOs: numeroOs },
-        });
-
-        if (existingFotoInDb) {
-          await tx.foto.update({
-            where: { id: existingFotoInDb.id },
+  await prisma.$transaction(
+    async (tx) => {
+      for (const f of osDataFromFrontend.fotos) {
+        if (f.isNew) {
+          await tx.foto.create({
             data: {
               descricao: f.descricao || null,
+              fotoUrl: f.url,
+              cloudinaryId: f.cloudinaryId,
+              tipoFoto: f.tipoFoto,
+              ordemOs: numeroOs,
             },
           });
-          console.log(
-            `Foto existente ${f.cloudinaryId} atualizada com descrição.`
-          );
+          // console.log(`Nova foto ${f.cloudinaryId} adicionada.`);
         } else {
-          console.warn(
-            `Foto existente ${f.cloudinaryId} do frontend não encontrada no DB para a OS ${numeroOs} para atualização de descrição. Pode ter sido excluída ou há inconsistência.`
-          );
+          const existingFotoInDb = await tx.foto.findFirst({
+            where: { cloudinaryId: f.cloudinaryId, ordemOs: numeroOs },
+          });
+
+          if (existingFotoInDb) {
+            await tx.foto.update({
+              where: { id: existingFotoInDb.id },
+              data: {
+                descricao: f.descricao || null,
+              },
+            });
+            console.log(
+              `Foto existente ${f.cloudinaryId} atualizada com descrição.`
+            );
+          } else {
+            console.warn(
+              `Foto existente ${f.cloudinaryId} do frontend não encontrada no DB para a OS ${numeroOs} para atualização de descrição. Pode ter sido excluída ou há inconsistência.`
+            );
+          }
         }
       }
-    }
 
-    await tx.ordem.update({
-      where: { numeroOs: numeroOs },
-      data: {
-        cliente: osDataFromFrontend.cliente,
-        nomeResponsavel: osDataFromFrontend.nomeResponsavel,
-        localServico: osDataFromFrontend.localServico,
-        email: osDataFromFrontend.email,
-        contato: osDataFromFrontend.contato,
-        numeroOrcamento: osDataFromFrontend.numeroOrcamento,
-        tipoServico: osDataFromFrontend.tipoServico,
-        previsaoInicio: osDataFromFrontend.previsaoInicio,
-        previsaoTermino: osDataFromFrontend.previsaoTermino,
-        status: osDataFromFrontend.status,
-        conclusao: osDataFromFrontend.conclusao,
-        recomendacoes: osDataFromFrontend.recomendacoes,
-        tecnico: {
-          set: osDataFromFrontend.tecnico.map((matricula) => ({
-            matricula,
-          })),
+      await tx.ordem.update({
+        where: { numeroOs: numeroOs },
+        data: {
+          cliente: osDataFromFrontend.cliente,
+          nomeResponsavel: osDataFromFrontend.nomeResponsavel,
+          localServico: osDataFromFrontend.localServico,
+          email: osDataFromFrontend.email,
+          contato: osDataFromFrontend.contato,
+          numeroOrcamento: osDataFromFrontend.numeroOrcamento,
+          tipoServico: osDataFromFrontend.tipoServico,
+          previsaoInicio: osDataFromFrontend.previsaoInicio,
+          previsaoTermino: osDataFromFrontend.previsaoTermino,
+          status: osDataFromFrontend.status,
+          conclusao: osDataFromFrontend.conclusao,
+          recomendacoes: osDataFromFrontend.recomendacoes,
+          tecnico: {
+            set: osDataFromFrontend.tecnico.map((matricula) => ({
+              matricula,
+            })),
+          },
+          supervisor: {
+            connect: { matricula: osDataFromFrontend.supervisor },
+          },
+          engenheiro: osDataFromFrontend.engenheiro
+            ? { connect: { matricula: osDataFromFrontend.engenheiro } }
+            : undefined,
         },
-        supervisor: {
-          connect: { matricula: osDataFromFrontend.supervisor },
+      });
+
+      const idsDoFrontend = osDataFromFrontend.subestacoes
+        .map((s) => s.id)
+        .filter((id) => !String(id).startsWith("temp_"))
+        .map(Number);
+
+      await tx.subestacao.deleteMany({
+        where: {
+          ordemOs: numeroOs,
+          id: { notIn: idsDoFrontend },
         },
-        engenheiro: osDataFromFrontend.engenheiro
-          ? { connect: { matricula: osDataFromFrontend.engenheiro } }
-          : undefined,
-      },
-    });
+      });
 
-    const idsDoFrontend = osDataFromFrontend.subestacoes
-      .map((s) => s.id)
-      .filter((id) => !String(id).startsWith("temp_"))
-      .map(Number);
-
-    await tx.subestacao.deleteMany({
-      where: {
-        ordemOs: numeroOs,
-        id: { notIn: idsDoFrontend },
-      },
-    });
-
-    for (const subFromFrontend of osDataFromFrontend.subestacoes) {
-      const componentesParaCriar = (subFromFrontend.componentes || []).flatMap(
-        (comp) =>
+      for (const subFromFrontend of osDataFromFrontend.subestacoes) {
+        const componentesParaCriar = (
+          subFromFrontend.componentes || []
+        ).flatMap((comp) =>
           Array.from({ length: comp.quantidade }).map(() => ({
             nomeEquipamento: comp.nomeEquipamento,
             tipo: comp.tipo,
             numeroSerie: comp.numeroSerie || "N/A",
             fabricante: comp.fabricante || "N/A",
           }))
-      );
-
-      if (String(subFromFrontend.id).startsWith("temp_")) {
-        await tx.subestacao.create({
-          data: {
-            nome: subFromFrontend.nome,
-            observacoesTecnicasSubestacao:
-              subFromFrontend.observacoesTecnicasSubestacao,
-            ordem: { connect: { numeroOs: numeroOs } },
-            componentes: {
-              create: componentesParaCriar,
-            },
-          },
-        });
-      } else {
-        const subestacaoId = Number(subFromFrontend.id);
-
-        await tx.subestacao.update({
-          where: { id: subestacaoId },
-          data: {
-            nome: subFromFrontend.nome,
-            observacoesTecnicasSubestacao:
-              subFromFrontend.observacoesTecnicasSubestacao,
-          },
-        });
-
-        const componentesAtuaisNoDB = await tx.componente.findMany({
-          where: { subestacaoId: subestacaoId },
-        });
-
-        const nomesNoForm = subFromFrontend.componentes.map(
-          (c) => c.nomeEquipamento
         );
-        const componentesParaRemoverTotalmente = componentesAtuaisNoDB
-          .filter((c) => !nomesNoForm.includes(c.nomeEquipamento))
-          .map((c) => c.id);
 
-        if (componentesParaRemoverTotalmente.length > 0) {
-          await tx.componente.deleteMany({
-            where: { id: { in: componentesParaRemoverTotalmente } },
+        if (String(subFromFrontend.id).startsWith("temp_")) {
+          await tx.subestacao.create({
+            data: {
+              nome: subFromFrontend.nome,
+              observacoesTecnicasSubestacao:
+                subFromFrontend.observacoesTecnicasSubestacao,
+              ordem: { connect: { numeroOs: numeroOs } },
+              componentes: {
+                create: componentesParaCriar,
+              },
+            },
           });
-        }
+        } else {
+          const subestacaoId = Number(subFromFrontend.id);
 
-        for (const compInfo of subFromFrontend.componentes) {
-          const compsAtuaisDoTipo = componentesAtuaisNoDB.filter(
-            (c) => c.nomeEquipamento === compInfo.nomeEquipamento
+          await tx.subestacao.update({
+            where: { id: subestacaoId },
+            data: {
+              nome: subFromFrontend.nome,
+              observacoesTecnicasSubestacao:
+                subFromFrontend.observacoesTecnicasSubestacao,
+            },
+          });
+
+          const componentesAtuaisNoDB = await tx.componente.findMany({
+            where: { subestacaoId: subestacaoId },
+          });
+
+          const nomesNoForm = subFromFrontend.componentes.map(
+            (c) => c.nomeEquipamento
           );
-          const qtdAtual = compsAtuaisDoTipo.length;
-          const qtdDesejada = compInfo.quantidade;
+          const componentesParaRemoverTotalmente = componentesAtuaisNoDB
+            .filter((c) => !nomesNoForm.includes(c.nomeEquipamento))
+            .map((c) => c.id);
 
-          if (qtdDesejada > qtdAtual) {
-            const aAdicionar = qtdDesejada - qtdAtual;
-            for (let i = 0; i < aAdicionar; i++) {
-              await tx.componente.create({
-                data: {
-                  nomeEquipamento: compInfo.nomeEquipamento,
-                  tipo: compInfo.tipo,
-                  subestacaoId: subestacaoId,
-                  numeroSerie: "N/A",
-                  fabricante: "N/A",
-                },
-              });
-            }
-          } else if (qtdDesejada < qtdAtual) {
-            const aDeletar = qtdAtual - qtdDesejada;
-            const idsParaDeletar = compsAtuaisDoTipo
-              .slice(0, aDeletar)
-              .map((c) => c.id);
+          if (componentesParaRemoverTotalmente.length > 0) {
+            await tx.componente.deleteMany({
+              where: { id: { in: componentesParaRemoverTotalmente } },
+            });
+          }
 
-            if (idsParaDeletar.length > 0) {
-              await tx.componente.deleteMany({
-                where: { id: { in: idsParaDeletar } },
-              });
+          for (const compInfo of subFromFrontend.componentes) {
+            const compsAtuaisDoTipo = componentesAtuaisNoDB.filter(
+              (c) => c.nomeEquipamento === compInfo.nomeEquipamento
+            );
+            const qtdAtual = compsAtuaisDoTipo.length;
+            const qtdDesejada = compInfo.quantidade;
+
+            if (qtdDesejada > qtdAtual) {
+              const aAdicionar = qtdDesejada - qtdAtual;
+              for (let i = 0; i < aAdicionar; i++) {
+                await tx.componente.create({
+                  data: {
+                    nomeEquipamento: compInfo.nomeEquipamento,
+                    tipo: compInfo.tipo,
+                    subestacaoId: subestacaoId,
+                    numeroSerie: "N/A",
+                    fabricante: "N/A",
+                  },
+                });
+              }
+            } else if (qtdDesejada < qtdAtual) {
+              const aDeletar = qtdAtual - qtdDesejada;
+              const idsParaDeletar = compsAtuaisDoTipo
+                .slice(0, aDeletar)
+                .map((c) => c.id);
+
+              if (idsParaDeletar.length > 0) {
+                await tx.componente.deleteMany({
+                  where: { id: { in: idsParaDeletar } },
+                });
+              }
             }
           }
         }
       }
+    },
+    {
+      timeout: 10000, // Aumenta o timeout para 10 segundos
     }
-  });
+  );
 
   return res.json({
     status: true,
@@ -1459,13 +1465,11 @@ export const adicionarEnsaioComponente = async (req, res) => {
           },
         });
 
-        return res
-          .status(201)
-          .json({
-            status: true,
-            message: "Ensaio atualizado com sucesso.",
-            data: ensaioAtualizado,
-          });
+        return res.status(201).json({
+          status: true,
+          message: "Ensaio atualizado com sucesso.",
+          data: ensaioAtualizado,
+        });
       } else {
         // Lógica para Criar Novo Ensaio (sem mudanças aqui)
         const fotoUpdate = {};
@@ -1491,13 +1495,11 @@ export const adicionarEnsaioComponente = async (req, res) => {
             ...fotoUpdate,
           },
         });
-        return res
-          .status(200)
-          .json({
-            status: true,
-            message: "Ensaio salvo com sucesso.",
-            data: novoEnsaio,
-          });
+        return res.status(200).json({
+          status: true,
+          message: "Ensaio salvo com sucesso.",
+          data: novoEnsaio,
+        });
       }
     });
   } catch (error) {

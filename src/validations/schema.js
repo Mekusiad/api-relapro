@@ -1765,19 +1765,43 @@ const pararaioSchema = z.object({
     .array(z.coerce.string().max(100, "Máximo de 100 caracteres."))
     .nullable()
     .optional(),
-  tensaoEnsaio: z
+  faseRI: z
     .array(z.coerce.string().max(100, "Máximo de 100 caracteres."))
     .nullable()
     .optional(),
-  valorMedido: z
+  tensaoEnsaioRI: z
     .array(z.coerce.string().max(100, "Máximo de 100 caracteres."))
     .nullable()
     .optional(),
-  valorReferencia: z
+  valorMedidoRI: z
     .array(z.coerce.string().max(100, "Máximo de 100 caracteres."))
     .nullable()
     .optional(),
-  tempoEnsaio: z
+  valorReferenciaRI: z
+    .array(z.coerce.string().max(100, "Máximo de 100 caracteres."))
+    .nullable()
+    .optional(),
+  tempoEnsaioRI: z
+    .array(z.coerce.string().max(100, "Máximo de 100 caracteres."))
+    .nullable()
+    .optional(),
+  faseCF: z
+    .array(z.coerce.string().max(100, "Máximo de 100 caracteres."))
+    .nullable()
+    .optional(),
+  tensaoEnsaioCF: z
+    .array(z.coerce.string().max(100, "Máximo de 100 caracteres."))
+    .nullable()
+    .optional(),
+  valorMedidoCF: z
+    .array(z.coerce.string().max(100, "Máximo de 100 caracteres."))
+    .nullable()
+    .optional(),
+  valorReferenciaCF: z
+    .array(z.coerce.string().max(100, "Máximo de 100 caracteres."))
+    .nullable()
+    .optional(),
+  tempoEnsaioCF: z
     .array(z.coerce.string().max(100, "Máximo de 100 caracteres."))
     .nullable()
     .optional(),
